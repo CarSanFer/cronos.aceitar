@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRONOS · Aceitar</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F7F6F2;--surface:#FFF;--surface2:#F0EFE9;
+    --border:rgba(0,0,0,.09);--border-strong:rgba(0,0,0,.18);
+    --text:#1A1A18;--text2:#6B6A64;--text3:#A8A79F;
+    --blue:#185FA5;--blue-bg:#E6F1FB;--blue-text:#0C447C;
+    --green:#1D9E75;--green-bg:#EAF3DE;--green-text:#3B6D11;
+    --amber:#BA7517;--amber-bg:#FAEEDA;--amber-text:#854F0B;
+    --red:#A32D2D;--red-bg:#FCEBEB;--red-text:#791F1F;
+    --gray-bg:#F1EFE8;--gray-text:#5F5E5A;
+    --teal-bg:#E1F5EE;--teal-text:#0F6E56;
+    --purple-bg:#EEEDFE;--purple-text:#534AB7;
+    --radius:8px;--radius-lg:12px;
+    --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;
+    --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5;}
+
+  .topbar{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:12px;height:52px;}
+  .logo{font-family:var(--mono);font-size:15px;font-weight:500;letter-spacing:.08em;color:var(--text);}
+  .logo span{color:var(--text3);}
+  .topbar-div{width:1px;height:20px;background:var(--border-strong);flex-shrink:0;}
+  .tabs{display:flex;gap:2px;}
+  .tab{font-size:13px;font-weight:400;padding:6px 14px;border-radius:6px;cursor:pointer;border:none;background:none;color:var(--text2);font-family:var(--sans);transition:all .15s;}
+  .tab:hover{background:var(--surface2);color:var(--text);}
+  .tab.active{background:var(--text);color:#fff;font-weight:500;}
+  .topbar-right{margin-left:auto;display:flex;align-items:center;gap:6px;}
+
+  .btn{font-family:var(--sans);font-size:13px;font-weight:500;padding:7px 14px;border-radius:var(--radius);cursor:pointer;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);transition:all .15s;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;}
+  .btn:hover{background:var(--surface2);}
+  .btn-primary{background:var(--text);color:#fff;border-color:transparent;}
+  .btn-primary:hover{opacity:.88;}
+  .btn-sm{font-size:12px;padding:5px 10px;}
+  .btn-danger{background:var(--red-bg);color:var(--red-text);border-color:transparent;}
+  .btn-danger:hover{opacity:.85;}
+  .btn-green{background:var(--green-bg);color:var(--green-text);border-color:transparent;}
+  .btn-green:hover{opacity:.85;}
+
+  .main{max-width:1400px;margin:0 auto;padding:24px;}
+
+  .kpi-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:24px;}
+  .kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;box-shadow:var(--shadow);}
+  .kpi-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+  .kpi-value{font-family:var(--mono);font-size:26px;font-weight:500;line-height:1;color:var(--text);}
+  .kpi-value.green{color:var(--green);}.kpi-value.amber{color:var(--amber);}.kpi-value.red{color:var(--red);}
+  .kpi-sub{font-size:11px;color:var(--text3);margin-top:5px;}
+
+  .sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:0;gap:12px;flex-wrap:wrap;}
+  .sec-title{font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);}
+  .sec-right{display:flex;align-items:center;gap:8px;}
+
+  /* barra de filtros inline */
+  .filter-bar{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius-lg) var(--radius-lg) 0 0;
+    border-bottom:none;
+    padding:12px 14px;display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;
+  }
+  .filter-bar + .table-wrap{border-radius:0 0 var(--radius-lg) var(--radius-lg);}
+  .fg-group{display:flex;flex-direction:column;gap:5px;}
+  .fg-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);}
+  .fg-checks{display:flex;gap:4px;flex-wrap:wrap;}
+  .fg-chip{display:inline-flex;align-items:center;padding:4px 10px;border-radius:99px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--border-strong);background:var(--surface);color:var(--text2);transition:all .15s;user-select:none;white-space:nowrap;}
+  .fg-chip:hover{border-color:var(--text);color:var(--text);}
+  .fg-chip.on{background:var(--text);color:#fff;border-color:transparent;}
+  .fg-chip input{display:none;}
+  .fg-input{font-family:var(--sans);font-size:12px;padding:4px 9px;border-radius:var(--radius);border:1px solid var(--border-strong);background:var(--surface);color:var(--text);outline:none;transition:border .15s;width:110px;}
+  .fg-input:focus{border-color:var(--text);}
+  .fg-date{font-family:var(--sans);font-size:12px;padding:4px 9px;border-radius:var(--radius);border:1px solid var(--border-strong);background:var(--surface);color:var(--text);outline:none;transition:border .15s;width:130px;}
+  .fg-date:focus{border-color:var(--text);}
+  .filter-count-bar{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;border-radius:99px;background:var(--amber);color:#fff;font-size:10px;font-weight:700;padding:0 4px;margin-left:4px;}
+
+  .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:auto;box-shadow:var(--shadow);}
+  table{width:100%;border-collapse:collapse;table-layout:fixed;}
+  thead tr{background:var(--surface2);}
+  th{font-size:11px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.05em;padding:10px 8px;text-align:center;border-bottom:1px solid var(--border);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  td{padding:10px 8px;border-bottom:1px solid var(--border);vertical-align:middle;text-align:center;overflow:hidden;text-overflow:ellipsis;}
+  th:nth-child(2),td:nth-child(2){text-align:left;}
+  tr:last-child td{border-bottom:none;}
+  tbody tr{cursor:pointer;transition:background .12s;}
+  tbody tr:hover td{background:#FAFAF7;}
+  .col-sigla{font-family:var(--mono);font-size:11px;color:var(--text3);white-space:nowrap;}
+  .col-nome{font-weight:500;font-size:13px;}
+  .col-prazo{font-size:12px;color:var(--text2);white-space:nowrap;}
+  .col-prazo.vencido{color:var(--red);font-weight:500;}
+  .col-afet{font-family:var(--mono);font-size:12px;color:var(--text2);}
+  .col-pessoa{font-size:12px;}
+  .col-pessoa .p-nome{font-weight:500;color:var(--text);}
+  .col-pessoa .p-pct{font-family:var(--mono);font-size:11px;color:var(--text3);}
+
+  .badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:99px;font-size:11px;font-weight:500;white-space:nowrap;}
+  .badge-green{background:var(--green-bg);color:var(--green-text);}
+  .badge-amber{background:var(--amber-bg);color:var(--amber-text);}
+  .badge-red{background:var(--red-bg);color:var(--red-text);}
+  .badge-gray{background:var(--gray-bg);color:var(--gray-text);}
+  .badge-blue{background:var(--blue-bg);color:var(--blue-text);}
+  .badge-teal{background:var(--teal-bg);color:var(--teal-text);}
+  .badge-purple{background:var(--purple-bg);color:var(--purple-text);}
+
+  /* tipos multi-badge */
+  .tipo-badges{display:flex;gap:3px;flex-wrap:wrap;}
+
+  /* checkboxes tipo */
+  .tipo-checks{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;}
+  .tipo-check{display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;}
+  .tipo-check input{cursor:pointer;width:14px;height:14px;}
+
+  .overlay{position:fixed;inset:0;z-index:200;background:rgba(20,20,18,.45);display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;opacity:0;pointer-events:none;transition:opacity .2s;}
+  .overlay.open{opacity:1;pointer-events:all;}
+  .modal{background:var(--surface);border-radius:var(--radius-lg);width:100%;max-width:700px;box-shadow:0 8px 40px rgba(0,0,0,.18);transform:translateY(-12px);transition:transform .2s;overflow:hidden;max-height:calc(100vh - 80px);display:flex;flex-direction:column;}
+  .overlay.open .modal{transform:translateY(0);}
+  .modal-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-shrink:0;}
+  .modal-sigla{font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:.06em;margin-bottom:4px;}
+  .modal-title{font-size:18px;font-weight:600;line-height:1.3;}
+  .modal-close{background:none;border:none;cursor:pointer;color:var(--text3);font-size:20px;line-height:1;padding:2px 6px;border-radius:4px;transition:color .12s,background .12s;flex-shrink:0;}
+  .modal-close:hover{color:var(--text);background:var(--surface2);}
+  .modal-body{padding:20px 24px;overflow-y:auto;flex:1;}
+  .modal-footer{padding:14px 24px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0;}
+
+  .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+  .detail-field{display:flex;flex-direction:column;gap:3px;}
+  .detail-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);}
+  .detail-val{font-size:13px;color:var(--text);}
+
+  .afet-painel{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+  .afet-box{background:var(--surface2);border-radius:var(--radius);padding:14px 16px;}
+  .afet-box-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:6px;}
+  .afet-box-val{font-family:var(--mono);font-size:24px;font-weight:500;color:var(--text);line-height:1;}
+  .afet-box-sub{font-size:11px;color:var(--text3);margin-top:5px;}
+
+  .section-block{margin-bottom:20px;}
+  .section-block-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+
+  .colab-list{display:flex;flex-direction:column;gap:6px;}
+  .colab-item{display:flex;align-items:center;gap:10px;background:var(--surface2);border-radius:var(--radius);padding:10px 12px;}
+  .colab-av{width:32px;height:32px;border-radius:50%;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .colab-info{flex:1;}
+  .colab-nome{font-size:13px;font-weight:500;}
+  .colab-funcao{font-size:11px;color:var(--text3);}
+  .colab-pct{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--text2);white-space:nowrap;padding:0 4px;}
+  .colab-remove{background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:2px 6px;border-radius:4px;transition:color .12s,background .12s;}
+  .colab-remove:hover{color:var(--red);background:var(--red-bg);}
+
+  .form-group{margin-bottom:14px;}
+  .form-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text2);display:block;margin-bottom:5px;}
+  .form-input,.form-select,.form-textarea{width:100%;font-family:var(--sans);font-size:13px;padding:8px 12px;border-radius:var(--radius);border:1px solid var(--border-strong);background:var(--surface);color:var(--text);transition:border .15s;outline:none;}
+  .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--text);}
+  .form-textarea{resize:vertical;min-height:72px;}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+  .empty{text-align:center;padding:48px 24px;color:var(--text3);font-size:13px;}
+  .empty-icon{font-size:28px;margin-bottom:12px;opacity:.35;}
+  .empty-title{font-size:14px;font-weight:500;color:var(--text2);margin-bottom:6px;}
+
+  .toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--text);color:#fff;font-size:13px;padding:10px 16px;border-radius:var(--radius);box-shadow:0 4px 16px rgba(0,0,0,.2);transform:translateY(8px);opacity:0;transition:all .2s;pointer-events:none;max-width:320px;}
+  .toast.show{transform:translateY(0);opacity:1;}
+
+  .hidden{display:none!important;}
+  hr.divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
+
+  /* import file input hidden */
+  #import-input{display:none;}
+
+  /* DASHBOARD */
+  .dash-persp-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+  .dash-persp{background:var(--surface);border:1.5px solid var(--border-strong);border-radius:var(--radius-lg);padding:16px 18px;cursor:pointer;display:flex;flex-direction:column;gap:4px;transition:all .18s;text-align:left;font-family:var(--sans);}
+  .dash-persp:hover{border-color:var(--text);transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.08);}
+  .dash-persp.active{background:var(--text);border-color:var(--text);color:#fff;}
+  .dp-icon{font-size:18px;line-height:1;opacity:.7;}
+  .dp-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;opacity:.8;}
+  .dp-count{font-family:var(--mono);font-size:26px;font-weight:500;line-height:1.1;}
+  .dash-persp.active .dp-label{opacity:.7;}
+
+  .dash-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+  .dash-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;}
+  .dash-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;box-shadow:var(--shadow);}
+  .dash-card-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);margin-bottom:14px;}
+  .dash-total{font-family:var(--mono);font-size:18px;font-weight:500;color:var(--text);margin-left:8px;text-transform:none;letter-spacing:0;}
+  .donut-wrap{position:relative;width:150px;height:150px;margin:0 auto 14px;}
+  .donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;}
+  .donut-center-n{font-family:var(--mono);font-size:26px;font-weight:500;color:var(--text);line-height:1;}
+  .donut-center-l{font-size:10px;color:var(--text3);margin-top:2px;}
+  .dash-legend{display:flex;flex-direction:column;gap:6px;}
+  .dash-legend-item{display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;border-radius:6px;padding:3px 4px;transition:background .12s;}
+  .dash-legend-item:hover{background:var(--surface2);}
+  .dash-legend-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+  .dash-legend-label{color:var(--text2);flex:1;}
+  .dash-legend-val{font-family:var(--mono);font-size:11px;color:var(--text);font-weight:600;}
+  .dash-legend-pct{font-size:10px;color:var(--text3);margin-left:2px;}
+
+  /* stat pills */
+  .stat-pills{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+  .stat-pill{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 16px;flex:1;min-width:100px;}
+  .stat-pill-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:4px;}
+  .stat-pill-val{font-family:var(--mono);font-size:22px;font-weight:500;color:var(--text);line-height:1;}
+  .stat-pill-val.green{color:var(--green);}
+  .stat-pill-val.amber{color:var(--amber);}
+  .stat-pill-val.red{color:var(--red);}
+
+  /* afet gauge row */
+  .afet-gauge-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);}
+  .afet-gauge-row:last-child{border-bottom:none;}
+  .afet-gauge-name{font-size:13px;font-weight:500;min-width:120px;}
+  .afet-gauge-func{min-width:70px;}
+  .afet-gauge-bar{flex:1;height:8px;background:var(--surface2);border-radius:99px;overflow:hidden;}
+  .afet-gauge-fill{height:100%;border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1);}
+  .afet-gauge-pct{font-family:var(--mono);font-size:12px;font-weight:600;min-width:40px;text-align:right;}
+  .afet-gauge-obras{display:flex;gap:3px;flex-wrap:wrap;min-width:0;}
+  .afet-tag{font-size:10px;padding:2px 6px;border-radius:99px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);white-space:nowrap;}
+
+  /* obra card grid */
+  .obra-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}
+  .obra-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;cursor:pointer;transition:all .15s;}
+  .obra-card:hover{border-color:var(--border-strong);transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.08);}
+  .obra-card-sigla{font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:4px;}
+  .obra-card-nome{font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;line-height:1.3;}
+  .obra-card-tipos{display:flex;gap:3px;margin-bottom:8px;}
+  .obra-card-estado{margin-bottom:10px;}
+  .obra-card-afet-row{display:flex;align-items:center;gap:6px;}
+  .obra-card-afet-bar{flex:1;height:5px;background:var(--surface2);border-radius:99px;overflow:hidden;}
+  .obra-card-afet-fill{height:100%;border-radius:99px;}
+  .obra-card-afet-pct{font-family:var(--mono);font-size:11px;font-weight:600;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">CRON<span>OS</span></div>
+  <div class="topbar-div"></div>
+  <div class="tabs">
+    <button class="tab active" onclick="setTab('obras')" id="tab-obras">Obras</button>
+    <button class="tab" onclick="setTab('projetos')" id="tab-projetos">Projetos</button>
+    <button class="tab" onclick="setTab('dashboard')" id="tab-dashboard">Dashboard</button>
+  </div>
+  <div class="topbar-right">
+    <button class="btn btn-sm btn-green" onclick="exportXlsx()">↓ Exportar XLSX</button>
+    <button class="btn btn-sm" onclick="document.getElementById('import-input').click()">↑ Importar XLSX</button>
+    <input type="file" id="import-input" accept=".xlsx" onchange="importXlsx(event)">
+    <div class="topbar-div"></div>
+    <button class="btn btn-primary" onclick="openFormModal()">+ Novo</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- DASHBOARD -->
+  <div id="tab-content-dashboard" class="hidden">
+
+    <!-- perspetivas -->
+    <div class="dash-persp-row">
+      <button class="dash-persp active" onclick="setDashPersp('obras')" id="dp-obras">
+        <span class="dp-icon">⬡</span>
+        <span class="dp-label">Por Obra</span>
+        <span class="dp-count" id="dp-obras-n">—</span>
+      </button>
+      <button class="dash-persp" onclick="setDashPersp('funcao')" id="dp-funcao">
+        <span class="dp-icon">◈</span>
+        <span class="dp-label">Por Função</span>
+        <span class="dp-count" id="dp-funcao-n">—</span>
+      </button>
+      <button class="dash-persp" onclick="setDashPersp('colab')" id="dp-colab">
+        <span class="dp-icon">◎</span>
+        <span class="dp-label">Por Colaborador</span>
+        <span class="dp-count" id="dp-colab-n">—</span>
+      </button>
+    </div>
+
+    <!-- conteúdo dinâmico da perspetiva -->
+    <div id="dash-content"></div>
+
+  </div>
+
+  <!-- OBRAS -->
+  <div id="tab-content-obras">
+    <div class="sec-header" style="margin-bottom:10px">
+      <div class="sec-title" id="obras-count-label">Obras</div>
+      <button class="btn btn-sm" onclick="clearFilterFromTab('obras')" id="btn-clear-obras" style="display:none;color:var(--amber);border-color:var(--amber)">Limpar filtros</button>
+    </div>
+    <div class="filter-bar" id="filter-bar-obras">
+      <div class="fg-group">
+        <div class="fg-label">Tipo</div>
+        <div class="fg-checks" id="obras-chips-tipos"></div>
+      </div>
+      <div class="fg-group">
+        <div class="fg-label">Estado</div>
+        <div class="fg-checks" id="obras-chips-estados"></div>
+      </div>
+      <div class="fg-group">
+        <div class="fg-label">Fim Previsto — De</div>
+        <input type="date" class="fg-date" id="obras-date-from" oninput="liveFilter('obras')">
+      </div>
+      <div class="fg-group">
+        <div class="fg-label">Até</div>
+        <input type="date" class="fg-date" id="obras-date-to" oninput="liveFilter('obras')">
+      </div>
+      <div class="fg-group">
+        <div class="fg-label">Fiscal</div>
+        <input type="text" class="fg-input" id="obras-fiscal" placeholder="nome..." oninput="liveFilter('obras')">
+      </div>
+      <div class="fg-group">
+        <div class="fg-label">CSO</div>
+        <input type="text" class="fg-input" id="obras-cso" placeholder="nome..." oninput="liveFilter('obras')">
+      </div>
+    </div>
+    <div class="table-wrap"><table style="table-layout:fixed">
+      <colgroup>
+        <col style="width:7%"><col style="width:22%">
+        <col style="width:5%"><col style="width:5%"><col style="width:5%">
+        <col style="width:9%"><col style="width:9%"><col style="width:9%">
+        <col style="width:7%"><col style="width:11%"><col style="width:11%">
+      </colgroup>
+      <thead><tr>
+        <th>Sigla</th><th>Designação</th>
+        <th>FISC</th><th>CSO</th><th>CONC</th>
+        <th>Estado</th><th>Início</th><th>Fim</th>
+        <th>Afet.</th><th>Fiscal</th><th>CSO</th>
+      </tr></thead>
+      <tbody id="obras-tbody"></tbody>
+    </table></div>
+  </div>
+
+  <!-- PROJETOS -->
+  <div id="tab-content-projetos" class="hidden">
+    <div class="sec-header" style="margin-bottom:10px">
+      <div class="sec-title" id="projetos-count-label">Projetos</div>
+      <button class="btn btn-sm" onclick="clearFilterFromTab('projetos')" id="btn-clear-projetos" style="display:none;color:var(--amber);border-color:var(--amber)">Limpar filtros</button>
+    </div>
+    <div class="filter-bar" id="filter-bar-projetos">
+      <div class="fg-group">
+        <div class="fg-label">Tipo</div>
+        <div class="fg-checks" id="projetos-chips-tipos"></div>
+      </div>
+      <div class="fg-group">
+        <div class="fg-label">Estado</div>
+        <div class="fg-checks" id="projetos-chips-estados"></div>
+      </div>
+      <div class="fg-group">
+        <div class="fg-label">Fim Previsto — De</div>
+        <input type="date" class="fg-date" id="projetos-date-from" oninput="liveFilter('projetos')">
+      </div>
+      <div class="fg-group">
+        <div class="fg-label">Até</div>
+        <input type="date" class="fg-date" id="projetos-date-to" oninput="liveFilter('projetos')">
+      </div>
+      <div class="fg-group">
+        <div class="fg-label">Fiscal</div>
+        <input type="text" class="fg-input" id="projetos-fiscal" placeholder="nome..." oninput="liveFilter('projetos')">
+      </div>
+      <div class="fg-group">
+        <div class="fg-label">CSO</div>
+        <input type="text" class="fg-input" id="projetos-cso" placeholder="nome..." oninput="liveFilter('projetos')">
+      </div>
+    </div>
+    <div class="table-wrap"><table style="table-layout:fixed">
+      <colgroup>
+        <col style="width:7%"><col style="width:22%">
+        <col style="width:5%"><col style="width:5%"><col style="width:5%">
+        <col style="width:9%"><col style="width:9%"><col style="width:9%">
+        <col style="width:7%"><col style="width:11%"><col style="width:11%">
+      </colgroup>
+      <thead><tr>
+        <th>Sigla</th><th>Designação</th>
+        <th>FISC</th><th>CSO</th><th>CONC</th>
+        <th>Estado</th><th>Início</th><th>Fim</th>
+        <th>Afet.</th><th>Fiscal</th><th>CSO</th>
+      </tr></thead>
+      <tbody id="projetos-tbody"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="overlay" id="detail-overlay" onclick="closeDetailIfBg(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-sigla" id="d-sigla"></div>
+        <div class="modal-title" id="d-nome"></div>
+      </div>
+      <button class="modal-close" onclick="closeDetail()">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:18px;flex-wrap:wrap" id="d-badges"></div>
+      <div class="detail-grid" id="d-info-grid"></div>
+      <hr class="divider">
+
+      <div class="section-block">
+        <div class="section-block-title">Afetação</div>
+        <div class="afet-painel">
+          <div class="afet-box">
+            <div class="afet-box-label">Prevista (DO)</div>
+            <div class="afet-box-val" id="d-afet-prev-val">—</div>
+            <div class="afet-box-sub">Comprometimento com o Dono de Obra</div>
+          </div>
+          <div class="afet-box">
+            <div class="afet-box-label">Distribuída (equipa)</div>
+            <div class="afet-box-val" id="d-afet-dist-val">—</div>
+            <div class="afet-box-sub" id="d-afet-dist-label">Soma das afetações da equipa</div>
+          </div>
+        </div>
+
+        <div class="section-block-title" style="margin-top:4px;">
+          <span>Equipa afeta</span>
+          <button class="btn btn-sm" onclick="openAddColab()">+ Afetação</button>
+        </div>
+        <div class="colab-list" id="d-equipa"></div>
+
+        <div id="add-colab-form" class="hidden" style="margin-top:10px;background:var(--surface2);padding:12px;border-radius:var(--radius)">
+          <div class="form-row" style="margin-bottom:8px">
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Nome</label>
+              <input class="form-input" id="colab-nome-input" placeholder="Nome completo">
+            </div>
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Papel / Função</label>
+              <select class="form-select" id="colab-funcao-input">
+                <option value="">Selecionar...</option>
+                <option>Fiscal</option>
+                <option>CSO</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row" style="margin-bottom:8px">
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Afetação (%)</label>
+              <input class="form-input" id="colab-afet-input" type="number" min="0" max="100" placeholder="Ex: 50">
+            </div>
+            <div></div>
+          </div>
+          <div style="display:flex;gap:6px;justify-content:flex-end">
+            <button class="btn btn-sm" onclick="closeAddColab()">Cancelar</button>
+            <button class="btn btn-sm btn-primary" onclick="saveColab()">Adicionar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-block">
+        <div class="section-block-title">Notas</div>
+        <textarea class="form-textarea" id="d-notas" placeholder="Sem notas..." oninput="autoSaveNotas()"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" onclick="deleteItem()">Eliminar</button>
+      <button class="btn btn-sm" onclick="openEditModal()">Editar</button>
+      <button class="btn btn-sm btn-primary" onclick="closeDetail()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- FORM MODAL -->
+<div class="overlay" id="form-overlay" onclick="closeFormIfBg(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-sigla" id="form-subtitle"></div>
+        <div class="modal-title" id="form-title-text">Nova Obra</div>
+      </div>
+      <button class="modal-close" onclick="closeFormModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Sigla *</label>
+          <input class="form-input" id="f-sigla" placeholder="Ex: OB-001" maxlength="12">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Estado *</label>
+          <select class="form-select" id="f-estado"></select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Designação *</label>
+        <input class="form-input" id="f-nome" placeholder="Nome completo da obra ou projeto">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tipo (pode selecionar mais do que um)</label>
+        <div class="tipo-checks" id="f-tipo-checks"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Início Previsto</label>
+          <input class="form-input" id="f-inicio" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fim Previsto</label>
+          <input class="form-input" id="f-prazo" type="date">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Afetação Prevista (%)</label>
+          <input class="form-input" id="f-afet" type="number" min="0" max="100" placeholder="Ex: 50">
+        </div>
+        <div></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-sm" onclick="closeFormModal()">Cancelar</button>
+      <button class="btn btn-sm btn-primary" onclick="saveForm()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+const TIPOS_OBRAS   = ['FISC','CSO','CONC'];
+const TIPOS_PROJ    = ['FISC','CSO','CONC'];
+const ESTADOS_OBRAS = ['Em Curso','Previsto','Pendente','Suspenso','Concluído'];
+const ESTADOS_PROJ  = ['Ativo','Em Avaliação','Pendente','Concluído','Suspenso'];
+
+const AV_COLORS=[
+  {bg:'#E6F1FB',fg:'#0C447C'},{bg:'#EAF3DE',fg:'#3B6D11'},
+  {bg:'#FAEEDA',fg:'#854F0B'},{bg:'#EEEDFE',fg:'#534AB7'},
+  {bg:'#FAECE7',fg:'#993C1D'},{bg:'#F1EFE8',fg:'#5F5E5A'},
+];
+
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function load(k,d){try{return JSON.parse(localStorage.getItem(k))??d;}catch{return d;}}
+function save(k,v){localStorage.setItem(k,JSON.stringify(v));}
+function getAv(name){
+  const p=name.trim().split(' ');
+  const ini=p.length>=2?(p[0][0]+p[p.length-1][0]).toUpperCase():name.slice(0,2).toUpperCase();
+  const h=[...name].reduce((a,c)=>a+c.charCodeAt(0),0);
+  return{ini,color:AV_COLORS[h%AV_COLORS.length]};
+}
+function fmtDate(d){if(!d)return'—';const[y,m,dd]=d.split('-');return`${dd}/${m}/${y}`;}
+function isVencido(prazo,estado){
+  if(!prazo)return false;
+  if(estado==='Concluído'||estado==='Concluída')return false;
+  return new Date(prazo)<new Date();
+}
+
+// normalise tipos: can be string (legacy) or array
+function normTipos(t){
+  if(!t)return[];
+  if(Array.isArray(t))return t;
+  return t.split(',').map(s=>s.trim()).filter(Boolean);
+}
+
+let obras    = load('cronos_obras',    demoObras());
+let projetos = load('cronos_projetos', demoProjetos());
+let activeTab='obras', activeId=null;
+
+function demoObras(){return[
+  {id:uid(),sigla:'OB-001',nome:'Edifício Residencial Braga',    tipos:['FISC'],       estado:'Em Curso',afetPrev:100,inicio:'2024-03-01',prazo:'2025-06-15',equipa:[{nome:'João Mendes',funcao:'Fiscal',afet:100}],notas:''},
+  {id:uid(),sigla:'OB-002',nome:'Complexo Industrial Famalicão', tipos:['FISC','CSO'], estado:'Em Curso',afetPrev:50, inicio:'2024-09-01',prazo:'2025-08-30',equipa:[{nome:'Teresa Ferreira',funcao:'Fiscal',afet:30},{nome:'Miguel Lima',funcao:'CSO',afet:20}],notas:'Atraso na entrega da documentação.'},
+  {id:uid(),sigla:'OB-003',nome:'Reabilitação Edifício Porto',   tipos:['CSO'],        estado:'Previsto', afetPrev:75, inicio:'2025-04-01',prazo:'2025-09-30',equipa:[],notas:''},
+  {id:uid(),sigla:'OB-004',nome:'Parque Empresarial Barcelos',   tipos:['CONC'],       estado:'Suspenso', afetPrev:0,  inicio:'',          prazo:'',         equipa:[],notas:'Suspenso por decisão do cliente.'},
+];}
+function demoProjetos(){return[
+  {id:uid(),sigla:'PJ-001',nome:'Fiscalização Loteamento Quinta X',tipos:['FISC'],        estado:'Ativo',       afetPrev:50, inicio:'2024-10-01',prazo:'2025-12-31',equipa:[{nome:'Ana Ferreira',funcao:'Fiscal',afet:50}],notas:''},
+  {id:uid(),sigla:'PJ-002',nome:'CSO Fábrica Y — Fase 2',          tipos:['CSO'],         estado:'Pendente',    afetPrev:100,inicio:'2024-11-15',prazo:'2025-04-30',equipa:[{nome:'Teresa Ferreira',funcao:'CSO',afet:100}],notas:'Aguardar aprovação final.'},
+  {id:uid(),sigla:'PJ-003',nome:'Concurso Zona Industrial Z',      tipos:['FISC','CONC'], estado:'Em Avaliação',afetPrev:25, inicio:'',          prazo:'',         equipa:[],notas:'Proposta enviada a 15 Jan 2025.'},
+];}
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function setTab(tab){
+  activeTab=tab;
+  ['obras','projetos','dashboard'].forEach(t=>{
+    document.getElementById(`tab-${t}`).classList.toggle('active',t===tab);
+    document.getElementById(`tab-content-${t}`).classList.toggle('hidden',t!==tab);
+  });
+  if(tab==='dashboard') renderDashboard();
+  else render();
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function badgeEstado(e){
+  const m={
+    'Em Curso':'badge-green','Ativo':'badge-green',
+    'Concluído':'badge-teal','Concluída':'badge-teal',
+    'Em Risco':'badge-red',
+    'Pendente':'badge-amber','Em Avaliação':'badge-amber','Previsto':'badge-amber',
+    'Suspenso':'badge-gray','Suspensa':'badge-gray',
+  };
+  return`<span class="badge ${m[e]||'badge-gray'}">${e}</span>`;
+}
+
+function tipoBadges(tipos){
+  const map={'FISC':'badge-blue','CSO':'badge-purple','CONC':'badge-gray'};
+  return`<div class="tipo-badges" style="justify-content:center">${normTipos(tipos).map(t=>`<span class="badge ${map[t]||'badge-gray'}">${t}</span>`).join('')}</div>`;
+}
+
+function afetDistColor(dist,prev){
+  if(!prev)return'var(--text)';
+  if(dist>prev)return'var(--red)';
+  if(dist===prev)return'var(--green)';
+  return'var(--amber)';
+}
+
+// get first person in equipa by role
+function equipaByRole(equipa,role){
+  const found=(equipa||[]).filter(c=>c.funcao===role);
+  if(!found.length)return'<span style="color:var(--text3);font-size:11px">—</span>';
+  return found.map(c=>`<div class="col-pessoa"><div class="p-nome">${c.nome}</div><div class="p-pct">${c.afet?c.afet+'%':''}</div></div>`).join('');
+}
+
+function tipoX(tipos,t){
+  const has=normTipos(tipos).includes(t);
+  return has
+    ? `<span style="font-weight:600;font-size:13px;color:var(--text)">x</span>`
+    : `<span style="color:var(--text3);font-size:12px">—</span>`;
+}
+
+// ── FILTROS INLINE ────────────────────────────────────────────────────────────
+const filters = {
+  obras:    {tipos:[], estados:[], dateFrom:'', dateTo:'', fiscal:'', cso:''},
+  projetos: {tipos:[], estados:[], dateFrom:'', dateTo:'', fiscal:'', cso:''},
+};
+
+function initFilterBars(){
+  ['obras','projetos'].forEach(tab=>{
+    const isObra = tab==='obras';
+    const tipos   = ['FISC','CSO','CONC'];
+    const estados = isObra ? ESTADOS_OBRAS : ESTADOS_PROJ;
+    const f = filters[tab];
+
+    document.getElementById(`${tab}-chips-tipos`).innerHTML = tipos.map(t=>
+      `<label class="fg-chip ${f.tipos.includes(t)?'on':''}">
+        <input type="checkbox" value="${t}" ${f.tipos.includes(t)?'checked':''}
+          onchange="toggleChip(this,'${tab}','tipos')"> ${t}
+      </label>`
+    ).join('');
+
+    document.getElementById(`${tab}-chips-estados`).innerHTML = estados.map(e=>
+      `<label class="fg-chip ${f.estados.includes(e)?'on':''}">
+        <input type="checkbox" value="${e}" ${f.estados.includes(e)?'checked':''}
+          onchange="toggleChip(this,'${tab}','estados')"> ${e}
+      </label>`
+    ).join('');
+  });
+}
+
+function toggleChip(input, tab, field){
+  input.closest('.fg-chip').classList.toggle('on', input.checked);
+  const f = filters[tab];
+  f[field] = [...input.closest('.fg-checks').querySelectorAll('input:checked')].map(el=>el.value);
+  renderFiltered(tab);
+}
+
+function liveFilter(tab){
+  const f = filters[tab];
+  f.dateFrom = document.getElementById(`${tab}-date-from`).value;
+  f.dateTo   = document.getElementById(`${tab}-date-to`).value;
+  f.fiscal   = (document.getElementById(`${tab}-fiscal`).value||'').trim().toLowerCase();
+  f.cso      = (document.getElementById(`${tab}-cso`).value||'').trim().toLowerCase();
+  renderFiltered(tab);
+}
+
+function countFilters(f){
+  return (f.tipos.length?1:0)+(f.estados.length?1:0)+
+    (f.dateFrom||f.dateTo?1:0)+(f.fiscal?1:0)+(f.cso?1:0);
+}
+
+function applyFiltersToList(list, f){
+  return list.filter(item=>{
+    const tipos = normTipos(item.tipos);
+    if(f.tipos.length   && !f.tipos.some(t=>tipos.includes(t)))   return false;
+    if(f.estados.length && !f.estados.includes(item.estado))       return false;
+    if(f.dateFrom && item.prazo && item.prazo < f.dateFrom)        return false;
+    if(f.dateTo   && item.prazo && item.prazo > f.dateTo)          return false;
+    if(f.fiscal){
+      if(!(item.equipa||[]).some(c=>c.funcao==='Fiscal'&&c.nome.toLowerCase().includes(f.fiscal))) return false;
+    }
+    if(f.cso){
+      if(!(item.equipa||[]).some(c=>c.funcao==='CSO'&&c.nome.toLowerCase().includes(f.cso))) return false;
+    }
+    return true;
+  });
+}
+
+function renderFiltered(tab){
+  const list     = tab==='obras' ? obras : projetos;
+  const f        = filters[tab];
+  const filtered = applyFiltersToList(list, f);
+  const n        = countFilters(f);
+  const tbodyId  = `${tab}-tbody`;
+
+  const tbody = document.getElementById(tbodyId);
+  if(!filtered.length){
+    tbody.innerHTML=`<tr><td colspan="11"><div class="empty"><div class="empty-icon">◎</div>
+      <div class="empty-title">Sem resultados</div>
+      <div>${n?'Nenhum registo para os filtros ativos.':' Cria um novo com o botão + Novo'}</div>
+    </div></td></tr>`;
+  } else {
+    tbody.innerHTML=filtered.map(item=>{
+      const venc=isVencido(item.prazo,item.estado);
+      const prev=item.afetPrev||0;
+      return`<tr onclick="openDetail('${item.id}')">
+        <td class="col-sigla">${item.sigla}</td>
+        <td class="col-nome" style="text-align:left">${item.nome}</td>
+        <td>${tipoX(item.tipos,'FISC')}</td>
+        <td>${tipoX(item.tipos,'CSO')}</td>
+        <td>${tipoX(item.tipos,'CONC')}</td>
+        <td>${badgeEstado(item.estado)}</td>
+        <td class="col-prazo">${fmtDate(item.inicio)}</td>
+        <td class="col-prazo${venc?' vencido':''}">${fmtDate(item.prazo)}${venc?' ⚠':''}</td>
+        <td class="col-afet">${prev?prev+'%':'—'}</td>
+        <td>${equipaByRole(item.equipa,'Fiscal')}</td>
+        <td>${equipaByRole(item.equipa,'CSO')}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  const label = n ? `${tab==='obras'?'Obras':'Projetos'} · ${filtered.length} / ${list.length}`
+                  : `${tab==='obras'?'Obras':'Projetos'} · ${list.length}`;
+  document.getElementById(`${tab}-count-label`).textContent = label;
+
+  const clearBtn = document.getElementById(`btn-clear-${tab}`);
+  clearBtn.style.display = n ? '' : 'none';
+}
+
+function clearFilterFromTab(tab){
+  const f = filters[tab];
+  f.tipos=[]; f.estados=[]; f.dateFrom=''; f.dateTo=''; f.fiscal=''; f.cso='';
+  // reset UI
+  document.getElementById(`${tab}-date-from`).value = '';
+  document.getElementById(`${tab}-date-to`).value   = '';
+  document.getElementById(`${tab}-fiscal`).value    = '';
+  document.getElementById(`${tab}-cso`).value       = '';
+  document.querySelectorAll(`#${tab}-chips-tipos .fg-chip, #${tab}-chips-estados .fg-chip`)
+    .forEach(el=>{ el.classList.remove('on'); el.querySelector('input').checked=false; });
+  renderFiltered(tab);
+}
+
+function render(){
+  initFilterBars();
+  renderFiltered('obras');
+  renderFiltered('projetos');
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+const ESTADO_COLORS={
+  'Em Curso':'#1D9E75','Ativo':'#1D9E75',
+  'Previsto':'#EF9F27','Pendente':'#EF9F27','Em Avaliação':'#EF9F27',
+  'Suspenso':'#A8A79F','Suspensa':'#A8A79F',
+  'Concluído':'#0F6E56','Concluída':'#0F6E56',
+};
+const TIPO_COLORS={'FISC':'#185FA5','CSO':'#534AB7','CONC':'#888780'};
+const COLLAB_PALETTE=['#185FA5','#1D9E75','#BA7517','#A32D2D','#534AB7','#0F6E56','#993C1D','#5F5E5A'];
+
+let dashPersp='obras';
+let dashCharts={};
+
+function killCharts(){
+  Object.values(dashCharts).forEach(c=>{try{c.destroy();}catch(e){}});
+  dashCharts={};
+}
+
+function setDashPersp(p){
+  dashPersp=p;
+  ['obras','funcao','colab'].forEach(t=>{
+    document.getElementById(`dp-${t}`).classList.toggle('active',t===p);
+  });
+  renderDashContent();
+}
+
+function renderDashboard(){
+  // update pill counts
+  const colabs=new Set();
+  obras.forEach(o=>(o.equipa||[]).forEach(c=>colabs.add(c.nome)));
+  document.getElementById('dp-obras-n').textContent=obras.length;
+  document.getElementById('dp-funcao-n').textContent='FISC · CSO';
+  document.getElementById('dp-colab-n').textContent=colabs.size;
+  renderDashContent();
+}
+
+function renderDashContent(){
+  killCharts();
+  const el=document.getElementById('dash-content');
+  if(dashPersp==='obras')      el.innerHTML=dashHtmlObras();
+  else if(dashPersp==='funcao') el.innerHTML=dashHtmlFuncao();
+  else                          el.innerHTML=dashHtmlColab();
+  // draw charts after DOM is ready
+  requestAnimationFrame(()=>{
+    if(dashPersp==='obras')      dashChartsObras();
+    else if(dashPersp==='funcao') dashChartsFuncao();
+    else                          dashChartsColab();
+  });
+}
+
+// ── PERSPETIVA: POR OBRA ──────────────────────────────────────────────────────
+function dashHtmlObras(){
+  const total=obras.length;
+  const emCurso=obras.filter(o=>o.estado==='Em Curso').length;
+  const vencidos=obras.filter(o=>isVencido(o.prazo,o.estado)).length;
+  const semAfet=obras.filter(o=>!(o.equipa||[]).length).length;
+
+  const cards=obras.map(o=>{
+    const dist=(o.equipa||[]).reduce((s,c)=>s+(c.afet||0),0);
+    const prev=o.afetPrev||0;
+    const pct=prev?Math.round(dist/prev*100):0;
+    const fc=dist>prev?'var(--red)':dist===prev?'var(--green)':'var(--blue)';
+    const tipos=normTipos(o.tipos);
+    return`<div class="obra-card" onclick="setTab('obras');openDetail('${o.id}')">
+      <div class="obra-card-sigla">${o.sigla}</div>
+      <div class="obra-card-nome">${o.nome}</div>
+      <div class="obra-card-tipos">${tipos.map(t=>`<span class="badge" style="background:${TIPO_COLORS[t]}22;color:${TIPO_COLORS[t]};font-size:10px;padding:1px 7px">${t}</span>`).join('')}</div>
+      <div class="obra-card-estado" style="margin-bottom:8px">${badgeEstado(o.estado)}</div>
+      <div style="font-size:10px;color:var(--text3);margin-bottom:4px">Afetação ${dist}% / ${prev}%</div>
+      <div class="obra-card-afet-row">
+        <div class="obra-card-afet-bar"><div class="obra-card-afet-fill" style="width:${Math.min(prev?dist/prev*100:0,100)}%;background:${fc}"></div></div>
+        <div class="obra-card-afet-pct" style="color:${fc}">${prev?Math.round(dist/prev*100):0}%</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  return`
+    <div class="stat-pills">
+      <div class="stat-pill"><div class="stat-pill-label">Total obras</div><div class="stat-pill-val">${total}</div></div>
+      <div class="stat-pill"><div class="stat-pill-label">Em curso</div><div class="stat-pill-val green">${emCurso}</div></div>
+      <div class="stat-pill"><div class="stat-pill-label">Prazo vencido</div><div class="stat-pill-val ${vencidos?'red':''}">${vencidos}</div></div>
+      <div class="stat-pill"><div class="stat-pill-label">Sem equipa</div><div class="stat-pill-val ${semAfet?'amber':''}">${semAfet}</div></div>
+    </div>
+    <div class="dash-grid-2" style="margin-bottom:16px">
+      <div class="dash-card">
+        <div class="dash-card-title">Distribuição por estado</div>
+        <div style="display:flex;align-items:center;gap:20px">
+          <div class="donut-wrap"><canvas id="dc-estado"></canvas>
+            <div class="donut-center"><div class="donut-center-n">${total}</div><div class="donut-center-l">obras</div></div>
+          </div>
+          <div class="dash-legend" id="dc-estado-legend"></div>
+        </div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-title">Distribuição por tipo</div>
+        <canvas id="dc-tipo" style="max-height:180px"></canvas>
+      </div>
+    </div>
+    <div class="dash-card" style="margin-bottom:16px">
+      <div class="dash-card-title">Afetação prevista vs distribuída por obra</div>
+      <canvas id="dc-afet-obra" style="max-height:200px"></canvas>
+    </div>
+    <div class="dash-card-title" style="margin-bottom:10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text2)">Obras</div>
+    <div class="obra-cards">${cards}</div>
+  `;
+}
+
+function dashChartsObras(){
+  // donut estado
+  const counts={};
+  obras.forEach(o=>{counts[o.estado]=(counts[o.estado]||0)+1;});
+  const eLabels=ESTADOS_OBRAS.filter(e=>counts[e]);
+  const eData=eLabels.map(e=>counts[e]);
+  const eColors=eLabels.map(e=>ESTADO_COLORS[e]||'#ccc');
+  dashCharts.estado=new Chart(document.getElementById('dc-estado'),{
+    type:'doughnut',
+    data:{labels:eLabels,datasets:[{data:eData,backgroundColor:eColors,borderWidth:2,borderColor:'#fff',hoverOffset:6}]},
+    options:{cutout:'68%',responsive:true,maintainAspectRatio:true,animation:{animateScale:true},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.label}: ${c.raw}`}}},
+      onClick:(e,els)=>{ if(els.length){ const lbl=eLabels[els[0].index]; filterAndGoObras('estado',lbl); }}
+    }
+  });
+  document.getElementById('dc-estado-legend').innerHTML=eLabels.map((l,i)=>
+    `<div class="dash-legend-item" onclick="filterAndGoObras('estado','${l}')">
+      <div class="dash-legend-dot" style="background:${eColors[i]}"></div>
+      <div class="dash-legend-label">${l}</div>
+      <div class="dash-legend-val">${eData[i]}</div>
+      <div class="dash-legend-pct">${Math.round(eData[i]/obras.length*100)}%</div>
+    </div>`
+  ).join('');
+
+  // barras tipo horizontal
+  const tLabels=['FISC','CSO','CONC'];
+  const tData=tLabels.map(t=>obras.filter(o=>normTipos(o.tipos).includes(t)).length);
+  dashCharts.tipo=new Chart(document.getElementById('dc-tipo'),{
+    type:'bar',
+    data:{labels:tLabels,datasets:[{data:tData,backgroundColor:tLabels.map(t=>TIPO_COLORS[t]),borderRadius:6,borderSkipped:false}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:{duration:600},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw} obras`}}},
+      scales:{x:{beginAtZero:true,grid:{color:'rgba(0,0,0,.04)'},ticks:{stepSize:1,font:{size:11}}},
+              y:{grid:{display:false},ticks:{font:{size:12,weight:'600'}}}},
+      onClick:(e,els)=>{ if(els.length){ filterAndGoObras('tipo',tLabels[els[0].index]); }}
+    }
+  });
+
+  // barras agrupadas afetação prevista vs distribuída
+  const oLabels=obras.map(o=>o.sigla);
+  const oPrev=obras.map(o=>o.afetPrev||0);
+  const oDist=obras.map(o=>(o.equipa||[]).reduce((s,c)=>s+(c.afet||0),0));
+  dashCharts.afetObra=new Chart(document.getElementById('dc-afet-obra'),{
+    type:'bar',
+    data:{labels:oLabels,datasets:[
+      {label:'Prevista (DO)',data:oPrev,backgroundColor:'#185FA522',borderColor:'#185FA5',borderWidth:1.5,borderRadius:4},
+      {label:'Distribuída',data:oDist,backgroundColor:oDist.map((d,i)=>d>oPrev[i]?'#E24B4A':d===oPrev[i]?'#1D9E75':'#378ADD'),borderRadius:4},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:700},
+      plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:11}}},
+        tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw}%`}}},
+      scales:{x:{grid:{display:false},ticks:{font:{size:11}}},
+              y:{beginAtZero:true,max:110,ticks:{callback:v=>v+'%',font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}}},
+      onClick:(e,els)=>{ if(els.length){ openDetail(obras[els[0].index].id); setTab('obras'); }}
+    }
+  });
+}
+
+// ── PERSPETIVA: POR FUNÇÃO ────────────────────────────────────────────────────
+function dashHtmlFuncao(){
+  const fiscais=new Set(), csos=new Set();
+  obras.forEach(o=>(o.equipa||[]).forEach(c=>{
+    if(c.funcao==='Fiscal') fiscais.add(c.nome);
+    if(c.funcao==='CSO')    csos.add(c.nome);
+  }));
+  const obrasFisc=obras.filter(o=>(o.equipa||[]).some(c=>c.funcao==='Fiscal')).length;
+  const obrasCso =obras.filter(o=>(o.equipa||[]).some(c=>c.funcao==='CSO')).length;
+  const obrasSem =obras.filter(o=>!(o.equipa||[]).length).length;
+
+  return`
+    <div class="stat-pills">
+      <div class="stat-pill"><div class="stat-pill-label">Fiscais únicos</div><div class="stat-pill-val" style="color:var(--blue)">${fiscais.size}</div></div>
+      <div class="stat-pill"><div class="stat-pill-label">CSOs únicos</div><div class="stat-pill-val" style="color:var(--purple-text)">${csos.size}</div></div>
+      <div class="stat-pill"><div class="stat-pill-label">Obras c/ Fiscal</div><div class="stat-pill-val">${obrasFisc}</div></div>
+      <div class="stat-pill"><div class="stat-pill-label">Obras c/ CSO</div><div class="stat-pill-val">${obrasCso}</div></div>
+      <div class="stat-pill"><div class="stat-pill-label">Obras sem equipa</div><div class="stat-pill-val ${obrasSem?'amber':''}">${obrasSem}</div></div>
+    </div>
+    <div class="dash-grid-2" style="margin-bottom:16px">
+      <div class="dash-card">
+        <div class="dash-card-title">Afetação total por função</div>
+        <canvas id="dc-func-total" style="max-height:200px"></canvas>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-title">Obras cobertas por função</div>
+        <div style="display:flex;align-items:center;gap:20px">
+          <div class="donut-wrap"><canvas id="dc-func-cobertura"></canvas>
+            <div class="donut-center"><div class="donut-center-n">${obras.length}</div><div class="donut-center-l">obras</div></div>
+          </div>
+          <div class="dash-legend" id="dc-func-legend"></div>
+        </div>
+      </div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-title">Afetação por obra — Fiscal vs CSO</div>
+      <canvas id="dc-func-obra" style="max-height:220px"></canvas>
+    </div>
+  `;
+}
+
+function dashChartsFuncao(){
+  // barras: afetação total somada por função
+  const funcAfet={'Fiscal':0,'CSO':0};
+  obras.forEach(o=>(o.equipa||[]).forEach(c=>{
+    if(c.funcao in funcAfet) funcAfet[c.funcao]+=(c.afet||0);
+  }));
+  dashCharts.funcTotal=new Chart(document.getElementById('dc-func-total'),{
+    type:'bar',
+    data:{labels:['Fiscal','CSO'],datasets:[{
+      data:[funcAfet.Fiscal,funcAfet.CSO],
+      backgroundColor:['#185FA5','#534AB7'],borderRadius:8,borderSkipped:false
+    }]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:600},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw}% total`}}},
+      scales:{x:{grid:{display:false},ticks:{font:{size:12,weight:'600'}}},
+              y:{beginAtZero:true,ticks:{callback:v=>v+'%',font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}}}
+    }
+  });
+
+  // donut cobertura
+  const comFisc=obras.filter(o=>(o.equipa||[]).some(c=>c.funcao==='Fiscal')).length;
+  const comCso =obras.filter(o=>(o.equipa||[]).some(c=>c.funcao==='CSO')).length;
+  const ambos  =obras.filter(o=>(o.equipa||[]).some(c=>c.funcao==='Fiscal')&&(o.equipa||[]).some(c=>c.funcao==='CSO')).length;
+  const nenhum =obras.filter(o=>!(o.equipa||[]).length).length;
+  const cobLabels=['Fiscal','CSO','Ambos','Sem equipa'];
+  const cobData=[comFisc-ambos,comCso-ambos,ambos,nenhum];
+  const cobColors=['#185FA5','#534AB7','#1D9E75','#A8A79F'];
+  dashCharts.funcCob=new Chart(document.getElementById('dc-func-cobertura'),{
+    type:'doughnut',
+    data:{labels:cobLabels,datasets:[{data:cobData,backgroundColor:cobColors,borderWidth:2,borderColor:'#fff',hoverOffset:5}]},
+    options:{cutout:'65%',responsive:true,maintainAspectRatio:true,animation:{animateScale:true},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.label}: ${c.raw}`}}}
+    }
+  });
+  document.getElementById('dc-func-legend').innerHTML=cobLabels.map((l,i)=>
+    `<div class="dash-legend-item">
+      <div class="dash-legend-dot" style="background:${cobColors[i]}"></div>
+      <div class="dash-legend-label">${l}</div>
+      <div class="dash-legend-val">${cobData[i]}</div>
+    </div>`
+  ).join('');
+
+  // grouped: fiscal% vs cso% por obra
+  const oLabels=obras.map(o=>o.sigla);
+  const fiscData=obras.map(o=>(o.equipa||[]).filter(c=>c.funcao==='Fiscal').reduce((s,c)=>s+(c.afet||0),0));
+  const csoData =obras.map(o=>(o.equipa||[]).filter(c=>c.funcao==='CSO').reduce((s,c)=>s+(c.afet||0),0));
+  dashCharts.funcObra=new Chart(document.getElementById('dc-func-obra'),{
+    type:'bar',
+    data:{labels:oLabels,datasets:[
+      {label:'Fiscal',data:fiscData,backgroundColor:'#185FA5',borderRadius:4},
+      {label:'CSO',   data:csoData, backgroundColor:'#534AB7',borderRadius:4},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:700},
+      plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:11}}},
+        tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw}%`}}},
+      scales:{x:{grid:{display:false},ticks:{font:{size:11}}},
+              y:{beginAtZero:true,stacked:false,ticks:{callback:v=>v+'%',font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}}}
+    }
+  });
+}
+
+// ── PERSPETIVA: POR COLABORADOR ───────────────────────────────────────────────
+function dashHtmlColab(){
+  const map={};
+  obras.forEach(o=>(o.equipa||[]).forEach(c=>{
+    const k=c.nome;
+    if(!map[k]) map[k]={nome:c.nome,funcoes:new Set(),afet:0,obras:[]};
+    map[k].funcoes.add(c.funcao);
+    map[k].afet+=(c.afet||0);
+    map[k].obras.push({sigla:o.sigla,id:o.id,funcao:c.funcao,afet:c.afet||0,estado:o.estado});
+  }));
+  const colabs=Object.values(map).sort((a,b)=>b.afet-a.afet);
+  const maxAfet=Math.max(...colabs.map(c=>c.afet),1);
+
+  const rows=colabs.map(c=>{
+    const fc=c.afet>100?'var(--red)':c.afet===100?'var(--green)':'var(--blue)';
+    const obrasTags=c.obras.map(o=>
+      `<span class="afet-tag" style="cursor:pointer" onclick="openDetail('${o.id}');setTab('obras')">${o.sigla} ${o.afet}%</span>`
+    ).join('');
+    const funcBadges=[...c.funcoes].map(f=>
+      `<span class="badge ${f==='Fiscal'?'badge-blue':'badge-purple'}" style="font-size:10px;padding:1px 7px">${f}</span>`
+    ).join('');
+    return`<div class="afet-gauge-row">
+      <div class="afet-gauge-name">${c.nome}</div>
+      <div class="afet-gauge-func">${funcBadges}</div>
+      <div class="afet-gauge-bar"><div class="afet-gauge-fill" style="width:${Math.min(c.afet/maxAfet*100,100)}%;background:${fc}"></div></div>
+      <div class="afet-gauge-pct" style="color:${fc}">${c.afet}%</div>
+      <div class="afet-gauge-obras">${obrasTags}</div>
+    </div>`;
+  }).join('');
+
+  return`
+    <div class="stat-pills">
+      <div class="stat-pill"><div class="stat-pill-label">Colaboradores</div><div class="stat-pill-val">${colabs.length}</div></div>
+      <div class="stat-pill"><div class="stat-pill-label">Total afetação</div><div class="stat-pill-val">${colabs.reduce((s,c)=>s+c.afet,0)}%</div></div>
+      <div class="stat-pill"><div class="stat-pill-label">Acima de 100%</div><div class="stat-pill-val ${colabs.filter(c=>c.afet>100).length?'red':''}">${colabs.filter(c=>c.afet>100).length}</div></div>
+      <div class="stat-pill"><div class="stat-pill-label">Média por colab.</div><div class="stat-pill-val">${colabs.length?Math.round(colabs.reduce((s,c)=>s+c.afet,0)/colabs.length):0}%</div></div>
+    </div>
+    <div class="dash-grid-2" style="margin-bottom:16px">
+      <div class="dash-card">
+        <div class="dash-card-title">Afetação por colaborador</div>
+        <canvas id="dc-colab-bar" style="max-height:240px"></canvas>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-title">Distribuição Fiscal vs CSO</div>
+        <div style="display:flex;align-items:center;gap:20px">
+          <div class="donut-wrap"><canvas id="dc-colab-func"></canvas>
+            <div class="donut-center"><div class="donut-center-n">${colabs.length}</div><div class="donut-center-l">pessoas</div></div>
+          </div>
+          <div class="dash-legend" id="dc-colab-func-legend"></div>
+        </div>
+      </div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-title">Detalhe de afetações</div>
+      <div style="margin-top:4px">${rows||'<div style="color:var(--text3);padding:16px 0;text-align:center">Sem afetações definidas</div>'}</div>
+    </div>
+  `;
+}
+
+function dashChartsColab(){
+  const map={};
+  obras.forEach(o=>(o.equipa||[]).forEach(c=>{
+    if(!map[c.nome]) map[c.nome]={afet:0,funcoes:new Set()};
+    map[c.nome].afet+=(c.afet||0);
+    map[c.nome].funcoes.add(c.funcao);
+  }));
+  const colabs=Object.values(map).sort((a,b)=>b.afet-a.afet);
+  const cLabels=Object.keys(map).sort((a,b)=>map[b].afet-map[a].afet);
+  const cData=cLabels.map(n=>map[n].afet);
+  const cColors=cData.map(v=>v>100?'#E24B4A':v===100?'#1D9E75':'#185FA5');
+
+  dashCharts.colabBar=new Chart(document.getElementById('dc-colab-bar'),{
+    type:'bar',
+    data:{labels:cLabels,datasets:[{data:cData,backgroundColor:cColors,borderRadius:6,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:700},
+      plugins:{legend:{display:false},
+        tooltip:{callbacks:{label:c=>`${c.raw}% afetação total`}},
+        annotation:{annotations:[{type:'line',yMin:100,yMax:100,borderColor:'rgba(0,0,0,.2)',borderWidth:1,borderDash:[4,4]}]}
+      },
+      scales:{x:{grid:{display:false},ticks:{font:{size:11}}},
+              y:{beginAtZero:true,ticks:{callback:v=>v+'%',font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}}}
+    }
+  });
+
+  // donut func split
+  const nFisc=new Set(),nCso=new Set();
+  obras.forEach(o=>(o.equipa||[]).forEach(c=>{
+    if(c.funcao==='Fiscal')nFisc.add(c.nome);
+    if(c.funcao==='CSO')nCso.add(c.nome);
+  }));
+  const ambos=[...nFisc].filter(n=>nCso.has(n)).length;
+  const soFisc=nFisc.size-ambos, soCso=nCso.size-ambos;
+  const fLabels=['Só Fiscal','Só CSO','Ambos'];
+  const fData=[soFisc,soCso,ambos];
+  const fColors=['#185FA5','#534AB7','#1D9E75'];
+  dashCharts.colabFunc=new Chart(document.getElementById('dc-colab-func'),{
+    type:'doughnut',
+    data:{labels:fLabels,datasets:[{data:fData,backgroundColor:fColors,borderWidth:2,borderColor:'#fff',hoverOffset:5}]},
+    options:{cutout:'65%',responsive:true,maintainAspectRatio:true,animation:{animateScale:true},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.label}: ${c.raw}`}}}
+    }
+  });
+  document.getElementById('dc-colab-func-legend').innerHTML=fLabels.map((l,i)=>
+    `<div class="dash-legend-item">
+      <div class="dash-legend-dot" style="background:${fColors[i]}"></div>
+      <div class="dash-legend-label">${l}</div>
+      <div class="dash-legend-val">${fData[i]}</div>
+    </div>`
+  ).join('');
+}
+
+function filterAndGoObras(campo,valor){
+  if(campo==='estado'){
+    filters.obras.estados=[valor];
+    document.querySelectorAll('#obras-chips-estados .fg-chip').forEach(el=>{
+      const v=el.querySelector('input').value;
+      const on=v===valor;
+      el.classList.toggle('on',on);
+      el.querySelector('input').checked=on;
+    });
+  } else if(campo==='tipo'){
+    filters.obras.tipos=[valor];
+    document.querySelectorAll('#obras-chips-tipos .fg-chip').forEach(el=>{
+      const v=el.querySelector('input').value;
+      const on=v===valor;
+      el.classList.toggle('on',on);
+      el.querySelector('input').checked=on;
+    });
+  }
+  setTab('obras');
+}
+
+// ── DETAIL ────────────────────────────────────────────────────────────────────
+function openDetail(id){
+  const list=activeTab==='obras'?obras:projetos;
+  const item=list.find(i=>i.id===id);
+  if(!item)return;
+  activeId=id;
+  document.getElementById('d-sigla').textContent=item.sigla;
+  document.getElementById('d-nome').textContent=item.nome;
+  document.getElementById('d-badges').innerHTML=badgeEstado(item.estado)+' '+tipoBadges(item.tipos);
+  document.getElementById('d-info-grid').innerHTML=`
+    <div class="detail-field"><div class="detail-label">Estado</div><div class="detail-val">${item.estado}</div></div>
+    <div class="detail-field"><div class="detail-label">Afetação Prevista</div><div class="detail-val mono">${item.afetPrev||0}%</div></div>
+    <div class="detail-field"><div class="detail-label">Início Previsto</div><div class="detail-val">${fmtDate(item.inicio)}</div></div>
+    <div class="detail-field"><div class="detail-label">Fim Previsto</div><div class="detail-val">${fmtDate(item.prazo)}${isVencido(item.prazo,item.estado)?' <span style="color:var(--red)">⚠ Vencido</span>':''}</div></div>
+  `;
+  refreshAfetPainel(item);
+  renderEquipa(item);
+  document.getElementById('d-notas').value=item.notas||'';
+  closeAddColab();
+  document.getElementById('detail-overlay').classList.add('open');
+}
+
+function refreshAfetPainel(item){
+  const prev=item.afetPrev||0;
+  const dist=(item.equipa||[]).reduce((s,c)=>s+(c.afet||0),0);
+  const diff=dist-prev;
+  const col=afetDistColor(dist,prev);
+  document.getElementById('d-afet-prev-val').textContent=prev?prev+'%':'—';
+  document.getElementById('d-afet-dist-val').textContent=dist?dist+'%':'—';
+  document.getElementById('d-afet-dist-val').style.color=dist?col:'var(--text)';
+  let sub='Soma das afetações da equipa';
+  if(dist&&prev){
+    if(diff>0)sub=`+${diff}% acima do previsto`;
+    else if(diff<0)sub=`${Math.abs(diff)}% por distribuir`;
+    else sub='Totalmente distribuído';
+  }
+  document.getElementById('d-afet-dist-label').textContent=sub;
+}
+
+function renderEquipa(item){
+  const el=document.getElementById('d-equipa');
+  const list=item.equipa||[];
+  if(!list.length){el.innerHTML='<div style="color:var(--text3);font-size:13px;padding:4px 0">Sem afetações definidas</div>';return;}
+  el.innerHTML=list.map((c,i)=>{
+    const{ini,color}=getAv(c.nome);
+    return`<div class="colab-item">
+      <div class="colab-av" style="background:${color.bg};color:${color.fg}">${ini}</div>
+      <div class="colab-info"><div class="colab-nome">${c.nome}</div><div class="colab-funcao">${c.funcao||'—'}</div></div>
+      ${c.afet?`<div class="colab-pct">${c.afet}%</div>`:''}
+      <button class="colab-remove" onclick="removeColab(${i})">×</button>
+    </div>`;
+  }).join('');
+}
+
+function closeDetail(){document.getElementById('detail-overlay').classList.remove('open');activeId=null;}
+function closeDetailIfBg(e){if(e.target===document.getElementById('detail-overlay'))closeDetail();}
+function getActiveItem(){return(activeTab==='obras'?obras:projetos).find(i=>i.id===activeId);}
+function autoSaveNotas(){const item=getActiveItem();if(!item)return;item.notas=document.getElementById('d-notas').value;save('cronos_'+activeTab,activeTab==='obras'?obras:projetos);}
+
+// ── EQUIPA ────────────────────────────────────────────────────────────────────
+function openAddColab(){document.getElementById('add-colab-form').classList.remove('hidden');document.getElementById('colab-nome-input').focus();}
+function closeAddColab(){
+  document.getElementById('add-colab-form').classList.add('hidden');
+  ['colab-nome-input','colab-afet-input'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('colab-funcao-input').value='';
+}
+function saveColab(){
+  const nome=document.getElementById('colab-nome-input').value.trim();
+  const funcao=document.getElementById('colab-funcao-input').value;
+  const afet=parseInt(document.getElementById('colab-afet-input').value)||0;
+  if(!nome)return;
+  const item=getActiveItem();if(!item)return;
+  if(!item.equipa)item.equipa=[];
+  item.equipa.push({nome,funcao,afet});
+  save('cronos_'+activeTab,activeTab==='obras'?obras:projetos);
+  renderEquipa(item);refreshAfetPainel(item);closeAddColab();render();
+  toast('Afetação adicionada');
+}
+function removeColab(idx){
+  const item=getActiveItem();if(!item)return;
+  item.equipa.splice(idx,1);
+  save('cronos_'+activeTab,activeTab==='obras'?obras:projetos);
+  renderEquipa(item);refreshAfetPainel(item);render();
+  toast('Afetação removida');
+}
+
+// ── DELETE ────────────────────────────────────────────────────────────────────
+function deleteItem(){
+  if(!confirm('Confirmas a eliminação? Esta ação é irreversível.'))return;
+  if(activeTab==='obras'){obras=obras.filter(i=>i.id!==activeId);save('cronos_obras',obras);}
+  else{projetos=projetos.filter(i=>i.id!==activeId);save('cronos_projetos',projetos);}
+  closeDetail();render();toast('Eliminado com sucesso');
+}
+
+// ── FORM ──────────────────────────────────────────────────────────────────────
+let editingId=null;
+
+function buildTipoChecks(selected){
+  const isObra=activeTab==='obras';
+  const tipos=isObra?TIPOS_OBRAS:TIPOS_PROJ;
+  const sel=normTipos(selected);
+  document.getElementById('f-tipo-checks').innerHTML=tipos.map(t=>
+    `<label class="tipo-check"><input type="checkbox" value="${t}" ${sel.includes(t)?'checked':''}> ${t}</label>`
+  ).join('');
+}
+
+function getTiposSelected(){
+  return [...document.querySelectorAll('#f-tipo-checks input:checked')].map(el=>el.value);
+}
+
+function openFormModal(){
+  editingId=null;
+  const isObra=activeTab==='obras';
+  document.getElementById('form-title-text').textContent=isObra?'Nova Obra':'Novo Projeto';
+  document.getElementById('form-subtitle').textContent=isObra?'Obras':'Projetos';
+  document.getElementById('f-estado').innerHTML=(isObra?ESTADOS_OBRAS:ESTADOS_PROJ).map(e=>`<option>${e}</option>`).join('');
+  buildTipoChecks([]);
+  ['f-sigla','f-nome','f-afet','f-inicio','f-prazo'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('form-overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('f-sigla').focus(),120);
+}
+
+function openEditModal(){
+  const item=getActiveItem();if(!item)return;
+  editingId=activeId;closeDetail();
+  const isObra=activeTab==='obras';
+  document.getElementById('form-title-text').textContent='Editar '+(isObra?'Obra':'Projeto');
+  document.getElementById('form-subtitle').textContent=item.sigla;
+  document.getElementById('f-estado').innerHTML=(isObra?ESTADOS_OBRAS:ESTADOS_PROJ).map(e=>`<option ${e===item.estado?'selected':''}>${e}</option>`).join('');
+  buildTipoChecks(item.tipos);
+  document.getElementById('f-sigla').value  = item.sigla||'';
+  document.getElementById('f-nome').value   = item.nome||'';
+  document.getElementById('f-afet').value   = item.afetPrev??'';
+  document.getElementById('f-inicio').value = item.inicio||'';
+  document.getElementById('f-prazo').value  = item.prazo||'';
+  document.getElementById('form-overlay').classList.add('open');
+}
+
+function saveForm(){
+  const sigla=document.getElementById('f-sigla').value.trim();
+  const nome=document.getElementById('f-nome').value.trim();
+  if(!sigla||!nome){toast('Sigla e Designação são obrigatórios');return;}
+  const tipos=getTiposSelected();
+  const data={
+    sigla, nome, tipos,
+    estado:   document.getElementById('f-estado').value,
+    afetPrev: parseInt(document.getElementById('f-afet').value)||0,
+    inicio:   document.getElementById('f-inicio').value,
+    prazo:    document.getElementById('f-prazo').value,
+  };
+  const list=activeTab==='obras'?obras:projetos;
+  if(editingId){
+    const idx=list.findIndex(i=>i.id===editingId);
+    if(idx>=0){data.id=editingId;data.equipa=list[idx].equipa;data.notas=list[idx].notas;list[idx]=data;}
+    toast('Atualizado com sucesso');
+  }else{
+    data.id=uid();data.equipa=[];data.notas='';list.push(data);
+    toast('Criado com sucesso');
+  }
+  save('cronos_obras',obras);save('cronos_projetos',projetos);
+  closeFormModal();render();editingId=null;
+}
+
+function closeFormModal(){document.getElementById('form-overlay').classList.remove('open');}
+function closeFormIfBg(e){if(e.target===document.getElementById('form-overlay'))closeFormModal();}
+
+// ── XLSX EXPORT ───────────────────────────────────────────────────────────────
+function flattenList(list){
+  const rows=[];
+  list.forEach(item=>{
+    const tipos=normTipos(item.tipos);
+    const equipa=item.equipa||[];
+    const maxE=Math.max(equipa.length,1);
+    for(let i=0;i<maxE;i++){
+      const c=equipa[i]||{};
+      rows.push({
+        'Sigla':            i===0?item.sigla:'',
+        'Designação':       i===0?item.nome:'',
+        'FISC':             i===0?(tipos.includes('FISC')?'x':''):'',
+        'CSO':              i===0?(tipos.includes('CSO')?'x':''):'',
+        'CONC':             i===0?(tipos.includes('CONC')?'x':''):'',
+        'Estado':           i===0?item.estado:'',
+        'Início Previsto':  i===0?(item.inicio||''):'',
+        'Fim Previsto':     i===0?(item.prazo||''):'',
+        'Afetação (%)':     i===0?(item.afetPrev||0):'',
+        'Notas':            i===0?item.notas:'',
+        'Colaborador Nome':     c.nome||'',
+        'Colaborador Função':   c.funcao||'',
+        'Colaborador Afet (%)': c.afet!=null?c.afet:'',
+      });
+    }
+  });
+  return rows;
+}
+
+function exportXlsx(){
+  const wb=XLSX.utils.book_new();
+  const cols=[{wch:10},{wch:40},{wch:6},{wch:6},{wch:6},{wch:14},{wch:13},{wch:13},{wch:12},{wch:40},{wch:24},{wch:18},{wch:20}];
+
+  const wsO=XLSX.utils.json_to_sheet(flattenList(obras));
+  wsO['!cols']=cols;
+  XLSX.utils.book_append_sheet(wb,wsO,'Obras');
+
+  const wsP=XLSX.utils.json_to_sheet(flattenList(projetos));
+  wsP['!cols']=cols;
+  XLSX.utils.book_append_sheet(wb,wsP,'Projetos');
+
+  XLSX.writeFile(wb,`CRONOS_${new Date().toISOString().slice(0,10)}.xlsx`);
+  toast('Ficheiro exportado para a pasta Downloads do browser');
+}
+
+// ── XLSX IMPORT ───────────────────────────────────────────────────────────────
+function xlsxDateToISO(val){
+  if(!val)return'';
+  // already a string like dd/mm/yyyy or yyyy-mm-dd
+  if(typeof val==='string'){
+    val=val.trim();
+    if(/^\d{4}-\d{2}-\d{2}$/.test(val))return val;
+    if(/^\d{2}\/\d{2}\/\d{4}$/.test(val)){const[d,m,y]=val.split('/');return`${y}-${m}-${d}`;}
+    return val;
+  }
+  // Excel serial number
+  if(typeof val==='number'){
+    const d=XLSX.SSF.parse_date_code(val);
+    if(d)return`${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`;
+  }
+  return'';
+}
+
+function importXlsx(event){
+  const file=event.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const wb=XLSX.read(e.target.result,{type:'array',cellDates:false});
+
+      function parseSheet(sheetName){
+        const ws=wb.Sheets[sheetName];
+        if(!ws)return null;
+        const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
+        const items=[];
+        let cur=null;
+        rows.forEach(row=>{
+          const sigla=(row['Sigla']||'').toString().trim();
+          if(sigla){
+            // suporte a formato novo (FISC/CSO/CONC) e legado (Tipo)
+            let tipos=[];
+            const legado=(row['Tipo']||'').toString().trim();
+            if(legado){tipos=normTipos(legado);}
+            else{
+              if((row['FISC']||'').toString().trim()==='x')tipos.push('FISC');
+              if((row['CSO']||'').toString().trim()==='x')tipos.push('CSO');
+              if((row['CONC']||'').toString().trim()==='x')tipos.push('CONC');
+            }
+            cur={
+              id:uid(), sigla,
+              nome:     (row['Designação']||'').toString().trim(),
+              tipos,
+              estado:   (row['Estado']||'').toString().trim(),
+              inicio:   xlsxDateToISO(row['Início Previsto']||row['Inicio Previsto']||''),
+              prazo:    xlsxDateToISO(row['Fim Previsto']),
+              afetPrev: parseFloat(row['Afetação (%)'||'']||row['Afet. Prevista (%)'||''])||0,
+              notas:    (row['Notas']||'').toString().trim(),
+              equipa:   [],
+            };
+            items.push(cur);
+          }
+          const cNome=(row['Colaborador Nome']||'').toString().trim();
+          if(cNome&&cur){
+            cur.equipa.push({
+              nome:cNome,
+              funcao:(row['Colaborador Função']||'').toString().trim(),
+              afet:parseFloat(row['Colaborador Afet (%)'])||0,
+            });
+          }
+        });
+        return items;
+      }
+
+      const obrasImp=parseSheet('Obras');
+      const projImp=parseSheet('Projetos');
+      if(!obrasImp&&!projImp){toast('Não foi possível ler o ficheiro. Verifica se tem separadores "Obras" e "Projetos".');return;}
+      if(obrasImp){obras=obrasImp;save('cronos_obras',obras);}
+      if(projImp){projetos=projImp;save('cronos_projetos',projetos);}
+      render();
+      const nO=obrasImp?obrasImp.length:0, nP=projImp?projImp.length:0;
+      toast(`✓ Importado com sucesso: ${nO} obra${nO!==1?'s':''}, ${nP} projeto${nP!==1?'s':''}`);
+    }catch(err){
+      toast('Erro ao ler o ficheiro XLSX.');
+      console.error(err);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+  event.target.value=''; // reset so same file can be re-imported
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+let toastTimer;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    if(document.getElementById('form-overlay').classList.contains('open'))closeFormModal();
+    else if(document.getElementById('detail-overlay').classList.contains('open'))closeDetail();
+  }
+});
+
+render();
+</script>
+</body>
+</html>
