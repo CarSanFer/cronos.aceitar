@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CRONOS · Aceitar</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -163,6 +164,21 @@
   .toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--text);color:#fff;font-size:13px;padding:10px 16px;border-radius:var(--radius);box-shadow:0 4px 16px rgba(0,0,0,.2);transform:translateY(8px);opacity:0;transition:all .2s;pointer-events:none;max-width:320px;}
   .toast.show{transform:translateY(0);opacity:1;}
 
+
+  /* LOGIN */
+  .login-screen{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;align-items:center;justify-content:center;}
+  .login-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:40px;width:100%;max-width:380px;box-shadow:0 8px 40px rgba(0,0,0,.12);}
+  .login-logo{font-family:var(--mono);font-size:22px;font-weight:500;letter-spacing:.08em;color:var(--text);margin-bottom:6px;}
+  .login-logo span{color:var(--text3);}
+  .login-sub{font-size:13px;color:var(--text2);margin-bottom:28px;}
+  .login-error{font-size:12px;color:var(--red);margin-top:8px;display:none;}
+  .login-error.show{display:block;}
+  /* LOADING */
+  .app-loading{position:fixed;inset:0;z-index:998;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;}
+  .spinner{width:28px;height:28px;border:2.5px solid var(--border-strong);border-top-color:var(--text);border-radius:50%;animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .user-pill{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);}
+  .user-dot{width:7px;height:7px;border-radius:50%;background:var(--green);}
   .hidden{display:none!important;}
   hr.divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
 
@@ -232,6 +248,31 @@
 </head>
 <body>
 
+
+<!-- LOGIN -->
+<div id="login-screen" class="login-screen">
+  <div class="login-box">
+    <div class="login-logo">CRON<span>OS</span></div>
+    <div class="login-sub">Aceitar Sucessos — Acesso restrito</div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input class="form-input" type="email" id="login-email" placeholder="email@aceitar.pt" autocomplete="email">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:4px" onclick="doLogin()" id="btn-login">Entrar</button>
+    <div class="login-error" id="login-error">Email ou password incorretos.</div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div id="app-loading" class="app-loading hidden">
+  <div class="spinner"></div>
+  <div style="font-size:13px;color:var(--text3)">A carregar...</div>
+</div>
+
 <div class="topbar">
   <div class="logo">CRON<span>OS</span></div>
   <div class="topbar-div"></div>
@@ -245,7 +286,10 @@
     <button class="btn btn-sm" onclick="document.getElementById('import-input').click()">↑ Importar XLSX</button>
     <input type="file" id="import-input" accept=".xlsx" onchange="importXlsx(event)">
     <div class="topbar-div"></div>
+    <div class="user-pill"><div class="user-dot"></div><span id="user-email-label"></span></div>
+    <div class="topbar-div"></div>
     <button class="btn btn-primary" onclick="openFormModal()">+ Novo</button>
+    <button class="btn btn-sm" onclick="doLogout()" style="color:var(--text3)">Sair</button>
   </div>
 </div>
 
@@ -524,9 +568,86 @@ const AV_COLORS=[
   {bg:'#FAECE7',fg:'#993C1D'},{bg:'#F1EFE8',fg:'#5F5E5A'},
 ];
 
-function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
-function load(k,d){try{return JSON.parse(localStorage.getItem(k))??d;}catch{return d;}}
-function save(k,v){localStorage.setItem(k,JSON.stringify(v));}
+// ── SUPABASE ─────────────────────────────────────────────────────────────────
+const SUPA_URL = 'https://ylzqsoqdlqgakntxlqjp.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsenFzb3FkbHFnYWtudHhscWpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwODgzNDAsImV4cCI6MjA5MDY2NDM0MH0.mmCyZHP_z9MPHEu5B22PDTekrigOXUln3DpmIvpdXjk';
+const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+function uid(){return crypto.randomUUID();}
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+async function doLogin(){
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('login-error');
+  const btn   = document.getElementById('btn-login');
+  btn.textContent='A entrar...'; btn.disabled=true; errEl.classList.remove('show');
+  const {error} = await supa.auth.signInWithPassword({email, password: pass});
+  if(error){
+    errEl.classList.add('show');
+    btn.textContent='Entrar'; btn.disabled=false;
+  }
+}
+
+async function doLogout(){
+  await supa.auth.signOut();
+  location.reload();
+}
+
+document.getElementById('login-pass')?.addEventListener('keydown', e=>{
+  if(e.key==='Enter') doLogin();
+});
+
+// ── INIT AUTH ─────────────────────────────────────────────────────────────────
+async function initApp(){
+  document.getElementById('app-loading').classList.remove('hidden');
+  const {data:{session}} = await supa.auth.getSession();
+  if(!session){
+    document.getElementById('login-screen').style.display='flex';
+    document.getElementById('app-loading').classList.add('hidden');
+    return;
+  }
+  // autenticado
+  document.getElementById('login-screen').style.display='none';
+  const email = session.user.email;
+  document.getElementById('user-email-label').textContent = email;
+  await loadAllData();
+  document.getElementById('app-loading').classList.add('hidden');
+  render();
+}
+
+// ── CARREGAR DADOS ────────────────────────────────────────────────────────────
+async function loadAllData(){
+  // obras + equipa_obras
+  const {data: obrasData} = await supa.from('obras').select('*, equipa_obras(*)').order('sigla');
+  obras = (obrasData||[]).map(o=>({
+    id:       o.id,
+    sigla:    o.sigla,
+    nome:     o.nome,
+    tipos:    o.tipos||[],
+    estado:   o.estado,
+    inicio:   o.inicio||'',
+    prazo:    o.prazo||'',
+    afetPrev: o.afet_prev||0,
+    notas:    o.notas||'',
+    equipa:   (o.equipa_obras||[]).map(e=>({id:e.id,nome:e.nome,funcao:e.funcao,afet:e.afet})),
+  }));
+
+  // projetos + equipa_projetos
+  const {data: projData} = await supa.from('projetos').select('*, equipa_projetos(*)').order('sigla');
+  projetos = (projData||[]).map(p=>({
+    id:       p.id,
+    sigla:    p.sigla,
+    nome:     p.nome,
+    tipos:    p.tipos||[],
+    estado:   p.estado,
+    inicio:   p.inicio||'',
+    prazo:    p.prazo||'',
+    afetPrev: p.afet_prev||0,
+    notas:    p.notas||'',
+    equipa:   (p.equipa_projetos||[]).map(e=>({id:e.id,nome:e.nome,funcao:e.funcao,afet:e.afet})),
+  }));
+}
 function getAv(name){
   const p=name.trim().split(' ');
   const ini=p.length>=2?(p[0][0]+p[p.length-1][0]).toUpperCase():name.slice(0,2).toUpperCase();
@@ -547,21 +668,12 @@ function normTipos(t){
   return t.split(',').map(s=>s.trim()).filter(Boolean);
 }
 
-let obras    = load('cronos_obras',    demoObras());
-let projetos = load('cronos_projetos', demoProjetos());
+let obras = [];
+let projetos = [];
 let activeTab='obras', activeId=null;
 
-function demoObras(){return[
-  {id:uid(),sigla:'OB-001',nome:'Edifício Residencial Braga',    tipos:['FISC'],       estado:'Em Curso',afetPrev:100,inicio:'2024-03-01',prazo:'2025-06-15',equipa:[{nome:'João Mendes',funcao:'Fiscal',afet:100}],notas:''},
-  {id:uid(),sigla:'OB-002',nome:'Complexo Industrial Famalicão', tipos:['FISC','CSO'], estado:'Em Curso',afetPrev:50, inicio:'2024-09-01',prazo:'2025-08-30',equipa:[{nome:'Teresa Ferreira',funcao:'Fiscal',afet:30},{nome:'Miguel Lima',funcao:'CSO',afet:20}],notas:'Atraso na entrega da documentação.'},
-  {id:uid(),sigla:'OB-003',nome:'Reabilitação Edifício Porto',   tipos:['CSO'],        estado:'Previsto', afetPrev:75, inicio:'2025-04-01',prazo:'2025-09-30',equipa:[],notas:''},
-  {id:uid(),sigla:'OB-004',nome:'Parque Empresarial Barcelos',   tipos:['CONC'],       estado:'Suspenso', afetPrev:0,  inicio:'',          prazo:'',         equipa:[],notas:'Suspenso por decisão do cliente.'},
-];}
-function demoProjetos(){return[
-  {id:uid(),sigla:'PJ-001',nome:'Fiscalização Loteamento Quinta X',tipos:['FISC'],        estado:'Ativo',       afetPrev:50, inicio:'2024-10-01',prazo:'2025-12-31',equipa:[{nome:'Ana Ferreira',funcao:'Fiscal',afet:50}],notas:''},
-  {id:uid(),sigla:'PJ-002',nome:'CSO Fábrica Y — Fase 2',          tipos:['CSO'],         estado:'Pendente',    afetPrev:100,inicio:'2024-11-15',prazo:'2025-04-30',equipa:[{nome:'Teresa Ferreira',funcao:'CSO',afet:100}],notas:'Aguardar aprovação final.'},
-  {id:uid(),sigla:'PJ-003',nome:'Concurso Zona Industrial Z',      tipos:['FISC','CONC'], estado:'Em Avaliação',afetPrev:25, inicio:'',          prazo:'',         equipa:[],notas:'Proposta enviada a 15 Jan 2025.'},
-];}
+
+
 
 // ── TABS ──────────────────────────────────────────────────────────────────────
 function setTab(tab){
@@ -1181,13 +1293,13 @@ function renderEquipa(item){
   const el=document.getElementById('d-equipa');
   const list=item.equipa||[];
   if(!list.length){el.innerHTML='<div style="color:var(--text3);font-size:13px;padding:4px 0">Sem afetações definidas</div>';return;}
-  el.innerHTML=list.map((c,i)=>{
+  el.innerHTML=list.map((c)=>{
     const{ini,color}=getAv(c.nome);
     return`<div class="colab-item">
       <div class="colab-av" style="background:${color.bg};color:${color.fg}">${ini}</div>
       <div class="colab-info"><div class="colab-nome">${c.nome}</div><div class="colab-funcao">${c.funcao||'—'}</div></div>
       ${c.afet?`<div class="colab-pct">${c.afet}%</div>`:''}
-      <button class="colab-remove" onclick="removeColab(${i})">×</button>
+      <button class="colab-remove" onclick="removeColab('${c.id}')">×</button>
     </div>`;
   }).join('');
 }
@@ -1195,7 +1307,14 @@ function renderEquipa(item){
 function closeDetail(){document.getElementById('detail-overlay').classList.remove('open');activeId=null;}
 function closeDetailIfBg(e){if(e.target===document.getElementById('detail-overlay'))closeDetail();}
 function getActiveItem(){return(activeTab==='obras'?obras:projetos).find(i=>i.id===activeId);}
-function autoSaveNotas(){const item=getActiveItem();if(!item)return;item.notas=document.getElementById('d-notas').value;save('cronos_'+activeTab,activeTab==='obras'?obras:projetos);}
+function autoSaveNotas(){
+  const item=getActiveItem();if(!item)return;
+  const notas=document.getElementById('d-notas').value;
+  const table=activeTab==='obras'?'obras':'projetos';
+  supa.from(table).update({notas}).eq('id',item.id).then(({error})=>{
+    if(!error){item.notas=notas;}
+  });
+}
 
 // ── EQUIPA ────────────────────────────────────────────────────────────────────
 function openAddColab(){document.getElementById('add-colab-form').classList.remove('hidden');document.getElementById('colab-nome-input').focus();}
@@ -1204,32 +1323,43 @@ function closeAddColab(){
   ['colab-nome-input','colab-afet-input'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('colab-funcao-input').value='';
 }
-function saveColab(){
+async function saveColab(){
   const nome=document.getElementById('colab-nome-input').value.trim();
   const funcao=document.getElementById('colab-funcao-input').value;
   const afet=parseInt(document.getElementById('colab-afet-input').value)||0;
   if(!nome)return;
   const item=getActiveItem();if(!item)return;
-  if(!item.equipa)item.equipa=[];
-  item.equipa.push({nome,funcao,afet});
-  save('cronos_'+activeTab,activeTab==='obras'?obras:projetos);
-  renderEquipa(item);refreshAfetPainel(item);closeAddColab();render();
+  const table = activeTab==='obras' ? 'equipa_obras' : 'equipa_projetos';
+  const fk    = activeTab==='obras' ? 'obra_id' : 'projeto_id';
+  const {error} = await supa.from(table).insert({[fk]:item.id, nome, funcao, afet});
+  if(error){toast('Erro: '+error.message);return;}
+  await loadAllData();
+  const updated = getActiveItem();
+  renderEquipa(updated);refreshAfetPainel(updated);
+  closeAddColab();render();
   toast('Afetação adicionada');
 }
-function removeColab(idx){
-  const item=getActiveItem();if(!item)return;
-  item.equipa.splice(idx,1);
-  save('cronos_'+activeTab,activeTab==='obras'?obras:projetos);
-  renderEquipa(item);refreshAfetPainel(item);render();
+async function removeColab(equipaId){
+  const table = activeTab==='obras' ? 'equipa_obras' : 'equipa_projetos';
+  const {error} = await supa.from(table).delete().eq('id', equipaId);
+  if(error){toast('Erro: '+error.message);return;}
+  await loadAllData();
+  const updated = getActiveItem();
+  if(updated){renderEquipa(updated);refreshAfetPainel(updated);}
+  render();
   toast('Afetação removida');
 }
 
 // ── DELETE ────────────────────────────────────────────────────────────────────
-function deleteItem(){
+async function deleteItem(){
   if(!confirm('Confirmas a eliminação? Esta ação é irreversível.'))return;
-  if(activeTab==='obras'){obras=obras.filter(i=>i.id!==activeId);save('cronos_obras',obras);}
-  else{projetos=projetos.filter(i=>i.id!==activeId);save('cronos_projetos',projetos);}
-  closeDetail();render();toast('Eliminado com sucesso');
+  const table = activeTab==='obras' ? 'obras' : 'projetos';
+  const {error} = await supa.from(table).delete().eq('id', activeId);
+  if(error){toast('Erro ao eliminar: '+error.message);return;}
+  closeDetail();
+  await loadAllData();
+  render();
+  toast('Eliminado com sucesso');
 }
 
 // ── FORM ──────────────────────────────────────────────────────────────────────
@@ -1276,29 +1406,32 @@ function openEditModal(){
   document.getElementById('form-overlay').classList.add('open');
 }
 
-function saveForm(){
+async function saveForm(){
   const sigla=document.getElementById('f-sigla').value.trim();
   const nome=document.getElementById('f-nome').value.trim();
   if(!sigla||!nome){toast('Sigla e Designação são obrigatórios');return;}
   const tipos=getTiposSelected();
-  const data={
+  const dbData={
     sigla, nome, tipos,
-    estado:   document.getElementById('f-estado').value,
-    afetPrev: parseInt(document.getElementById('f-afet').value)||0,
-    inicio:   document.getElementById('f-inicio').value,
-    prazo:    document.getElementById('f-prazo').value,
+    estado:    document.getElementById('f-estado').value,
+    afet_prev: parseInt(document.getElementById('f-afet').value)||0,
+    inicio:    document.getElementById('f-inicio').value||null,
+    prazo:     document.getElementById('f-prazo').value||null,
   };
-  const list=activeTab==='obras'?obras:projetos;
+  const table = activeTab==='obras' ? 'obras' : 'projetos';
   if(editingId){
-    const idx=list.findIndex(i=>i.id===editingId);
-    if(idx>=0){data.id=editingId;data.equipa=list[idx].equipa;data.notas=list[idx].notas;list[idx]=data;}
+    const {error} = await supa.from(table).update(dbData).eq('id', editingId);
+    if(error){toast('Erro ao atualizar: '+error.message);return;}
     toast('Atualizado com sucesso');
-  }else{
-    data.id=uid();data.equipa=[];data.notas='';list.push(data);
+  } else {
+    const {error} = await supa.from(table).insert(dbData);
+    if(error){toast('Erro ao criar: '+error.message);return;}
     toast('Criado com sucesso');
   }
-  save('cronos_obras',obras);save('cronos_projetos',projetos);
-  closeFormModal();render();editingId=null;
+  closeFormModal();
+  await loadAllData();
+  render();
+  editingId=null;
 }
 
 function closeFormModal(){document.getElementById('form-overlay').classList.remove('open');}
@@ -1421,11 +1554,49 @@ function importXlsx(event){
       const obrasImp=parseSheet('Obras');
       const projImp=parseSheet('Projetos');
       if(!obrasImp&&!projImp){toast('Não foi possível ler o ficheiro. Verifica se tem separadores "Obras" e "Projetos".');return;}
-      if(obrasImp){obras=obrasImp;save('cronos_obras',obras);}
-      if(projImp){projetos=projImp;save('cronos_projetos',projetos);}
-      render();
-      const nO=obrasImp?obrasImp.length:0, nP=projImp?projImp.length:0;
-      toast(`✓ Importado com sucesso: ${nO} obra${nO!==1?'s':''}, ${nP} projeto${nP!==1?'s':''}`);
+      // importar para Supabase
+      async function importToSupabase(){
+        let nO=0, nP=0;
+        if(obrasImp && obrasImp.length){
+          // apagar obras existentes e recriar
+          await supa.from('equipa_obras').delete().neq('id','00000000-0000-0000-0000-000000000000');
+          await supa.from('obras').delete().neq('id','00000000-0000-0000-0000-000000000000');
+          for(const o of obrasImp){
+            const {data:ins} = await supa.from('obras').insert({
+              sigla:o.sigla, nome:o.nome, tipos:o.tipos, estado:o.estado,
+              inicio:o.inicio||null, prazo:o.prazo||null,
+              afet_prev:o.afetPrev||0, notas:o.notas||''
+            }).select().single();
+            if(ins && o.equipa && o.equipa.length){
+              await supa.from('equipa_obras').insert(
+                o.equipa.map(e=>({obra_id:ins.id,nome:e.nome,funcao:e.funcao,afet:e.afet}))
+              );
+            }
+            nO++;
+          }
+        }
+        if(projImp && projImp.length){
+          await supa.from('equipa_projetos').delete().neq('id','00000000-0000-0000-0000-000000000000');
+          await supa.from('projetos').delete().neq('id','00000000-0000-0000-0000-000000000000');
+          for(const p of projImp){
+            const {data:ins} = await supa.from('projetos').insert({
+              sigla:p.sigla, nome:p.nome, tipos:p.tipos, estado:p.estado,
+              inicio:p.inicio||null, prazo:p.prazo||null,
+              afet_prev:p.afetPrev||0, notas:p.notas||''
+            }).select().single();
+            if(ins && p.equipa && p.equipa.length){
+              await supa.from('equipa_projetos').insert(
+                p.equipa.map(e=>({projeto_id:ins.id,nome:e.nome,funcao:e.funcao,afet:e.afet}))
+              );
+            }
+            nP++;
+          }
+        }
+        await loadAllData();
+        render();
+        toast(`✓ Importado: ${nO} obra${nO!==1?'s':''}, ${nP} projeto${nP!==1?'s':''}`);
+      }
+      importToSupabase();
     }catch(err){
       toast('Erro ao ler o ficheiro XLSX.');
       console.error(err);
@@ -1451,7 +1622,22 @@ document.addEventListener('keydown',e=>{
   }
 });
 
-render();
+// substituir initApp pela chamada inicial
+supa.auth.onAuthStateChange((event, session) => {
+  if(event === 'SIGNED_IN' && session){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('user-email-label').textContent = session.user.email;
+    document.getElementById('app-loading').classList.remove('hidden');
+    loadAllData().then(()=>{
+      document.getElementById('app-loading').classList.add('hidden');
+      render();
+    });
+  } else if(event === 'SIGNED_OUT'){
+    location.reload();
+  }
+});
+
+initApp();
 </script>
 </body>
 </html>
