@@ -861,9 +861,9 @@ function applyFiltersToList(list, f){
 function renderFiltered(tab){
   const list     = tab==='obras' ? obras : projetos;
   const f        = filters[tab];
+  const tbodyId  = `${tab}-tbody`;
   const filtered = applySortToList(applyFiltersToList(list, f), tbodyId);
   const n        = countFilters(f);
-  const tbodyId  = `${tab}-tbody`;
 
   const tbody = document.getElementById(tbodyId);
   if(!filtered.length){
