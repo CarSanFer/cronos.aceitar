@@ -508,6 +508,82 @@
     </div>
   </div>
 
+
+  <!-- CONCURSOS -->
+  <div id="tab-content-concursos" class="hidden">
+    <div class="sec-header" style="margin-bottom:10px">
+      <div class="sec-title" id="concursos-count-label">Concursos</div>
+      <button class="btn btn-sm" onclick="clearFilterFromTab('concursos')" id="btn-clear-concursos" style="display:none;color:var(--amber);border-color:var(--amber)">Limpar filtros</button>
+    </div>
+    <div class="filter-bar" id="filter-bar-concursos">
+      <div class="fg-group"><div class="fg-label">Tipo</div><div class="fg-checks" id="concursos-chips-tipos"></div></div>
+      <div class="fg-group"><div class="fg-label">Estado</div><div class="fg-checks" id="concursos-chips-estados"></div></div>
+      <div class="fg-group"><div class="fg-label">Fim Previsto — De</div><input type="date" class="fg-date" id="concursos-date-from" oninput="liveFilter('concursos')"></div>
+      <div class="fg-group"><div class="fg-label">Até</div><input type="date" class="fg-date" id="concursos-date-to" oninput="liveFilter('concursos')"></div>
+      <div class="fg-group"><div class="fg-label">Fiscal</div><input type="text" class="fg-input" id="concursos-fiscal" placeholder="nome..." oninput="liveFilter('concursos')"></div>
+      <div class="fg-group"><div class="fg-label">CSO</div><input type="text" class="fg-input" id="concursos-cso" placeholder="nome..." oninput="liveFilter('concursos')"></div>
+    </div>
+    <div class="table-wrap"><table style="table-layout:fixed">
+      <colgroup>
+        <col style="width:8%"><col style="width:6%"><col style="width:18%"><col style="width:10%">
+        <col style="width:3%"><col style="width:3%"><col style="width:3%">
+        <col style="width:9%"><col style="width:8%"><col style="width:8%">
+        <col style="width:5%"><col style="width:10%"><col style="width:9%">
+      </colgroup>
+      <thead><tr>
+        <th class="sortable" onclick="sortTable('concursos-tbody','codigo')">Código</th>
+        <th class="sortable" onclick="sortTable('concursos-tbody','sigla')">Sigla</th>
+        <th class="sortable" onclick="sortTable('concursos-tbody','nome')" style="text-align:left">Designação</th>
+        <th class="sortable" onclick="sortTable('concursos-tbody','valor')">Valor</th>
+        <th>FISC</th><th>CSO</th><th>CONC</th>
+        <th class="sortable" onclick="sortTable('concursos-tbody','estado')">Estado</th>
+        <th class="sortable" onclick="sortTable('concursos-tbody','inicio')">Início</th>
+        <th class="sortable" onclick="sortTable('concursos-tbody','prazo')">Fim</th>
+        <th class="sortable" onclick="sortTable('concursos-tbody','afetPrev')">Afet.</th>
+        <th class="sortable" onclick="sortTable('concursos-tbody','_fiscal')">Fiscal</th>
+        <th class="sortable" onclick="sortTable('concursos-tbody','_cso')">CSO</th>
+      </tr></thead>
+      <tbody id="concursos-tbody"></tbody>
+    </table></div>
+  </div>
+
+  <!-- PREVISÕES -->
+  <div id="tab-content-previsoes" class="hidden">
+    <div class="sec-header" style="margin-bottom:10px">
+      <div class="sec-title" id="previsoes-count-label">Previsões</div>
+      <button class="btn btn-sm" onclick="clearFilterFromTab('previsoes')" id="btn-clear-previsoes" style="display:none;color:var(--amber);border-color:var(--amber)">Limpar filtros</button>
+    </div>
+    <div class="filter-bar" id="filter-bar-previsoes">
+      <div class="fg-group"><div class="fg-label">Tipo</div><div class="fg-checks" id="previsoes-chips-tipos"></div></div>
+      <div class="fg-group"><div class="fg-label">Estado</div><div class="fg-checks" id="previsoes-chips-estados"></div></div>
+      <div class="fg-group"><div class="fg-label">Fim Previsto — De</div><input type="date" class="fg-date" id="previsoes-date-from" oninput="liveFilter('previsoes')"></div>
+      <div class="fg-group"><div class="fg-label">Até</div><input type="date" class="fg-date" id="previsoes-date-to" oninput="liveFilter('previsoes')"></div>
+      <div class="fg-group"><div class="fg-label">Fiscal</div><input type="text" class="fg-input" id="previsoes-fiscal" placeholder="nome..." oninput="liveFilter('previsoes')"></div>
+      <div class="fg-group"><div class="fg-label">CSO</div><input type="text" class="fg-input" id="previsoes-cso" placeholder="nome..." oninput="liveFilter('previsoes')"></div>
+    </div>
+    <div class="table-wrap"><table style="table-layout:fixed">
+      <colgroup>
+        <col style="width:8%"><col style="width:6%"><col style="width:18%"><col style="width:10%">
+        <col style="width:3%"><col style="width:3%"><col style="width:3%">
+        <col style="width:9%"><col style="width:8%"><col style="width:8%">
+        <col style="width:5%"><col style="width:10%"><col style="width:9%">
+      </colgroup>
+      <thead><tr>
+        <th class="sortable" onclick="sortTable('previsoes-tbody','codigo')">Código</th>
+        <th class="sortable" onclick="sortTable('previsoes-tbody','sigla')">Sigla</th>
+        <th class="sortable" onclick="sortTable('previsoes-tbody','nome')" style="text-align:left">Designação</th>
+        <th class="sortable" onclick="sortTable('previsoes-tbody','valor')">Valor</th>
+        <th>FISC</th><th>CSO</th><th>CONC</th>
+        <th class="sortable" onclick="sortTable('previsoes-tbody','estado')">Estado</th>
+        <th class="sortable" onclick="sortTable('previsoes-tbody','inicio')">Início</th>
+        <th class="sortable" onclick="sortTable('previsoes-tbody','prazo')">Fim</th>
+        <th class="sortable" onclick="sortTable('previsoes-tbody','afetPrev')">Afet.</th>
+        <th class="sortable" onclick="sortTable('previsoes-tbody','_fiscal')">Fiscal</th>
+        <th class="sortable" onclick="sortTable('previsoes-tbody','_cso')">CSO</th>
+      </tr></thead>
+      <tbody id="previsoes-tbody"></tbody>
+    </table></div>
+  </div>
 <!-- DETAIL MODAL -->
 <div class="overlay" id="detail-overlay" onclick="closeDetailIfBg(event)">
   <div class="modal">
@@ -919,14 +995,16 @@ function initFilterBars(){
     const estados = isObra ? ESTADOS_OBRAS : ESTADOS_PROJ;
     const f = filters[tab];
 
-    document.getElementById(`${tab}-chips-tipos`).innerHTML = tipos.map(t=>
+    const elT=document.getElementById(`${tab}-chips-tipos`); if(!elT) return;
+    elT.innerHTML = tipos.map(t=>
       `<label class="fg-chip ${f.tipos.includes(t)?'on':''}">
         <input type="checkbox" value="${t}" ${f.tipos.includes(t)?'checked':''}
           onchange="toggleChip(this,'${tab}','tipos')"> ${t}
       </label>`
     ).join('');
 
-    document.getElementById(`${tab}-chips-estados`).innerHTML = estados.map(e=>
+    const elE=document.getElementById(`${tab}-chips-estados`); if(!elE) return;
+    elE.innerHTML = estados.map(e=>
       `<label class="fg-chip ${f.estados.includes(e)?'on':''}">
         <input type="checkbox" value="${e}" ${f.estados.includes(e)?'checked':''}
           onchange="toggleChip(this,'${tab}','estados')"> ${e}
