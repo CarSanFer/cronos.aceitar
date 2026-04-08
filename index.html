@@ -92,10 +92,10 @@
   tr:last-child td{border-bottom:none;}
   tbody tr{cursor:pointer;transition:background .12s;}
   tbody tr:hover td{background:#FAFAF7;}
-  .col-codigo{font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;}
+  .col-codigo{font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:visible!important;}
   .col-sigla{font-family:var(--mono);font-size:11px;color:var(--text3);white-space:nowrap;}
   .col-nome{font-weight:500;font-size:13px;}
-  .col-valor{font-size:12px;color:var(--text2);white-space:nowrap;text-align:right!important;}
+  .col-valor{font-size:12px;color:var(--text2);white-space:nowrap;text-align:right!important;overflow:visible!important;}
   .col-prazo{font-size:12px;color:var(--text2);white-space:nowrap;}
   .col-prazo.vencido{color:var(--red);font-weight:500;}
   .col-afet{font-family:var(--mono);font-size:12px;color:var(--text2);}
@@ -380,12 +380,13 @@
     </div>
     <div class="table-wrap"><table style="table-layout:fixed">
       <colgroup>
-        <col style="width:6%"><col style="width:17%"><col style="width:8%">
-        <col style="width:4%"><col style="width:4%"><col style="width:4%">
-        <col style="width:8%"><col style="width:8%"><col style="width:8%">
-        <col style="width:6%"><col style="width:11%"><col style="width:11%">
+        <col style="width:8%"><col style="width:6%"><col style="width:18%"><col style="width:10%">
+        <col style="width:3%"><col style="width:3%"><col style="width:3%">
+        <col style="width:9%"><col style="width:8%"><col style="width:8%">
+        <col style="width:5%"><col style="width:10%"><col style="width:9%">
       </colgroup>
       <thead><tr>
+        <th class="sortable" onclick="sortTable('obras-tbody','codigo')">Código</th>
         <th class="sortable" onclick="sortTable('obras-tbody','sigla')">Sigla</th>
         <th class="sortable" onclick="sortTable('obras-tbody','nome')" style="text-align:left">Designação</th>
         <th class="sortable" onclick="sortTable('obras-tbody','valor')">Valor</th>
@@ -435,12 +436,13 @@
     </div>
     <div class="table-wrap"><table style="table-layout:fixed">
       <colgroup>
-        <col style="width:6%"><col style="width:17%"><col style="width:8%">
-        <col style="width:4%"><col style="width:4%"><col style="width:4%">
-        <col style="width:8%"><col style="width:8%"><col style="width:8%">
-        <col style="width:6%"><col style="width:11%"><col style="width:11%">
+        <col style="width:8%"><col style="width:6%"><col style="width:18%"><col style="width:10%">
+        <col style="width:3%"><col style="width:3%"><col style="width:3%">
+        <col style="width:9%"><col style="width:8%"><col style="width:8%">
+        <col style="width:5%"><col style="width:10%"><col style="width:9%">
       </colgroup>
       <thead><tr>
+        <th class="sortable" onclick="sortTable('projetos-tbody','codigo')">Código</th>
         <th class="sortable" onclick="sortTable('projetos-tbody','sigla')">Sigla</th>
         <th class="sortable" onclick="sortTable('projetos-tbody','nome')" style="text-align:left">Designação</th>
         <th class="sortable" onclick="sortTable('projetos-tbody','valor')">Valor</th>
