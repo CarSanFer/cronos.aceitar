@@ -94,7 +94,7 @@
   tbody tr:hover td{background:#FAFAF7;}
   .col-sigla{font-family:var(--mono);font-size:11px;color:var(--text3);white-space:nowrap;}
   .col-nome{font-weight:500;font-size:13px;}
-  .col-valor{font-size:13px;color:var(--text2);white-space:nowrap;text-align:right!important;}
+  .col-valor{font-size:12px;color:var(--text2);white-space:nowrap;text-align:right!important;}
   .col-prazo{font-size:12px;color:var(--text2);white-space:nowrap;}
   .col-prazo.vencido{color:var(--red);font-weight:500;}
   .col-afet{font-family:var(--mono);font-size:12px;color:var(--text2);}
@@ -682,8 +682,13 @@ function getAv(name){
 }
 function fmtDate(d){if(!d)return'—';const[y,m,dd]=d.split('-');return`${dd}/${m}/${y}`;}
 function fmtValor(v){
-  if(!v&&v!==0)return'—';
-  return new Intl.NumberFormat('pt-PT',{style:'currency',currency:'EUR',minimumFractionDigits:2,maximumFractionDigits:2}).format(v);
+  if(v===null||v===undefined||v==='')return'—';
+  const n=parseFloat(v);
+  if(isNaN(n))return'—';
+  // formatar com ponto como sep. milhares e vírgula decimal, sufixo €
+  const parts=n.toFixed(2).split('.');
+  parts[0]=parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,'\u00A0'); // espaço no-break
+  return parts[0]+','+parts[1]+' €';
 }
 function isVencido(prazo,estado){
   if(!prazo)return false;
