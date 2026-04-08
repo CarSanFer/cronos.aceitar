@@ -685,10 +685,16 @@ function fmtValor(v){
   if(v===null||v===undefined||v==='')return'—';
   const n=parseFloat(v);
   if(isNaN(n))return'—';
-  // formatar com ponto como sep. milhares e vírgula decimal, sufixo €
-  const parts=n.toFixed(2).split('.');
-  parts[0]=parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,'\u00A0'); // espaço no-break
-  return parts[0]+','+parts[1]+' €';
+  const neg=n<0;
+  const abs=Math.abs(n);
+  const cents=String(Math.round((abs%1)*100)).padStart(2,'0');
+  const intPart=String(Math.floor(abs));
+  let out='';
+  for(let i=0;i<intPart.length;i++){
+    if(i>0&&(intPart.length-i)%3===0)out+=' ';
+    out+=intPart[i];
+  }
+  return(neg?'-':'')+out+','+cents+' €';
 }
 function isVencido(prazo,estado){
   if(!prazo)return false;
