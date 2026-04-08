@@ -717,6 +717,7 @@ async function initApp(){
     return;
   }
   // autenticado
+  console.log('Sessão activa:', session.user.email, session);
   document.getElementById('login-screen').style.display='none';
   const email = session.user.email;
   document.getElementById('user-email-label').textContent = email;
@@ -728,7 +729,9 @@ async function initApp(){
 // ── CARREGAR DADOS ────────────────────────────────────────────────────────────
 async function loadAllData(){
   // obras + equipa_obras
-  const {data: obrasData} = await supa.from('obras').select('*, equipa_obras(*)').order('sigla');
+  const {data: obrasData, error: obrasErr} = await supa.from('obras').select('*, equipa_obras(*)').order('sigla');
+  if(obrasErr) console.error('ERRO obras:', obrasErr.message, obrasErr);
+  console.log('obras carregadas:', (obrasData||[]).length, obrasData);
   obras = (obrasData||[]).map(o=>({
     id:       o.id,
     codigo:   o.codigo||'',
@@ -745,7 +748,9 @@ async function loadAllData(){
   }));
 
   // projetos + equipa_projetos
-  const {data: projData} = await supa.from('projetos').select('*, equipa_projetos(*)').order('sigla');
+  const {data: projData, error: projErr} = await supa.from('projetos').select('*, equipa_projetos(*)').order('sigla');
+  if(projErr) console.error('ERRO projetos:', projErr.message, projErr);
+  console.log('projetos carregados:', (projData||[]).length);
   projetos = (projData||[]).map(p=>({
     id:       p.id,
     codigo:   p.codigo||'',
