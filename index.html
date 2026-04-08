@@ -92,6 +92,7 @@
   tr:last-child td{border-bottom:none;}
   tbody tr{cursor:pointer;transition:background .12s;}
   tbody tr:hover td{background:#FAFAF7;}
+  .col-codigo{font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;}
   .col-sigla{font-family:var(--mono);font-size:11px;color:var(--text3);white-space:nowrap;}
   .col-nome{font-weight:500;font-size:13px;}
   .col-valor{font-size:12px;color:var(--text2);white-space:nowrap;text-align:right!important;}
@@ -184,6 +185,20 @@
   @keyframes spin{to{transform:rotate(360deg);}}
   .user-pill{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);}
   .user-dot{width:7px;height:7px;border-radius:50%;background:var(--green);}
+
+  /* CASHFLOW */
+  .cf-mes-ativo{background:var(--blue-bg)!important;}
+  .cf-val{font-size:11px;color:var(--text2);text-align:right;padding:8px 8px;border-bottom:1px solid var(--border);}
+  .cf-val.has-val{color:var(--text);font-weight:500;}
+  .cf-val.zero{color:var(--text3);}
+  .cf-nome{font-size:12px;font-weight:500;color:var(--text);padding:8px 12px;border-bottom:1px solid var(--border);position:sticky;left:0;background:var(--surface);}
+  .cf-nome-sub{font-size:10px;color:var(--text3);font-weight:400;}
+  .cf-tipo{font-size:10px;padding:8px 6px;border-bottom:1px solid var(--border);text-align:center;}
+  .cf-total-val{font-size:11px;font-weight:500;color:var(--text2);text-align:right;padding:8px 10px;border-bottom:1px solid var(--border);}
+  .cf-foot td{padding:9px 8px;font-size:11px;font-weight:700;color:var(--text);text-align:right;background:var(--surface2);border-top:2px solid var(--border-strong);}
+  .cf-foot td:first-child{text-align:left;position:sticky;left:0;background:var(--surface2);}
+  tr.cf-row:hover td{background:#FAFAF7;}
+  tr.cf-row:hover td.cf-nome{background:#FAFAF7;}
   .hidden{display:none!important;}
   hr.divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
 
@@ -288,6 +303,7 @@
     <button class="tab active" onclick="setTab('obras')" id="tab-obras">Obras</button>
     <button class="tab" onclick="setTab('projetos')" id="tab-projetos">Projetos</button>
     <button class="tab" onclick="setTab('dashboard')" id="tab-dashboard">Dashboard</button>
+    <button class="tab" onclick="setTab('cashflow')" id="tab-cashflow">Cashflow</button>
   </div>
   <div class="topbar-right">
     <button class="btn btn-sm btn-green" onclick="exportXlsx()">↓ Exportar XLSX</button>
@@ -441,6 +457,53 @@
   </div>
 </div>
 
+
+  <!-- CASHFLOW -->
+  <div id="tab-content-cashflow" class="hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-size:18px;font-weight:600;color:var(--text)">Cashflow 2026</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:2px">Entradas previstas · Obras em curso/suspensas + Projetos ativos/pendentes/suspensos</div>
+      </div>
+      <div style="font-family:var(--mono);font-size:13px;color:var(--text2)">Total anual: <span id="cf-total-anual" style="font-weight:600;color:var(--text)">—</span></div>
+    </div>
+
+    <!-- Gráfico de barras -->
+    <div class="dash-card" style="margin-bottom:16px">
+      <div class="dash-card-title">Entradas mensais (€)</div>
+      <canvas id="cf-chart" style="max-height:220px"></canvas>
+    </div>
+
+    <!-- Tabela cashflow -->
+    <div class="dash-card">
+      <div style="overflow-x:auto">
+        <table id="cf-table" style="width:100%;border-collapse:collapse;font-size:12px;min-width:900px">
+          <thead>
+            <tr style="background:var(--surface2)">
+              <th style="text-align:left;padding:9px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text);border-bottom:1px solid var(--border);position:sticky;left:0;background:var(--surface2);min-width:160px">Obra / Projeto</th>
+              <th style="padding:9px 6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:28px">Tipo</th>
+              <th style="padding:9px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:right;min-width:100px">Valor Total</th>
+              <th id="cf-th-jan" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:right;min-width:88px">Jan</th>
+              <th id="cf-th-fev" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:right;min-width:88px">Fev</th>
+              <th id="cf-th-mar" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:right;min-width:88px">Mar</th>
+              <th id="cf-th-abr" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:right;min-width:88px">Abr</th>
+              <th id="cf-th-mai" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:right;min-width:88px">Mai</th>
+              <th id="cf-th-jun" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:right;min-width:88px">Jun</th>
+              <th id="cf-th-jul" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:right;min-width:88px">Jul</th>
+              <th id="cf-th-ago" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:right;min-width:88px">Ago</th>
+              <th id="cf-th-set" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:right;min-width:88px">Set</th>
+              <th id="cf-th-out" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:right;min-width:88px">Out</th>
+              <th id="cf-th-nov" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:right;min-width:88px">Nov</th>
+              <th id="cf-th-dez" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:right;min-width:88px">Dez</th>
+            </tr>
+          </thead>
+          <tbody id="cf-tbody"></tbody>
+          <tfoot id="cf-tfoot"></tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
 <!-- DETAIL MODAL -->
 <div class="overlay" id="detail-overlay" onclick="closeDetailIfBg(event)">
   <div class="modal">
@@ -530,6 +593,10 @@
       <button class="modal-close" onclick="closeFormModal()">×</button>
     </div>
     <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Código</label>
+        <input class="form-input" id="f-codigo" placeholder="Ex: 25_001" maxlength="20">
+      </div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Sigla *</label>
@@ -646,14 +713,15 @@ async function loadAllData(){
   const {data: obrasData} = await supa.from('obras').select('*, equipa_obras(*)').order('sigla');
   obras = (obrasData||[]).map(o=>({
     id:       o.id,
+    codigo:   o.codigo||'',
     sigla:    o.sigla,
     nome:     o.nome,
     tipos:    o.tipos||[],
     estado:   o.estado,
     inicio:   o.inicio||'',
     prazo:    o.prazo||'',
-    afetPrev: o.afet_prev||0,
-    valor:    o.valor||null,
+    afetPrev: o.afet_prev!=null?o.afet_prev:null,
+    valor:    o.valor!=null?o.valor:null,
     notas:    o.notas||'',
     equipa:   (o.equipa_obras||[]).map(e=>({id:e.id,nome:e.nome,funcao:e.funcao,afet:e.afet})),
   }));
@@ -662,6 +730,7 @@ async function loadAllData(){
   const {data: projData} = await supa.from('projetos').select('*, equipa_projetos(*)').order('sigla');
   projetos = (projData||[]).map(p=>({
     id:       p.id,
+    codigo:   p.codigo||'',
     sigla:    p.sigla,
     nome:     p.nome,
     tipos:    p.tipos||[],
@@ -696,6 +765,12 @@ function fmtValor(v){
   }
   return(neg?'-':'')+out+','+cents+' €';
 }
+function fmtAfet(v){
+  // null/undefined = não definido; 0 = explicitamente sem afetação; >0 = valor
+  if(v===null||v===undefined)return'—';
+  return v+'%';
+}
+
 function isVencido(prazo,estado){
   if(!prazo)return false;
   if(estado==='Concluído'||estado==='Concluída')return false;
@@ -719,11 +794,12 @@ let activeTab='obras', activeId=null;
 // ── TABS ──────────────────────────────────────────────────────────────────────
 function setTab(tab){
   activeTab=tab;
-  ['obras','projetos','dashboard'].forEach(t=>{
+  ['obras','projetos','dashboard','cashflow'].forEach(t=>{
     document.getElementById(`tab-${t}`).classList.toggle('active',t===tab);
     document.getElementById(`tab-content-${t}`).classList.toggle('hidden',t!==tab);
   });
   if(tab==='dashboard') renderDashboard();
+  else if(tab==='cashflow') renderCashflow();
   else render();
 }
 
@@ -745,9 +821,9 @@ function tipoBadges(tipos){
 }
 
 function afetDistColor(dist,prev){
-  if(!prev)return'var(--text)';
+  if(prev===null||prev===undefined)return'var(--text)';
   if(dist>prev)return'var(--red)';
-  if(dist===prev)return'var(--green)';
+  if(dist===prev&&dist>0)return'var(--green)';
   return'var(--amber)';
 }
 
@@ -784,10 +860,11 @@ function sortTable(tbodyId, field){
 }
 
 function getSortVal(item, field){
+  if(field==='codigo')  return (item.codigo||'').toLowerCase();
   if(field==='_fiscal') return (item.equipa||[]).filter(c=>c.funcao==='Fiscal').map(c=>c.nome).join('');
   if(field==='_cso')    return (item.equipa||[]).filter(c=>c.funcao==='CSO').map(c=>c.nome).join('');
   if(field==='valor')   return item.valor||0;
-  if(field==='afetPrev')return item.afetPrev||0;
+  if(field==='afetPrev')return item.afetPrev!=null?item.afetPrev:-1;
   return (item[field]||'').toString().toLowerCase();
 }
 
@@ -878,15 +955,15 @@ function renderFiltered(tab){
 
   const tbody = document.getElementById(tbodyId);
   if(!filtered.length){
-    tbody.innerHTML=`<tr><td colspan="12"><div class="empty"><div class="empty-icon">◎</div>
+    tbody.innerHTML=`<tr><td colspan="13"><div class="empty"><div class="empty-icon">◎</div>
       <div class="empty-title">Sem resultados</div>
       <div>${n?'Nenhum registo para os filtros ativos.':' Cria um novo com o botão + Novo'}</div>
     </div></td></tr>`;
   } else {
     tbody.innerHTML=filtered.map(item=>{
       const venc=isVencido(item.prazo,item.estado);
-      const prev=item.afetPrev||0;
       return`<tr onclick="openDetail('${item.id}')">
+        <td class="col-codigo">${item.codigo||'—'}</td>
         <td class="col-sigla">${item.sigla}</td>
         <td class="col-nome" style="text-align:left">${item.nome}</td>
         <td class="col-valor">${fmtValor(item.valor)}</td>
@@ -896,7 +973,7 @@ function renderFiltered(tab){
         <td>${badgeEstado(item.estado)}</td>
         <td class="col-prazo">${fmtDate(item.inicio)}</td>
         <td class="col-prazo${venc?' vencido':''}">${fmtDate(item.prazo)}${venc?' ⚠':''}</td>
-        <td class="col-afet">${prev?prev+'%':'—'}</td>
+        <td class="col-afet">${fmtAfet(item.afetPrev)}</td>
         <td>${equipaByRole(item.equipa,'Fiscal')}</td>
         <td>${equipaByRole(item.equipa,'CSO')}</td>
       </tr>`;
@@ -989,19 +1066,19 @@ function dashHtmlObras(){
 
   const cards=obras.map(o=>{
     const dist=(o.equipa||[]).reduce((s,c)=>s+(c.afet||0),0);
-    const prev=o.afetPrev||0;
+    const prev=o.afetPrev!=null?o.afetPrev:null;
     const pct=prev?Math.round(dist/prev*100):0;
-    const fc=dist>prev?'var(--red)':dist===prev?'var(--green)':'var(--blue)';
+    const fc=prev===null?'var(--text3)':dist>prev?'var(--red)':dist===prev&&dist>0?'var(--green)':'var(--blue)';
     const tipos=normTipos(o.tipos);
     return`<div class="obra-card" onclick="setTab('obras');openDetail('${o.id}')">
       <div class="obra-card-sigla">${o.sigla}</div>
       <div class="obra-card-nome">${o.nome}</div>
       <div class="obra-card-tipos">${tipos.map(t=>`<span class="badge" style="background:${TIPO_COLORS[t]}22;color:${TIPO_COLORS[t]};font-size:10px;padding:1px 7px">${t}</span>`).join('')}</div>
       <div class="obra-card-estado" style="margin-bottom:8px">${badgeEstado(o.estado)}</div>
-      <div style="font-size:10px;color:var(--text3);margin-bottom:4px">Afetação ${dist}% / ${prev}%</div>
+      <div style="font-size:10px;color:var(--text3);margin-bottom:4px">Afetação ${dist}% / ${prev!=null?prev+'%':'—'}</div>
       <div class="obra-card-afet-row">
         <div class="obra-card-afet-bar"><div class="obra-card-afet-fill" style="width:${Math.min(prev?dist/prev*100:0,100)}%;background:${fc}"></div></div>
-        <div class="obra-card-afet-pct" style="color:${fc}">${prev?Math.round(dist/prev*100):0}%</div>
+        <div class="obra-card-afet-pct" style="color:${fc}">${prev!=null?Math.round(prev?dist/prev*100:0)+'%':'—'}</div>
       </div>
     </div>`;
   }).join('');
@@ -1077,7 +1154,7 @@ function dashChartsObras(){
 
   // barras agrupadas afetação prevista vs distribuída
   const oLabels=obras.map(o=>o.sigla);
-  const oPrev=obras.map(o=>o.afetPrev||0);
+  const oPrev=obras.map(o=>o.afetPrev!=null?o.afetPrev:0);
   const oDist=obras.map(o=>(o.equipa||[]).reduce((s,c)=>s+(c.afet||0),0));
   dashCharts.afetObra=new Chart(document.getElementById('dc-afet-obra'),{
     type:'bar',
@@ -1329,19 +1406,162 @@ function filterAndGoObras(campo,valor){
   setTab('obras');
 }
 
+
+// ── CASHFLOW ──────────────────────────────────────────────────────────────────
+let cfChart = null;
+const MESES_PT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+function cfEstadosOk(item, tipo){
+  if(tipo==='obra')    return ['Em Curso','Suspenso'].includes(item.estado);
+  if(tipo==='projeto') return ['Ativo','Pendente','Suspenso'].includes(item.estado);
+  return false;
+}
+
+function cfMesesAtivos(item){
+  // início: max(Janeiro 2026, data de início do item)
+  const anoRef = 2026;
+  let mIni = 0; // Jan 2026 = índice 0
+  if(item.inicio){
+    const d = new Date(item.inicio);
+    if(d.getFullYear() === anoRef) mIni = d.getMonth();
+    else if(d.getFullYear() > anoRef) return []; // começa depois de 2026
+    // se começa antes de 2026, usa Jan 2026 (mIni=0)
+  }
+  // fim: min(Dezembro 2026, data de fim do item)
+  let mFim = 11; // Dez 2026 = índice 11
+  if(item.prazo){
+    const d = new Date(item.prazo);
+    if(d.getFullYear() === anoRef) mFim = d.getMonth();
+    else if(d.getFullYear() < anoRef) return []; // terminou antes de 2026
+    // se termina depois de 2026, usa Dez 2026 (mFim=11)
+  }
+  if(mIni > mFim) return [];
+  const meses = [];
+  for(let m = mIni; m <= mFim; m++) meses.push(m);
+  return meses;
+}
+
+function renderCashflow(){
+  const mesAtual = new Date().getMonth(); // para highlight do mês actual
+
+  // Recolher items elegíveis
+  const items = [
+    ...obras.filter(o=>cfEstadosOk(o,'obra')).map(o=>({...o,_tipo:'OB'})),
+    ...projetos.filter(p=>cfEstadosOk(p,'projeto')).map(p=>({...p,_tipo:'PJ'})),
+  ];
+
+  // Calcular valor mensal por item
+  const rows = items.map(item=>{
+    const meses = cfMesesAtivos(item);
+    const n = meses.length;
+    const valorTotal = item.valor || 0;
+    const valorMes   = n > 0 && valorTotal > 0 ? valorTotal / n : 0;
+    const mensal = Array(12).fill(0);
+    meses.forEach(m => { mensal[m] = valorMes; });
+    return { item, mensal, valorTotal };
+  });
+
+  // Totais por mês
+  const totais = Array(12).fill(0);
+  rows.forEach(r => r.mensal.forEach((v,m) => { totais[m] += v; }));
+  const totalAnual = totais.reduce((s,v)=>s+v,0);
+
+  // Total anual
+  document.getElementById('cf-total-anual').textContent = fmtValor(totalAnual);
+
+  // Highlight mês actual nos cabeçalhos
+  MESES_PT.forEach((nome,i)=>{
+    const ids = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+    const th = document.getElementById('cf-th-'+ids[i]);
+    if(th) th.style.background = i === mesAtual ? 'var(--blue-bg)' : '';
+  });
+
+  // Tabela
+  const tbody = document.getElementById('cf-tbody');
+  if(!rows.length){
+    tbody.innerHTML = `<tr><td colspan="15" style="text-align:center;padding:32px;color:var(--text3)">Sem obras ou projetos elegíveis com valor definido</td></tr>`;
+  } else {
+    tbody.innerHTML = rows.map(({item,mensal,valorTotal})=>{
+      const meses = cfMesesAtivos(item);
+      const mAtivos = new Set(meses);
+      const tipoBadge = item._tipo==='OB'
+        ? `<span class="badge badge-blue" style="font-size:10px;padding:1px 6px">OB</span>`
+        : `<span class="badge badge-purple" style="font-size:10px;padding:1px 6px">PJ</span>`;
+      const celulasMes = mensal.map((v,m)=>{
+        const ativo = mAtivos.has(m);
+        const bg = m===mesAtual ? 'background:var(--blue-bg);' : ativo ? 'background:#FAFAF7;' : '';
+        const cls = v>0 ? 'has-val' : 'zero';
+        return `<td class="cf-val ${cls}" style="${bg}">${v>0?fmtValor(v):'—'}</td>`;
+      }).join('');
+      return `<tr class="cf-row">
+        <td class="cf-nome">${item.sigla}<br><span class="cf-nome-sub">${item.nome}</span></td>
+        <td class="cf-tipo">${tipoBadge}</td>
+        <td class="cf-total-val">${valorTotal>0?fmtValor(valorTotal):'—'}</td>
+        ${celulasMes}
+      </tr>`;
+    }).join('');
+  }
+
+  // Rodapé totais
+  const tfoot = document.getElementById('cf-tfoot');
+  const celulasTot = totais.map((v,m)=>{
+    const bg = m===mesAtual ? 'background:var(--blue-bg);' : '';
+    return `<td style="${bg};font-size:11px;font-weight:700;color:${v>0?'var(--text)':'var(--text3)'}">${v>0?fmtValor(v):'—'}</td>`;
+  }).join('');
+  tfoot.innerHTML = `<tr class="cf-foot">
+    <td colspan="2" style="text-align:left;padding:9px 12px;font-size:11px;font-weight:700;position:sticky;left:0;background:var(--surface2)">Total mensal</td>
+    <td style="text-align:right;padding:9px 8px;font-size:11px;font-weight:700">${fmtValor(totalAnual)}</td>
+    ${celulasTot}
+  </tr>`;
+
+  // Gráfico
+  if(cfChart){ cfChart.destroy(); cfChart=null; }
+  const ctx = document.getElementById('cf-chart').getContext('2d');
+  const mesAtualColor = totais.map((_,i)=>i===mesAtual?'#185FA5':'#B5D4F4');
+  cfChart = new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels: MESES_PT,
+      datasets:[{
+        label:'Entradas (€)',
+        data: totais,
+        backgroundColor: mesAtualColor,
+        borderRadius: 5,
+        borderSkipped: false,
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      animation:{duration:500},
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:c=>'  '+fmtValor(c.raw)}}
+      },
+      scales:{
+        x:{grid:{display:false}, ticks:{font:{size:11}}},
+        y:{
+          beginAtZero:true,
+          ticks:{callback:v=>fmtValor(v), font:{size:10}},
+          grid:{color:'rgba(0,0,0,.04)'}
+        }
+      }
+    }
+  });
+}
+
 // ── DETAIL ────────────────────────────────────────────────────────────────────
 function openDetail(id){
   const list=activeTab==='obras'?obras:projetos;
   const item=list.find(i=>i.id===id);
   if(!item)return;
   activeId=id;
-  document.getElementById('d-sigla').textContent=item.sigla;
+  document.getElementById('d-sigla').textContent=item.codigo?item.codigo+' · '+item.sigla:item.sigla;
   document.getElementById('d-nome').textContent=item.nome;
   document.getElementById('d-badges').innerHTML=badgeEstado(item.estado)+' '+tipoBadges(item.tipos);
   document.getElementById('d-info-grid').innerHTML=`
     <div class="detail-field"><div class="detail-label">Estado</div><div class="detail-val">${item.estado}</div></div>
     <div class="detail-field"><div class="detail-label">Valor</div><div class="detail-val" style="font-weight:600">${fmtValor(item.valor)}</div></div>
-    <div class="detail-field"><div class="detail-label">Afetação Prevista</div><div class="detail-val mono">${item.afetPrev||0}%</div></div>
+    <div class="detail-field"><div class="detail-label">Afetação Prevista</div><div class="detail-val mono">${fmtAfet(item.afetPrev)}</div></div>
     <div class="detail-field"><div class="detail-label">Início Previsto</div><div class="detail-val">${fmtDate(item.inicio)}</div></div>
     <div class="detail-field"><div class="detail-label">Fim Previsto</div><div class="detail-val">${fmtDate(item.prazo)}${isVencido(item.prazo,item.estado)?' <span style="color:var(--red)">⚠ Vencido</span>':''}</div></div>
   `;
@@ -1353,17 +1573,18 @@ function openDetail(id){
 }
 
 function refreshAfetPainel(item){
-  const prev=item.afetPrev||0;
+  const prev=item.afetPrev!=null?item.afetPrev:null;
   const dist=(item.equipa||[]).reduce((s,c)=>s+(c.afet||0),0);
-  const diff=dist-prev;
+  const diff=prev!=null?dist-prev:null;
   const col=afetDistColor(dist,prev);
-  document.getElementById('d-afet-prev-val').textContent=prev?prev+'%':'—';
+  document.getElementById('d-afet-prev-val').textContent=fmtAfet(prev);
   document.getElementById('d-afet-dist-val').textContent=dist?dist+'%':'—';
   document.getElementById('d-afet-dist-val').style.color=dist?col:'var(--text)';
   let sub='Soma das afetações da equipa';
-  if(dist&&prev){
+  if(prev!=null){
     if(diff>0)sub=`+${diff}% acima do previsto`;
     else if(diff<0)sub=`${Math.abs(diff)}% por distribuir`;
+    else if(dist===0&&prev===0)sub='Sem afetação prevista';
     else sub='Totalmente distribuído';
   }
   document.getElementById('d-afet-dist-label').textContent=sub;
@@ -1465,7 +1686,7 @@ function openFormModal(){
   document.getElementById('form-subtitle').textContent=isObra?'Obras':'Projetos';
   document.getElementById('f-estado').innerHTML=(isObra?ESTADOS_OBRAS:ESTADOS_PROJ).map(e=>`<option>${e}</option>`).join('');
   buildTipoChecks([]);
-  ['f-sigla','f-nome','f-valor','f-afet','f-inicio','f-prazo'].forEach(id=>document.getElementById(id).value='');
+  ['f-codigo','f-sigla','f-nome','f-valor','f-afet','f-inicio','f-prazo'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('form-overlay').classList.add('open');
   setTimeout(()=>document.getElementById('f-sigla').focus(),120);
 }
@@ -1478,6 +1699,7 @@ function openEditModal(){
   document.getElementById('form-subtitle').textContent=item.sigla;
   document.getElementById('f-estado').innerHTML=(isObra?ESTADOS_OBRAS:ESTADOS_PROJ).map(e=>`<option ${e===item.estado?'selected':''}>${e}</option>`).join('');
   buildTipoChecks(item.tipos);
+  document.getElementById('f-codigo').value = item.codigo||'';
   document.getElementById('f-sigla').value  = item.sigla||'';
   document.getElementById('f-nome').value   = item.nome||'';
   document.getElementById('f-valor').value  = item.valor!=null?item.valor:'';
@@ -1493,11 +1715,12 @@ async function saveForm(){
   if(!sigla||!nome){toast('Sigla e Designação são obrigatórios');return;}
   const tipos=getTiposSelected();
   const valorRaw = document.getElementById('f-valor').value;
+  const codigo=document.getElementById('f-codigo').value.trim();
   const dbData={
-    sigla, nome, tipos,
+    codigo:codigo||null, sigla, nome, tipos,
     estado:    document.getElementById('f-estado').value,
     valor:     valorRaw!==''?parseFloat(valorRaw):null,
-    afet_prev: parseInt(document.getElementById('f-afet').value)||0,
+    afet_prev: document.getElementById('f-afet').value!==''?parseInt(document.getElementById('f-afet').value):null,
     inicio:    document.getElementById('f-inicio').value||null,
     prazo:     document.getElementById('f-prazo').value||null,
   };
@@ -1530,6 +1753,7 @@ function flattenList(list){
     for(let i=0;i<maxE;i++){
       const c=equipa[i]||{};
       rows.push({
+        'Código':           i===0?(item.codigo||''):'',
         'Sigla':            i===0?item.sigla:'',
         'Designação':       i===0?item.nome:'',
         'Valor (€)':        i===0?(item.valor!=null?item.valor:''):'',
@@ -1539,7 +1763,7 @@ function flattenList(list){
         'Estado':           i===0?item.estado:'',
         'Início Previsto':  i===0?(item.inicio||''):'',
         'Fim Previsto':     i===0?(item.prazo||''):'',
-        'Afetação (%)':     i===0?(item.afetPrev||0):'',
+        'Afetação (%)':     i===0?(item.afetPrev!=null?item.afetPrev:''):'',
         'Notas':            i===0?item.notas:'',
         'Colaborador Nome':     c.nome||'',
         'Colaborador Função':   c.funcao||'',
@@ -1552,7 +1776,7 @@ function flattenList(list){
 
 function exportXlsx(){
   const wb=XLSX.utils.book_new();
-  const cols=[{wch:10},{wch:40},{wch:14},{wch:6},{wch:6},{wch:6},{wch:14},{wch:13},{wch:13},{wch:12},{wch:40},{wch:24},{wch:18},{wch:20}];
+  const cols=[{wch:12},{wch:10},{wch:40},{wch:14},{wch:6},{wch:6},{wch:6},{wch:14},{wch:13},{wch:13},{wch:12},{wch:40},{wch:24},{wch:18},{wch:20}];
 
   const wsO=XLSX.utils.json_to_sheet(flattenList(obras));
   wsO['!cols']=cols;
@@ -1612,13 +1836,14 @@ function importXlsx(event){
             }
             cur={
               id:uid(), sigla,
+              codigo:   (row['Código']||'').toString().trim(),
               nome:     (row['Designação']||'').toString().trim(),
               tipos,
               estado:   (row['Estado']||'').toString().trim(),
               inicio:   xlsxDateToISO(row['Início Previsto']||row['Inicio Previsto']||''),
               valor:    row['Valor (€)']!==''?parseFloat(row['Valor (€)'])||null:null,
               prazo:    xlsxDateToISO(row['Fim Previsto']),
-              afetPrev: parseFloat(row['Afetação (%)'||'']||row['Afet. Prevista (%)'||''])||0,
+              afetPrev: (row['Afetação (%)']!==''&&row['Afetação (%)']!==undefined)?parseFloat(row['Afetação (%)'])||0:null,
               notas:    (row['Notas']||'').toString().trim(),
               equipa:   [],
             };
@@ -1648,10 +1873,10 @@ function importXlsx(event){
           await supa.from('obras').delete().neq('id','00000000-0000-0000-0000-000000000000');
           for(const o of obrasImp){
             const {data:ins} = await supa.from('obras').insert({
-              sigla:o.sigla, nome:o.nome, tipos:o.tipos, estado:o.estado,
+              codigo:o.codigo||null, sigla:o.sigla, nome:o.nome, tipos:o.tipos, estado:o.estado,
               valor:o.valor!=null?o.valor:null,
               inicio:o.inicio||null, prazo:o.prazo||null,
-              afet_prev:o.afetPrev||0, notas:o.notas||''
+              afet_prev:o.afetPrev!=null?o.afetPrev:null, notas:o.notas||''
             }).select().single();
             if(ins && o.equipa && o.equipa.length){
               await supa.from('equipa_obras').insert(
@@ -1666,10 +1891,10 @@ function importXlsx(event){
           await supa.from('projetos').delete().neq('id','00000000-0000-0000-0000-000000000000');
           for(const p of projImp){
             const {data:ins} = await supa.from('projetos').insert({
-              sigla:p.sigla, nome:p.nome, tipos:p.tipos, estado:p.estado,
+              codigo:p.codigo||null, sigla:p.sigla, nome:p.nome, tipos:p.tipos, estado:p.estado,
               valor:p.valor!=null?p.valor:null,
               inicio:p.inicio||null, prazo:p.prazo||null,
-              afet_prev:p.afetPrev||0, notas:p.notas||''
+              afet_prev:p.afetPrev!=null?p.afetPrev:null, notas:p.notas||''
             }).select().single();
             if(ins && p.equipa && p.equipa.length){
               await supa.from('equipa_projetos').insert(
