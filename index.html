@@ -301,11 +301,10 @@
   <div class="topbar-div"></div>
   <div class="tabs">
     <button class="tab active" onclick="setTab('obras')" id="tab-obras">Obras</button>
-    <button class="tab" onclick="setTab('projetos')" id="tab-projetos">Projetos</button>
-    <button class="tab" onclick="setTab('dashboard')" id="tab-dashboard">Dashboard</button>
-    <button class="tab" onclick="setTab('cashflow')" id="tab-cashflow">Cashflow</button>
     <button class="tab" onclick="setTab('concursos')" id="tab-concursos">Concursos</button>
+    <button class="tab" onclick="setTab('projetos')" id="tab-projetos">Projetos</button>
     <button class="tab" onclick="setTab('previsoes')" id="tab-previsoes">Previsões</button>
+    <button class="tab" onclick="setTab('cashflow')" id="tab-cashflow">Cashflow</button>
   </div>
   <div class="topbar-right">
     <button class="btn btn-sm btn-green" onclick="exportXlsx()">↓ Exportar XLSX</button>
@@ -516,12 +515,30 @@
       <button class="btn btn-sm" onclick="clearFilterFromTab('concursos')" id="btn-clear-concursos" style="display:none;color:var(--amber);border-color:var(--amber)">Limpar filtros</button>
     </div>
     <div class="filter-bar" id="filter-bar-concursos">
-      <div class="fg-group"><div class="fg-label">Tipo</div><div class="fg-checks" id="concursos-chips-tipos"></div></div>
-      <div class="fg-group"><div class="fg-label">Estado</div><div class="fg-checks" id="concursos-chips-estados"></div></div>
-      <div class="fg-group"><div class="fg-label">Fim Previsto — De</div><input type="date" class="fg-date" id="concursos-date-from" oninput="liveFilter('concursos')"></div>
-      <div class="fg-group"><div class="fg-label">Até</div><input type="date" class="fg-date" id="concursos-date-to" oninput="liveFilter('concursos')"></div>
-      <div class="fg-group"><div class="fg-label">Fiscal</div><input type="text" class="fg-input" id="concursos-fiscal" placeholder="nome..." oninput="liveFilter('concursos')"></div>
-      <div class="fg-group"><div class="fg-label">CSO</div><input type="text" class="fg-input" id="concursos-cso" placeholder="nome..." oninput="liveFilter('concursos')"></div>
+      <div class="fg-group">
+        <div class="fg-label">Tipo</div>
+        <div class="fg-checks" id="concursos-chips-tipos"></div>
+      </div>
+      <div class="fg-group">
+        <div class="fg-label">Estado</div>
+        <div class="fg-checks" id="concursos-chips-estados"></div>
+      </div>
+      <div class="fg-group">
+        <div class="fg-label">Fim Previsto — De</div>
+        <input type="date" class="fg-date" id="concursos-date-from" oninput="liveFilter('concursos')">
+      </div>
+      <div class="fg-group">
+        <div class="fg-label">Até</div>
+        <input type="date" class="fg-date" id="concursos-date-to" oninput="liveFilter('concursos')">
+      </div>
+      <div class="fg-group">
+        <div class="fg-label">Fiscal</div>
+        <input type="text" class="fg-input" id="concursos-fiscal" placeholder="nome..." oninput="liveFilter('concursos')">
+      </div>
+      <div class="fg-group">
+        <div class="fg-label">CSO</div>
+        <input type="text" class="fg-input" id="concursos-cso" placeholder="nome..." oninput="liveFilter('concursos')">
+      </div>
     </div>
     <div class="table-wrap"><table style="table-layout:fixed">
       <colgroup>
@@ -554,12 +571,30 @@
       <button class="btn btn-sm" onclick="clearFilterFromTab('previsoes')" id="btn-clear-previsoes" style="display:none;color:var(--amber);border-color:var(--amber)">Limpar filtros</button>
     </div>
     <div class="filter-bar" id="filter-bar-previsoes">
-      <div class="fg-group"><div class="fg-label">Tipo</div><div class="fg-checks" id="previsoes-chips-tipos"></div></div>
-      <div class="fg-group"><div class="fg-label">Estado</div><div class="fg-checks" id="previsoes-chips-estados"></div></div>
-      <div class="fg-group"><div class="fg-label">Fim Previsto — De</div><input type="date" class="fg-date" id="previsoes-date-from" oninput="liveFilter('previsoes')"></div>
-      <div class="fg-group"><div class="fg-label">Até</div><input type="date" class="fg-date" id="previsoes-date-to" oninput="liveFilter('previsoes')"></div>
-      <div class="fg-group"><div class="fg-label">Fiscal</div><input type="text" class="fg-input" id="previsoes-fiscal" placeholder="nome..." oninput="liveFilter('previsoes')"></div>
-      <div class="fg-group"><div class="fg-label">CSO</div><input type="text" class="fg-input" id="previsoes-cso" placeholder="nome..." oninput="liveFilter('previsoes')"></div>
+      <div class="fg-group">
+        <div class="fg-label">Tipo</div>
+        <div class="fg-checks" id="previsoes-chips-tipos"></div>
+      </div>
+      <div class="fg-group">
+        <div class="fg-label">Estado</div>
+        <div class="fg-checks" id="previsoes-chips-estados"></div>
+      </div>
+      <div class="fg-group">
+        <div class="fg-label">Fim Previsto — De</div>
+        <input type="date" class="fg-date" id="previsoes-date-from" oninput="liveFilter('previsoes')">
+      </div>
+      <div class="fg-group">
+        <div class="fg-label">Até</div>
+        <input type="date" class="fg-date" id="previsoes-date-to" oninput="liveFilter('previsoes')">
+      </div>
+      <div class="fg-group">
+        <div class="fg-label">Fiscal</div>
+        <input type="text" class="fg-input" id="previsoes-fiscal" placeholder="nome..." oninput="liveFilter('previsoes')">
+      </div>
+      <div class="fg-group">
+        <div class="fg-label">CSO</div>
+        <input type="text" class="fg-input" id="previsoes-cso" placeholder="nome..." oninput="liveFilter('previsoes')">
+      </div>
     </div>
     <div class="table-wrap"><table style="table-layout:fixed">
       <colgroup>
@@ -584,6 +619,7 @@
       <tbody id="previsoes-tbody"></tbody>
     </table></div>
   </div>
+
 <!-- DETAIL MODAL -->
 <div class="overlay" id="detail-overlay" onclick="closeDetailIfBg(event)">
   <div class="modal">
