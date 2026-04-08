@@ -90,6 +90,7 @@
   tbody tr:hover td{background:#FAFAF7;}
   .col-sigla{font-family:var(--mono);font-size:11px;color:var(--text3);white-space:nowrap;}
   .col-nome{font-weight:500;font-size:13px;}
+  .col-valor{font-family:var(--mono);font-size:12px;color:var(--text2);white-space:nowrap;text-align:right!important;}
   .col-prazo{font-size:12px;color:var(--text2);white-space:nowrap;}
   .col-prazo.vencido{color:var(--red);font-weight:500;}
   .col-afet{font-family:var(--mono);font-size:12px;color:var(--text2);}
@@ -126,7 +127,7 @@
   .modal-body{padding:20px 24px;overflow-y:auto;flex:1;}
   .modal-footer{padding:14px 24px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0;}
 
-  .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+  .detail-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px;}
   .detail-field{display:flex;flex-direction:column;gap:3px;}
   .detail-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);}
   .detail-val{font-size:13px;color:var(--text);}
@@ -359,13 +360,13 @@
     </div>
     <div class="table-wrap"><table style="table-layout:fixed">
       <colgroup>
-        <col style="width:7%"><col style="width:22%">
-        <col style="width:5%"><col style="width:5%"><col style="width:5%">
-        <col style="width:9%"><col style="width:9%"><col style="width:9%">
-        <col style="width:7%"><col style="width:11%"><col style="width:11%">
+        <col style="width:6%"><col style="width:17%"><col style="width:8%">
+        <col style="width:4%"><col style="width:4%"><col style="width:4%">
+        <col style="width:8%"><col style="width:8%"><col style="width:8%">
+        <col style="width:6%"><col style="width:11%"><col style="width:11%">
       </colgroup>
       <thead><tr>
-        <th>Sigla</th><th>Designação</th>
+        <th>Sigla</th><th>Designação</th><th>Valor</th>
         <th>FISC</th><th>CSO</th><th>CONC</th>
         <th>Estado</th><th>Início</th><th>Fim</th>
         <th>Afet.</th><th>Fiscal</th><th>CSO</th>
@@ -408,13 +409,13 @@
     </div>
     <div class="table-wrap"><table style="table-layout:fixed">
       <colgroup>
-        <col style="width:7%"><col style="width:22%">
-        <col style="width:5%"><col style="width:5%"><col style="width:5%">
-        <col style="width:9%"><col style="width:9%"><col style="width:9%">
-        <col style="width:7%"><col style="width:11%"><col style="width:11%">
+        <col style="width:6%"><col style="width:17%"><col style="width:8%">
+        <col style="width:4%"><col style="width:4%"><col style="width:4%">
+        <col style="width:8%"><col style="width:8%"><col style="width:8%">
+        <col style="width:6%"><col style="width:11%"><col style="width:11%">
       </colgroup>
       <thead><tr>
-        <th>Sigla</th><th>Designação</th>
+        <th>Sigla</th><th>Designação</th><th>Valor</th>
         <th>FISC</th><th>CSO</th><th>CONC</th>
         <th>Estado</th><th>Início</th><th>Fim</th>
         <th>Afet.</th><th>Fiscal</th><th>CSO</th>
@@ -528,6 +529,10 @@
         <input class="form-input" id="f-nome" placeholder="Nome completo da obra ou projeto">
       </div>
       <div class="form-group">
+        <label class="form-label">Valor (€)</label>
+        <input class="form-input" id="f-valor" type="number" min="0" step="0.01" placeholder="0,00">
+      </div>
+      <div class="form-group">
         <label class="form-label">Tipo (pode selecionar mais do que um)</label>
         <div class="tipo-checks" id="f-tipo-checks"></div>
       </div>
@@ -632,6 +637,7 @@ async function loadAllData(){
     inicio:   o.inicio||'',
     prazo:    o.prazo||'',
     afetPrev: o.afet_prev||0,
+    valor:    o.valor||null,
     notas:    o.notas||'',
     equipa:   (o.equipa_obras||[]).map(e=>({id:e.id,nome:e.nome,funcao:e.funcao,afet:e.afet})),
   }));
@@ -647,6 +653,7 @@ async function loadAllData(){
     inicio:   p.inicio||'',
     prazo:    p.prazo||'',
     afetPrev: p.afet_prev||0,
+    valor:    p.valor||null,
     notas:    p.notas||'',
     equipa:   (p.equipa_projetos||[]).map(e=>({id:e.id,nome:e.nome,funcao:e.funcao,afet:e.afet})),
   }));
@@ -658,6 +665,10 @@ function getAv(name){
   return{ini,color:AV_COLORS[h%AV_COLORS.length]};
 }
 function fmtDate(d){if(!d)return'—';const[y,m,dd]=d.split('-');return`${dd}/${m}/${y}`;}
+function fmtValor(v){
+  if(!v&&v!==0)return'—';
+  return new Intl.NumberFormat('pt-PT',{style:'currency',currency:'EUR',minimumFractionDigits:2,maximumFractionDigits:2}).format(v);
+}
 function isVencido(prazo,estado){
   if(!prazo)return false;
   if(estado==='Concluído'||estado==='Concluída')return false;
@@ -803,7 +814,7 @@ function renderFiltered(tab){
 
   const tbody = document.getElementById(tbodyId);
   if(!filtered.length){
-    tbody.innerHTML=`<tr><td colspan="11"><div class="empty"><div class="empty-icon">◎</div>
+    tbody.innerHTML=`<tr><td colspan="12"><div class="empty"><div class="empty-icon">◎</div>
       <div class="empty-title">Sem resultados</div>
       <div>${n?'Nenhum registo para os filtros ativos.':' Cria um novo com o botão + Novo'}</div>
     </div></td></tr>`;
@@ -814,6 +825,7 @@ function renderFiltered(tab){
       return`<tr onclick="openDetail('${item.id}')">
         <td class="col-sigla">${item.sigla}</td>
         <td class="col-nome" style="text-align:left">${item.nome}</td>
+        <td class="col-valor">${fmtValor(item.valor)}</td>
         <td>${tipoX(item.tipos,'FISC')}</td>
         <td>${tipoX(item.tipos,'CSO')}</td>
         <td>${tipoX(item.tipos,'CONC')}</td>
@@ -1264,6 +1276,7 @@ function openDetail(id){
   document.getElementById('d-badges').innerHTML=badgeEstado(item.estado)+' '+tipoBadges(item.tipos);
   document.getElementById('d-info-grid').innerHTML=`
     <div class="detail-field"><div class="detail-label">Estado</div><div class="detail-val">${item.estado}</div></div>
+    <div class="detail-field"><div class="detail-label">Valor</div><div class="detail-val" style="font-weight:600">${fmtValor(item.valor)}</div></div>
     <div class="detail-field"><div class="detail-label">Afetação Prevista</div><div class="detail-val mono">${item.afetPrev||0}%</div></div>
     <div class="detail-field"><div class="detail-label">Início Previsto</div><div class="detail-val">${fmtDate(item.inicio)}</div></div>
     <div class="detail-field"><div class="detail-label">Fim Previsto</div><div class="detail-val">${fmtDate(item.prazo)}${isVencido(item.prazo,item.estado)?' <span style="color:var(--red)">⚠ Vencido</span>':''}</div></div>
@@ -1388,7 +1401,7 @@ function openFormModal(){
   document.getElementById('form-subtitle').textContent=isObra?'Obras':'Projetos';
   document.getElementById('f-estado').innerHTML=(isObra?ESTADOS_OBRAS:ESTADOS_PROJ).map(e=>`<option>${e}</option>`).join('');
   buildTipoChecks([]);
-  ['f-sigla','f-nome','f-afet','f-inicio','f-prazo'].forEach(id=>document.getElementById(id).value='');
+  ['f-sigla','f-nome','f-valor','f-afet','f-inicio','f-prazo'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('form-overlay').classList.add('open');
   setTimeout(()=>document.getElementById('f-sigla').focus(),120);
 }
@@ -1403,6 +1416,7 @@ function openEditModal(){
   buildTipoChecks(item.tipos);
   document.getElementById('f-sigla').value  = item.sigla||'';
   document.getElementById('f-nome').value   = item.nome||'';
+  document.getElementById('f-valor').value  = item.valor!=null?item.valor:'';
   document.getElementById('f-afet').value   = item.afetPrev??'';
   document.getElementById('f-inicio').value = item.inicio||'';
   document.getElementById('f-prazo').value  = item.prazo||'';
@@ -1414,9 +1428,11 @@ async function saveForm(){
   const nome=document.getElementById('f-nome').value.trim();
   if(!sigla||!nome){toast('Sigla e Designação são obrigatórios');return;}
   const tipos=getTiposSelected();
+  const valorRaw = document.getElementById('f-valor').value;
   const dbData={
     sigla, nome, tipos,
     estado:    document.getElementById('f-estado').value,
+    valor:     valorRaw!==''?parseFloat(valorRaw):null,
     afet_prev: parseInt(document.getElementById('f-afet').value)||0,
     inicio:    document.getElementById('f-inicio').value||null,
     prazo:     document.getElementById('f-prazo').value||null,
@@ -1452,6 +1468,7 @@ function flattenList(list){
       rows.push({
         'Sigla':            i===0?item.sigla:'',
         'Designação':       i===0?item.nome:'',
+        'Valor (€)':        i===0?(item.valor!=null?item.valor:''):'',
         'FISC':             i===0?(tipos.includes('FISC')?'x':''):'',
         'CSO':              i===0?(tipos.includes('CSO')?'x':''):'',
         'CONC':             i===0?(tipos.includes('CONC')?'x':''):'',
@@ -1471,7 +1488,7 @@ function flattenList(list){
 
 function exportXlsx(){
   const wb=XLSX.utils.book_new();
-  const cols=[{wch:10},{wch:40},{wch:6},{wch:6},{wch:6},{wch:14},{wch:13},{wch:13},{wch:12},{wch:40},{wch:24},{wch:18},{wch:20}];
+  const cols=[{wch:10},{wch:40},{wch:14},{wch:6},{wch:6},{wch:6},{wch:14},{wch:13},{wch:13},{wch:12},{wch:40},{wch:24},{wch:18},{wch:20}];
 
   const wsO=XLSX.utils.json_to_sheet(flattenList(obras));
   wsO['!cols']=cols;
@@ -1535,6 +1552,7 @@ function importXlsx(event){
               tipos,
               estado:   (row['Estado']||'').toString().trim(),
               inicio:   xlsxDateToISO(row['Início Previsto']||row['Inicio Previsto']||''),
+              valor:    row['Valor (€)']!==''?parseFloat(row['Valor (€)'])||null:null,
               prazo:    xlsxDateToISO(row['Fim Previsto']),
               afetPrev: parseFloat(row['Afetação (%)'||'']||row['Afet. Prevista (%)'||''])||0,
               notas:    (row['Notas']||'').toString().trim(),
@@ -1567,6 +1585,7 @@ function importXlsx(event){
           for(const o of obrasImp){
             const {data:ins} = await supa.from('obras').insert({
               sigla:o.sigla, nome:o.nome, tipos:o.tipos, estado:o.estado,
+              valor:o.valor!=null?o.valor:null,
               inicio:o.inicio||null, prazo:o.prazo||null,
               afet_prev:o.afetPrev||0, notas:o.notas||''
             }).select().single();
@@ -1584,6 +1603,7 @@ function importXlsx(event){
           for(const p of projImp){
             const {data:ins} = await supa.from('projetos').insert({
               sigla:p.sigla, nome:p.nome, tipos:p.tipos, estado:p.estado,
+              valor:p.valor!=null?p.valor:null,
               inicio:p.inicio||null, prazo:p.prazo||null,
               afet_prev:p.afetPrev||0, notas:p.notas||''
             }).select().single();
