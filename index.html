@@ -83,6 +83,10 @@
   table{width:100%;border-collapse:collapse;table-layout:fixed;}
   thead tr{background:var(--surface2);}
   th{font-size:11px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.05em;padding:10px 8px;text-align:center;border-bottom:1px solid var(--border);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  th.sortable{cursor:pointer;user-select:none;transition:background .12s;}
+  th.sortable:hover{background:var(--border);}
+  th.sort-asc::after{content:" ↑";font-size:10px;opacity:.7;}
+  th.sort-desc::after{content:" ↓";font-size:10px;opacity:.7;}
   td{padding:10px 8px;border-bottom:1px solid var(--border);vertical-align:middle;text-align:center;overflow:hidden;text-overflow:ellipsis;}
   th:nth-child(2),td:nth-child(2){text-align:left;}
   tr:last-child td{border-bottom:none;}
@@ -90,7 +94,7 @@
   tbody tr:hover td{background:#FAFAF7;}
   .col-sigla{font-family:var(--mono);font-size:11px;color:var(--text3);white-space:nowrap;}
   .col-nome{font-weight:500;font-size:13px;}
-  .col-valor{font-family:var(--mono);font-size:12px;color:var(--text2);white-space:nowrap;text-align:right!important;}
+  .col-valor{font-size:13px;color:var(--text2);white-space:nowrap;text-align:right!important;}
   .col-prazo{font-size:12px;color:var(--text2);white-space:nowrap;}
   .col-prazo.vencido{color:var(--red);font-weight:500;}
   .col-afet{font-family:var(--mono);font-size:12px;color:var(--text2);}
@@ -366,10 +370,16 @@
         <col style="width:6%"><col style="width:11%"><col style="width:11%">
       </colgroup>
       <thead><tr>
-        <th>Sigla</th><th>Designação</th><th>Valor</th>
+        <th class="sortable" onclick="sortTable('obras-tbody','sigla')">Sigla</th>
+        <th class="sortable" onclick="sortTable('obras-tbody','nome')" style="text-align:left">Designação</th>
+        <th class="sortable" onclick="sortTable('obras-tbody','valor')">Valor</th>
         <th>FISC</th><th>CSO</th><th>CONC</th>
-        <th>Estado</th><th>Início</th><th>Fim</th>
-        <th>Afet.</th><th>Fiscal</th><th>CSO</th>
+        <th class="sortable" onclick="sortTable('obras-tbody','estado')">Estado</th>
+        <th class="sortable" onclick="sortTable('obras-tbody','inicio')">Início</th>
+        <th class="sortable" onclick="sortTable('obras-tbody','prazo')">Fim</th>
+        <th class="sortable" onclick="sortTable('obras-tbody','afetPrev')">Afet.</th>
+        <th class="sortable" onclick="sortTable('obras-tbody','_fiscal')">Fiscal</th>
+        <th class="sortable" onclick="sortTable('obras-tbody','_cso')">CSO</th>
       </tr></thead>
       <tbody id="obras-tbody"></tbody>
     </table></div>
@@ -415,10 +425,16 @@
         <col style="width:6%"><col style="width:11%"><col style="width:11%">
       </colgroup>
       <thead><tr>
-        <th>Sigla</th><th>Designação</th><th>Valor</th>
+        <th class="sortable" onclick="sortTable('projetos-tbody','sigla')">Sigla</th>
+        <th class="sortable" onclick="sortTable('projetos-tbody','nome')" style="text-align:left">Designação</th>
+        <th class="sortable" onclick="sortTable('projetos-tbody','valor')">Valor</th>
         <th>FISC</th><th>CSO</th><th>CONC</th>
-        <th>Estado</th><th>Início</th><th>Fim</th>
-        <th>Afet.</th><th>Fiscal</th><th>CSO</th>
+        <th class="sortable" onclick="sortTable('projetos-tbody','estado')">Estado</th>
+        <th class="sortable" onclick="sortTable('projetos-tbody','inicio')">Início</th>
+        <th class="sortable" onclick="sortTable('projetos-tbody','prazo')">Fim</th>
+        <th class="sortable" onclick="sortTable('projetos-tbody','afetPrev')">Afet.</th>
+        <th class="sortable" onclick="sortTable('projetos-tbody','_fiscal')">Fiscal</th>
+        <th class="sortable" onclick="sortTable('projetos-tbody','_cso')">CSO</th>
       </tr></thead>
       <tbody id="projetos-tbody"></tbody>
     </table></div>
@@ -738,6 +754,43 @@ function tipoX(tipos,t){
     : `<span style="color:var(--text3);font-size:12px">—</span>`;
 }
 
+
+// ── ORDENAÇÃO ─────────────────────────────────────────────────────────────────
+const sortState = { 'obras-tbody': {field:null, dir:1}, 'projetos-tbody': {field:null, dir:1} };
+
+function sortTable(tbodyId, field){
+  const st = sortState[tbodyId];
+  if(st.field === field) st.dir *= -1;
+  else { st.field = field; st.dir = 1; }
+  // limpar indicadores
+  document.querySelectorAll(`#${tbodyId}`).forEach(()=>{});
+  document.querySelectorAll('th.sortable').forEach(th=>{
+    th.classList.remove('sort-asc','sort-desc');
+  });
+  // marcar o th clicado
+  event.currentTarget.classList.add(st.dir===1?'sort-asc':'sort-desc');
+  renderFiltered(tbodyId.replace('-tbody',''));
+}
+
+function getSortVal(item, field){
+  if(field==='_fiscal') return (item.equipa||[]).filter(c=>c.funcao==='Fiscal').map(c=>c.nome).join('');
+  if(field==='_cso')    return (item.equipa||[]).filter(c=>c.funcao==='CSO').map(c=>c.nome).join('');
+  if(field==='valor')   return item.valor||0;
+  if(field==='afetPrev')return item.afetPrev||0;
+  return (item[field]||'').toString().toLowerCase();
+}
+
+function applySortToList(list, tbodyId){
+  const st = sortState[tbodyId];
+  if(!st.field) return list;
+  return [...list].sort((a,b)=>{
+    const av = getSortVal(a, st.field);
+    const bv = getSortVal(b, st.field);
+    if(typeof av === 'number') return (av - bv) * st.dir;
+    return av.localeCompare(bv, 'pt') * st.dir;
+  });
+}
+
 // ── FILTROS INLINE ────────────────────────────────────────────────────────────
 const filters = {
   obras:    {tipos:[], estados:[], dateFrom:'', dateTo:'', fiscal:'', cso:''},
@@ -808,7 +861,7 @@ function applyFiltersToList(list, f){
 function renderFiltered(tab){
   const list     = tab==='obras' ? obras : projetos;
   const f        = filters[tab];
-  const filtered = applyFiltersToList(list, f);
+  const filtered = applySortToList(applyFiltersToList(list, f), tbodyId);
   const n        = countFilters(f);
   const tbodyId  = `${tab}-tbody`;
 
