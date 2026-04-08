@@ -928,8 +928,13 @@ function afetDistColor(dist,prev){
 // get first person in equipa by role
 function equipaByRole(equipa,role){
   const found=(equipa||[]).filter(c=>c.funcao===role);
-  if(!found.length)return'<span style="color:var(--text3);font-size:11px">—</span>';
-  return found.map(c=>`<div class="col-pessoa"><div class="p-nome">${c.nome}</div><div class="p-pct">${c.afet?c.afet+'%':''}</div></div>`).join('');
+  if(!found.length)return'—';
+  return found.map(c=>`<span style="font-size:12px;font-weight:500;color:var(--text)">${c.nome}</span>`).join(', ');
+}
+function equipaByRolePct(equipa,role){
+  const found=(equipa||[]).filter(c=>c.funcao===role);
+  if(!found.length)return'—';
+  return found.map(c=>`<span style="font-family:var(--mono);font-size:11px;color:var(--text3)">${c.afet!=null?c.afet+'%':'—'}</span>`).join(', ');
 }
 
 function tipoX(tipos,t){
