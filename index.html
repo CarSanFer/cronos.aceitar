@@ -304,6 +304,8 @@
     <button class="tab" onclick="setTab('projetos')" id="tab-projetos">Projetos</button>
     <button class="tab" onclick="setTab('dashboard')" id="tab-dashboard">Dashboard</button>
     <button class="tab" onclick="setTab('cashflow')" id="tab-cashflow">Cashflow</button>
+    <button class="tab" onclick="setTab('concursos')" id="tab-concursos">Concursos</button>
+    <button class="tab" onclick="setTab('previsoes')" id="tab-previsoes">Previsões</button>
   </div>
   <div class="topbar-right">
     <button class="btn btn-sm btn-green" onclick="exportXlsx()">↓ Exportar XLSX</button>
@@ -650,9 +652,13 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
-const TIPOS_OBRAS   = ['FISC','CSO','CONC'];
+const TIPOS_OBRAS      = ['FISC','CSO'];
+const TIPOS_CONCURSOS  = ['FISC','CSO'];
+const TIPOS_PREVISOES  = ['FISC','CSO'];
 const TIPOS_PROJ    = ['FISC','CSO','CONC'];
-const ESTADOS_OBRAS = ['Em Curso','Previsto','Pendente','Suspenso','Concluído'];
+const ESTADOS_OBRAS      = ['Em Curso','Pendente','Suspenso','Concluído'];
+const ESTADOS_CONCURSOS  = ['Em Curso','Adjudicado','Não Adjudicado','Suspenso','Concluído'];
+const ESTADOS_PREVISOES  = ['Previsto','Em Curso','Suspenso','Concluído'];
 const ESTADOS_PROJ  = ['Ativo','Em Avaliação','Pendente','Concluído','Suspenso'];
 
 const AV_COLORS=[
@@ -665,6 +671,16 @@ const AV_COLORS=[
 const SUPA_URL = 'https://ylzqsoqdlqgakntxlqjp.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsenFzb3FkbHFnYWtudHhscWpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwODgzNDAsImV4cCI6MjA5MDY2NDM0MH0.mmCyZHP_z9MPHEu5B22PDTekrigOXUln3DpmIvpdXjk';
 const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+// ── TAB META ─────────────────────────────────────────────────────────────────
+function getTabMeta(tab){
+  return {
+    obras:     {list:obras,     setList:v=>{obras=v;},     table:'obras',     eqTable:'equipa_obras',    fk:'obra_id',     estados:ESTADOS_OBRAS,     tipos:TIPOS_OBRAS,     label:'Obra',     labelPlural:'Obras'},
+    projetos:  {list:projetos,  setList:v=>{projetos=v;},  table:'projetos',  eqTable:'equipa_projetos', fk:'projeto_id',  estados:ESTADOS_PROJ,      tipos:TIPOS_PROJ,      label:'Projeto',  labelPlural:'Projetos'},
+    concursos: {list:concursos, setList:v=>{concursos=v;}, table:'concursos', eqTable:'equipa_concursos',fk:'concurso_id', estados:ESTADOS_CONCURSOS, tipos:TIPOS_CONCURSOS, label:'Concurso', labelPlural:'Concursos'},
+    previsoes: {list:previsoes, setList:v=>{previsoes=v;}, table:'previsoes', eqTable:'equipa_previsoes',fk:'previsao_id', estados:ESTADOS_PREVISOES, tipos:TIPOS_PREVISOES, label:'Previsão', labelPlural:'Previsões'},
+  }[tab];
+}
 
 function uid(){return crypto.randomUUID();}
 
@@ -788,6 +804,8 @@ function normTipos(t){
 
 let obras = [];
 let projetos = [];
+let concursos = [];
+let previsoes = [];
 let activeTab='obras', activeId=null;
 
 
@@ -796,7 +814,7 @@ let activeTab='obras', activeId=null;
 // ── TABS ──────────────────────────────────────────────────────────────────────
 function setTab(tab){
   activeTab=tab;
-  ['obras','projetos','dashboard','cashflow'].forEach(t=>{
+  ['obras','projetos','dashboard','cashflow','concursos','previsoes'].forEach(t=>{
     document.getElementById(`tab-${t}`).classList.toggle('active',t===tab);
     document.getElementById(`tab-content-${t}`).classList.toggle('hidden',t!==tab);
   });
@@ -845,7 +863,7 @@ function tipoX(tipos,t){
 
 
 // ── ORDENAÇÃO ─────────────────────────────────────────────────────────────────
-const sortState = { 'obras-tbody': {field:null, dir:1}, 'projetos-tbody': {field:null, dir:1} };
+const sortState = { 'obras-tbody': {field:null, dir:1}, 'projetos-tbody': {field:null, dir:1}, 'concursos-tbody': {field:null, dir:1}, 'previsoes-tbody': {field:null, dir:1} };
 
 function sortTable(tbodyId, field){
   const st = sortState[tbodyId];
@@ -883,12 +901,14 @@ function applySortToList(list, tbodyId){
 
 // ── FILTROS INLINE ────────────────────────────────────────────────────────────
 const filters = {
-  obras:    {tipos:[], estados:[], dateFrom:'', dateTo:'', fiscal:'', cso:''},
-  projetos: {tipos:[], estados:[], dateFrom:'', dateTo:'', fiscal:'', cso:''},
+  obras:     {tipos:[], estados:[], dateFrom:'', dateTo:'', fiscal:'', cso:''},
+  projetos:  {tipos:[], estados:[], dateFrom:'', dateTo:'', fiscal:'', cso:''},
+  concursos: {tipos:[], estados:[], dateFrom:'', dateTo:'', fiscal:'', cso:''},
+  previsoes: {tipos:[], estados:[], dateFrom:'', dateTo:'', fiscal:'', cso:''},
 };
 
 function initFilterBars(){
-  ['obras','projetos'].forEach(tab=>{
+  ['obras','projetos','concursos','previsoes'].forEach(tab=>{
     const isObra = tab==='obras';
     const tipos   = ['FISC','CSO','CONC'];
     const estados = isObra ? ESTADOS_OBRAS : ESTADOS_PROJ;
@@ -949,7 +969,7 @@ function applyFiltersToList(list, f){
 }
 
 function renderFiltered(tab){
-  const list     = tab==='obras' ? obras : projetos;
+  const list     = getTabMeta(tab).list;
   const f        = filters[tab];
   const tbodyId  = `${tab}-tbody`;
   const filtered = applySortToList(applyFiltersToList(list, f), tbodyId);
@@ -984,7 +1004,9 @@ function renderFiltered(tab){
 
   const label = n ? `${tab==='obras'?'Obras':'Projetos'} · ${filtered.length} / ${list.length}`
                   : `${tab==='obras'?'Obras':'Projetos'} · ${list.length}`;
-  document.getElementById(`${tab}-count-label`).textContent = label;
+  const pluralLabel = getTabMeta(tab)?.labelPlural || tab;
+  const displayLabel = n ? `${pluralLabel} · ${filtered.length} / ${list.length}` : `${pluralLabel} · ${list.length}`;
+  document.getElementById(`${tab}-count-label`).textContent = displayLabel;
 
   const clearBtn = document.getElementById(`btn-clear-${tab}`);
   clearBtn.style.display = n ? '' : 'none';
@@ -1007,6 +1029,8 @@ function render(){
   initFilterBars();
   renderFiltered('obras');
   renderFiltered('projetos');
+  renderFiltered('concursos');
+  renderFiltered('previsoes');
 }
 
 // ── DASHBOARD ─────────────────────────────────────────────────────────────────
@@ -1450,6 +1474,8 @@ function renderCashflow(){
   const items = [
     ...obras.filter(o=>cfEstadosOk(o,'obra')).map(o=>({...o,_tipo:'OB'})),
     ...projetos.filter(p=>cfEstadosOk(p,'projeto')).map(p=>({...p,_tipo:'PJ'})),
+    ...concursos.filter(c=>['Em Curso'].includes(c.estado)).map(c=>({...c,_tipo:'CONC'})),
+    ...previsoes.filter(p=>['Previsto','Em Curso'].includes(p.estado)).map(p=>({...p,_tipo:'PREV'})),
   ];
 
   // Calcular valor mensal por item
@@ -1486,9 +1512,13 @@ function renderCashflow(){
     tbody.innerHTML = rows.map(({item,mensal,valorTotal})=>{
       const meses = cfMesesAtivos(item);
       const mAtivos = new Set(meses);
-      const tipoBadge = item._tipo==='OB'
-        ? `<span class="badge badge-blue" style="font-size:10px;padding:1px 6px">OB</span>`
-        : `<span class="badge badge-purple" style="font-size:10px;padding:1px 6px">PJ</span>`;
+      const tipoBadgeMap = {
+        'OB':   `<span class="badge badge-blue"   style="font-size:10px;padding:1px 6px">OB</span>`,
+        'PJ':   `<span class="badge badge-purple" style="font-size:10px;padding:1px 6px">PJ</span>`,
+        'CONC': `<span class="badge badge-gray"   style="font-size:10px;padding:1px 6px">CONC</span>`,
+        'PREV': `<span class="badge badge-amber"  style="font-size:10px;padding:1px 6px">PREV</span>`,
+      };
+      const tipoBadge = tipoBadgeMap[item._tipo]||tipoBadgeMap['OB'];
       const celulasMes = mensal.map((v,m)=>{
         const ativo = mAtivos.has(m);
         const bg = m===mesAtual ? 'background:var(--blue-bg);' : ativo ? 'background:#FAFAF7;' : '';
@@ -1609,11 +1639,11 @@ function renderEquipa(item){
 
 function closeDetail(){document.getElementById('detail-overlay').classList.remove('open');activeId=null;}
 function closeDetailIfBg(e){if(e.target===document.getElementById('detail-overlay'))closeDetail();}
-function getActiveItem(){return(activeTab==='obras'?obras:projetos).find(i=>i.id===activeId);}
+function getActiveItem(){const m=getTabMeta(activeTab);return m?m.list.find(i=>i.id===activeId):null;}
 function autoSaveNotas(){
   const item=getActiveItem();if(!item)return;
   const notas=document.getElementById('d-notas').value;
-  const table=activeTab==='obras'?'obras':'projetos';
+  const table=getTabMeta(activeTab).table;
   supa.from(table).update({notas}).eq('id',item.id).then(({error})=>{
     if(!error){item.notas=notas;}
   });
@@ -1632,8 +1662,7 @@ async function saveColab(){
   const afet=parseInt(document.getElementById('colab-afet-input').value)||0;
   if(!nome)return;
   const item=getActiveItem();if(!item)return;
-  const table = activeTab==='obras' ? 'equipa_obras' : 'equipa_projetos';
-  const fk    = activeTab==='obras' ? 'obra_id' : 'projeto_id';
+  const {eqTable:table, fk} = getTabMeta(activeTab);
   const {error} = await supa.from(table).insert({[fk]:item.id, nome, funcao, afet});
   if(error){toast('Erro: '+error.message);return;}
   await loadAllData();
@@ -1643,7 +1672,7 @@ async function saveColab(){
   toast('Afetação adicionada');
 }
 async function removeColab(equipaId){
-  const table = activeTab==='obras' ? 'equipa_obras' : 'equipa_projetos';
+  const table = getTabMeta(activeTab).eqTable;
   const {error} = await supa.from(table).delete().eq('id', equipaId);
   if(error){toast('Erro: '+error.message);return;}
   await loadAllData();
@@ -1656,7 +1685,7 @@ async function removeColab(equipaId){
 // ── DELETE ────────────────────────────────────────────────────────────────────
 async function deleteItem(){
   if(!confirm('Confirmas a eliminação? Esta ação é irreversível.'))return;
-  const table = activeTab==='obras' ? 'obras' : 'projetos';
+  const table = getTabMeta(activeTab).table;
   const {error} = await supa.from(table).delete().eq('id', activeId);
   if(error){toast('Erro ao eliminar: '+error.message);return;}
   closeDetail();
@@ -1669,8 +1698,7 @@ async function deleteItem(){
 let editingId=null;
 
 function buildTipoChecks(selected){
-  const isObra=activeTab==='obras';
-  const tipos=isObra?TIPOS_OBRAS:TIPOS_PROJ;
+  const tipos=getTabMeta(activeTab)?.tipos||TIPOS_OBRAS;
   const sel=normTipos(selected);
   document.getElementById('f-tipo-checks').innerHTML=tipos.map(t=>
     `<label class="tipo-check"><input type="checkbox" value="${t}" ${sel.includes(t)?'checked':''}> ${t}</label>`
@@ -1683,10 +1711,10 @@ function getTiposSelected(){
 
 function openFormModal(){
   editingId=null;
-  const isObra=activeTab==='obras';
-  document.getElementById('form-title-text').textContent=isObra?'Nova Obra':'Novo Projeto';
-  document.getElementById('form-subtitle').textContent=isObra?'Obras':'Projetos';
-  document.getElementById('f-estado').innerHTML=(isObra?ESTADOS_OBRAS:ESTADOS_PROJ).map(e=>`<option>${e}</option>`).join('');
+  const meta=getTabMeta(activeTab);
+  document.getElementById('form-title-text').textContent='Novo '+meta.label;
+  document.getElementById('form-subtitle').textContent=meta.labelPlural;
+  document.getElementById('f-estado').innerHTML=meta.estados.map(e=>`<option>${e}</option>`).join('');
   buildTipoChecks([]);
   ['f-codigo','f-sigla','f-nome','f-valor','f-afet','f-inicio','f-prazo'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('form-overlay').classList.add('open');
@@ -1728,11 +1756,11 @@ async function saveForm(){
   };
   const table = activeTab==='obras' ? 'obras' : 'projetos';
   if(editingId){
-    const {error} = await supa.from(table).update(dbData).eq('id', editingId);
+    const {error} = await supa.from(meta.table).update(dbData).eq('id', editingId);
     if(error){toast('Erro ao atualizar: '+error.message);return;}
     toast('Atualizado com sucesso');
   } else {
-    const {error} = await supa.from(table).insert(dbData);
+    const {error} = await supa.from(meta.table).insert(dbData);
     if(error){toast('Erro ao criar: '+error.message);return;}
     toast('Criado com sucesso');
   }
@@ -1787,6 +1815,14 @@ function exportXlsx(){
   const wsP=XLSX.utils.json_to_sheet(flattenList(projetos));
   wsP['!cols']=cols;
   XLSX.utils.book_append_sheet(wb,wsP,'Projetos');
+
+  const wsC=XLSX.utils.json_to_sheet(flattenList(concursos));
+  wsC['!cols']=cols;
+  XLSX.utils.book_append_sheet(wb,wsC,'Concursos');
+
+  const wsPr=XLSX.utils.json_to_sheet(flattenList(previsoes));
+  wsPr['!cols']=cols;
+  XLSX.utils.book_append_sheet(wb,wsPr,'Previsoes');
 
   XLSX.writeFile(wb,`CRONOS_${new Date().toISOString().slice(0,10)}.xlsx`);
   toast('Ficheiro exportado para a pasta Downloads do browser');
@@ -1865,7 +1901,9 @@ function importXlsx(event){
 
       const obrasImp=parseSheet('Obras');
       const projImp=parseSheet('Projetos');
-      if(!obrasImp&&!projImp){toast('Não foi possível ler o ficheiro. Verifica se tem separadores "Obras" e "Projetos".');return;}
+      const concImp=parseSheet('Concursos');
+      const prevImp=parseSheet('Previsoes');
+      if(!obrasImp&&!projImp&&!concImp&&!prevImp){toast('Não foi possível ler o ficheiro.');return;}
       // importar para Supabase
       async function importToSupabase(){
         let nO=0, nP=0;
