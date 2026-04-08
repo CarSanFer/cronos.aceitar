@@ -1906,47 +1906,82 @@ function importXlsx(event){
       if(!obrasImp&&!projImp&&!concImp&&!prevImp){toast('Não foi possível ler o ficheiro.');return;}
       // importar para Supabase
       async function importToSupabase(){
-        let nO=0, nP=0;
-        if(obrasImp && obrasImp.length){
-          // apagar obras existentes e recriar
-          await supa.from('equipa_obras').delete().neq('id','00000000-0000-0000-0000-000000000000');
-          await supa.from('obras').delete().neq('id','00000000-0000-0000-0000-000000000000');
+        let nO=0, nP=0, nC=0, nPr=0;
+        const errors=[];
+
+        async function clearTable(eq,main){
+          // apagar equipa primeiro (FK), depois main
+          try{ await supa.from(eq).delete().gte('created_at','2000-01-01'); }catch(e){}
+          try{ await supa.from(main).delete().gte('created_at','2000-01-01'); }catch(e){}
+        }
+
+        async function insertItem(table,eqTable,fkName,item,fields){
+          const {data:ins,error:e}=await supa.from(table).insert(fields).select().single();
+          if(e){errors.push(table+': '+e.message);return;}
+          if(ins&&item.equipa&&item.equipa.length){
+            const rows=item.equipa.map(c=>({[fkName]:ins.id,nome:c.nome,funcao:c.funcao,afet:c.afet}));
+            const {error:e2}=await supa.from(eqTable).insert(rows);
+            if(e2)errors.push(eqTable+': '+e2.message);
+          }
+        }
+
+        if(obrasImp&&obrasImp.length){
+          await clearTable('equipa_obras','obras');
           for(const o of obrasImp){
-            const {data:ins} = await supa.from('obras').insert({
-              codigo:o.codigo||null, sigla:o.sigla, nome:o.nome, tipos:o.tipos, estado:o.estado,
-              valor:o.valor!=null?o.valor:null,
-              inicio:o.inicio||null, prazo:o.prazo||null,
-              afet_prev:o.afetPrev!=null?o.afetPrev:null, notas:o.notas||''
-            }).select().single();
-            if(ins && o.equipa && o.equipa.length){
-              await supa.from('equipa_obras').insert(
-                o.equipa.map(e=>({obra_id:ins.id,nome:e.nome,funcao:e.funcao,afet:e.afet}))
-              );
-            }
+            await insertItem('obras','equipa_obras','obra_id',o,{
+              codigo:o.codigo||null,sigla:o.sigla,nome:o.nome,tipos:normTipos(o.tipos),
+              estado:o.estado||'Em Curso',valor:o.valor!=null?parseFloat(o.valor):null,
+              inicio:o.inicio||null,prazo:o.prazo||null,
+              afet_prev:o.afetPrev!=null?o.afetPrev:null,notas:o.notas||''
+            });
             nO++;
           }
         }
-        if(projImp && projImp.length){
-          await supa.from('equipa_projetos').delete().neq('id','00000000-0000-0000-0000-000000000000');
-          await supa.from('projetos').delete().neq('id','00000000-0000-0000-0000-000000000000');
+        if(projImp&&projImp.length){
+          await clearTable('equipa_projetos','projetos');
           for(const p of projImp){
-            const {data:ins} = await supa.from('projetos').insert({
-              codigo:p.codigo||null, sigla:p.sigla, nome:p.nome, tipos:p.tipos, estado:p.estado,
-              valor:p.valor!=null?p.valor:null,
-              inicio:p.inicio||null, prazo:p.prazo||null,
-              afet_prev:p.afetPrev!=null?p.afetPrev:null, notas:p.notas||''
-            }).select().single();
-            if(ins && p.equipa && p.equipa.length){
-              await supa.from('equipa_projetos').insert(
-                p.equipa.map(e=>({projeto_id:ins.id,nome:e.nome,funcao:e.funcao,afet:e.afet}))
-              );
-            }
+            await insertItem('projetos','equipa_projetos','projeto_id',p,{
+              codigo:p.codigo||null,sigla:p.sigla,nome:p.nome,tipos:normTipos(p.tipos),
+              estado:p.estado||'Ativo',valor:p.valor!=null?parseFloat(p.valor):null,
+              inicio:p.inicio||null,prazo:p.prazo||null,
+              afet_prev:p.afetPrev!=null?p.afetPrev:null,notas:p.notas||''
+            });
             nP++;
           }
         }
+        if(concImp&&concImp.length){
+          await clearTable('equipa_concursos','concursos');
+          for(const c of concImp){
+            await insertItem('concursos','equipa_concursos','concurso_id',c,{
+              codigo:c.codigo||null,sigla:c.sigla,nome:c.nome,tipos:normTipos(c.tipos),
+              estado:c.estado||'Em Curso',valor:c.valor!=null?parseFloat(c.valor):null,
+              inicio:c.inicio||null,prazo:c.prazo||null,
+              afet_prev:c.afetPrev!=null?c.afetPrev:null,notas:c.notas||''
+            });
+            nC++;
+          }
+        }
+        if(prevImp&&prevImp.length){
+          await clearTable('equipa_previsoes','previsoes');
+          for(const p of prevImp){
+            await insertItem('previsoes','equipa_previsoes','previsao_id',p,{
+              codigo:p.codigo||null,sigla:p.sigla,nome:p.nome,tipos:normTipos(p.tipos),
+              estado:p.estado||'Previsto',valor:p.valor!=null?parseFloat(p.valor):null,
+              inicio:p.inicio||null,prazo:p.prazo||null,
+              afet_prev:p.afetPrev!=null?p.afetPrev:null,notas:p.notas||''
+            });
+            nPr++;
+          }
+        }
+
         await loadAllData();
         render();
-        toast(`✓ Importado: ${nO} obra${nO!==1?'s':''}, ${nP} projeto${nP!==1?'s':''}`);
+        if(errors.length){
+          console.error('Erros import:',errors);
+          toast(`Importado com avisos: ${nO} obras, ${nP} projetos, ${nC} concursos, ${nPr} previsões`);
+        } else {
+          toast(`✓ Importado: ${nO} obra${nO!==1?'s':''}, ${nP} projeto${nP!==1?'s':''}, ${nC} concurso${nC!==1?'s':''}, ${nPr} previsão${nPr!==1?'ões':''}`);
+        }
       }
       importToSupabase();
     }catch(err){
