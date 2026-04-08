@@ -1479,12 +1479,13 @@ function filterAndGoObras(campo,valor){
       el.classList.toggle('on',on);
       el.querySelector('input').checked=on;
     });
-    });
+  }
+  setTab('obras');
 }
 
 // ── DETAIL ────────────────────────────────────────────────────────────────────
 function openDetail(id){
-  const list=activeTab==='obras'?obras:projetos;
+  const list=getTabMeta(activeTab)?.list||obras;
   const item=list.find(i=>i.id===id);
   if(!item)return;
   activeId=id;
