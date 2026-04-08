@@ -784,30 +784,13 @@ document.getElementById('login-pass')?.addEventListener('keydown', e=>{
 });
 
 // ── INIT AUTH ─────────────────────────────────────────────────────────────────
-async function initApp(){
-  document.getElementById('app-loading').classList.remove('hidden');
-  const {data:{session}} = await supa.auth.getSession();
-  if(!session){
-    document.getElementById('login-screen').style.display='flex';
-    document.getElementById('app-loading').classList.add('hidden');
-    return;
-  }
-  // autenticado
-  console.log('Sessão activa:', session.user.email, session);
-  document.getElementById('login-screen').style.display='none';
-  const email = session.user.email;
-  document.getElementById('user-email-label').textContent = email;
-  await loadAllData();
-  document.getElementById('app-loading').classList.add('hidden');
-  render();
-}
+// initApp substituído por onAuthStateChange abaixo
+async function initApp(){ /* não usado */ }
 
 // ── CARREGAR DADOS ────────────────────────────────────────────────────────────
 async function loadAllData(){
   // obras + equipa_obras
-  const {data: obrasData, error: obrasErr} = await supa.from('obras').select('*, equipa_obras(*)').order('sigla');
-  if(obrasErr) console.error('ERRO obras:', obrasErr.message, obrasErr);
-  console.log('obras carregadas:', (obrasData||[]).length, obrasData);
+  const {data: obrasData} = await supa.from('obras').select('*, equipa_obras(*)').order('sigla');
   obras = (obrasData||[]).map(o=>({
     id:       o.id,
     codigo:   o.codigo||'',
@@ -824,9 +807,7 @@ async function loadAllData(){
   }));
 
   // projetos + equipa_projetos
-  const {data: projData, error: projErr} = await supa.from('projetos').select('*, equipa_projetos(*)').order('sigla');
-  if(projErr) console.error('ERRO projetos:', projErr.message, projErr);
-  console.log('projetos carregados:', (projData||[]).length);
+  const {data: projData} = await supa.from('projetos').select('*, equipa_projetos(*)').order('sigla');
   projetos = (projData||[]).map(p=>({
     id:       p.id,
     codigo:   p.codigo||'',
@@ -990,21 +971,21 @@ const filters = {
 
 function initFilterBars(){
   ['obras','projetos','concursos','previsoes'].forEach(tab=>{
-    const isObra = tab==='obras';
-    const tipos   = ['FISC','CSO','CONC'];
-    const estados = isObra ? ESTADOS_OBRAS : ESTADOS_PROJ;
+    const meta = getTabMeta(tab);
+    if(!meta) return;
     const f = filters[tab];
+    if(!f) return;
 
-    const elT=document.getElementById(`${tab}-chips-tipos`); if(!elT) return;
-    elT.innerHTML = tipos.map(t=>
+    const elT = document.getElementById(`${tab}-chips-tipos`);
+    if(elT) elT.innerHTML = meta.tipos.map(t=>
       `<label class="fg-chip ${f.tipos.includes(t)?'on':''}">
         <input type="checkbox" value="${t}" ${f.tipos.includes(t)?'checked':''}
           onchange="toggleChip(this,'${tab}','tipos')"> ${t}
       </label>`
     ).join('');
 
-    const elE=document.getElementById(`${tab}-chips-estados`); if(!elE) return;
-    elE.innerHTML = estados.map(e=>
+    const elE = document.getElementById(`${tab}-chips-estados`);
+    if(elE) elE.innerHTML = meta.estados.map(e=>
       `<label class="fg-chip ${f.estados.includes(e)?'on':''}">
         <input type="checkbox" value="${e}" ${f.estados.includes(e)?'checked':''}
           onchange="toggleChip(this,'${tab}','estados')"> ${e}
@@ -2092,22 +2073,31 @@ document.addEventListener('keydown',e=>{
   }
 });
 
-// substituir initApp pela chamada inicial
+// Auth — usar só onAuthStateChange para evitar chamadas duplas
+let appLoaded = false;
 supa.auth.onAuthStateChange((event, session) => {
-  if(event === 'SIGNED_IN' && session){
+  if(event === 'SIGNED_IN' && session && !appLoaded){
+    appLoaded = true;
     document.getElementById('login-screen').style.display='none';
     document.getElementById('user-email-label').textContent = session.user.email;
     document.getElementById('app-loading').classList.remove('hidden');
     loadAllData().then(()=>{
       document.getElementById('app-loading').classList.add('hidden');
       render();
+      console.log('App carregada — obras:', obras.length, 'projetos:', projetos.length);
     });
   } else if(event === 'SIGNED_OUT'){
+    appLoaded = false;
     location.reload();
   }
 });
 
-initApp();
+// Verificar sessão inicial
+supa.auth.getSession().then(({data:{session}})=>{
+  if(!session){
+    document.getElementById('login-screen').style.display='flex';
+  }
+});
 </script>
 </body>
 </html>
