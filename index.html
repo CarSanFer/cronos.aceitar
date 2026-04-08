@@ -355,10 +355,6 @@
     </div>
     <div class="filter-bar" id="filter-bar-obras">
       <div class="fg-group">
-        <div class="fg-label">Tipo</div>
-        <div class="fg-checks" id="obras-chips-tipos"></div>
-      </div>
-      <div class="fg-group">
         <div class="fg-label">Estado</div>
         <div class="fg-checks" id="obras-chips-estados"></div>
       </div>
@@ -381,17 +377,15 @@
     </div>
     <div class="table-wrap"><table style="table-layout:fixed">
       <colgroup>
-        <col style="width:8%"><col style="width:6%"><col style="width:18%"><col style="width:10%">
-        <col style="width:3%"><col style="width:3%"><col style="width:3%">
-        <col style="width:9%"><col style="width:8%"><col style="width:8%">
-        <col style="width:5%"><col style="width:10%"><col style="width:9%">
+        <col style="width:8%"><col style="width:6%"><col style="width:22%"><col style="width:11%">
+        <col style="width:10%"><col style="width:8%"><col style="width:8%">
+        <col style="width:5%"><col style="width:12%"><col style="width:10%">
       </colgroup>
       <thead><tr>
         <th class="sortable" onclick="sortTable('obras-tbody','codigo')">Código</th>
         <th class="sortable" onclick="sortTable('obras-tbody','sigla')">Sigla</th>
         <th class="sortable" onclick="sortTable('obras-tbody','nome')" style="text-align:left">Designação</th>
         <th class="sortable" onclick="sortTable('obras-tbody','valor')">Valor</th>
-        <th>FISC</th><th>CSO</th><th>CONC</th>
         <th class="sortable" onclick="sortTable('obras-tbody','estado')">Estado</th>
         <th class="sortable" onclick="sortTable('obras-tbody','inicio')">Início</th>
         <th class="sortable" onclick="sortTable('obras-tbody','prazo')">Fim</th>
@@ -410,10 +404,6 @@
       <button class="btn btn-sm" onclick="clearFilterFromTab('projetos')" id="btn-clear-projetos" style="display:none;color:var(--amber);border-color:var(--amber)">Limpar filtros</button>
     </div>
     <div class="filter-bar" id="filter-bar-projetos">
-      <div class="fg-group">
-        <div class="fg-label">Tipo</div>
-        <div class="fg-checks" id="projetos-chips-tipos"></div>
-      </div>
       <div class="fg-group">
         <div class="fg-label">Estado</div>
         <div class="fg-checks" id="projetos-chips-estados"></div>
@@ -437,17 +427,15 @@
     </div>
     <div class="table-wrap"><table style="table-layout:fixed">
       <colgroup>
-        <col style="width:8%"><col style="width:6%"><col style="width:18%"><col style="width:10%">
-        <col style="width:3%"><col style="width:3%"><col style="width:3%">
-        <col style="width:9%"><col style="width:8%"><col style="width:8%">
-        <col style="width:5%"><col style="width:10%"><col style="width:9%">
+        <col style="width:8%"><col style="width:6%"><col style="width:22%"><col style="width:11%">
+        <col style="width:10%"><col style="width:8%"><col style="width:8%">
+        <col style="width:5%"><col style="width:12%"><col style="width:10%">
       </colgroup>
       <thead><tr>
         <th class="sortable" onclick="sortTable('projetos-tbody','codigo')">Código</th>
         <th class="sortable" onclick="sortTable('projetos-tbody','sigla')">Sigla</th>
         <th class="sortable" onclick="sortTable('projetos-tbody','nome')" style="text-align:left">Designação</th>
         <th class="sortable" onclick="sortTable('projetos-tbody','valor')">Valor</th>
-        <th>FISC</th><th>CSO</th><th>CONC</th>
         <th class="sortable" onclick="sortTable('projetos-tbody','estado')">Estado</th>
         <th class="sortable" onclick="sortTable('projetos-tbody','inicio')">Início</th>
         <th class="sortable" onclick="sortTable('projetos-tbody','prazo')">Fim</th>
@@ -516,10 +504,6 @@
     </div>
     <div class="filter-bar" id="filter-bar-concursos">
       <div class="fg-group">
-        <div class="fg-label">Tipo</div>
-        <div class="fg-checks" id="concursos-chips-tipos"></div>
-      </div>
-      <div class="fg-group">
         <div class="fg-label">Estado</div>
         <div class="fg-checks" id="concursos-chips-estados"></div>
       </div>
@@ -542,17 +526,15 @@
     </div>
     <div class="table-wrap"><table style="table-layout:fixed">
       <colgroup>
-        <col style="width:8%"><col style="width:6%"><col style="width:18%"><col style="width:10%">
-        <col style="width:3%"><col style="width:3%"><col style="width:3%">
-        <col style="width:9%"><col style="width:8%"><col style="width:8%">
-        <col style="width:5%"><col style="width:10%"><col style="width:9%">
+        <col style="width:8%"><col style="width:6%"><col style="width:22%"><col style="width:11%">
+        <col style="width:10%"><col style="width:8%"><col style="width:8%">
+        <col style="width:5%"><col style="width:12%"><col style="width:10%">
       </colgroup>
       <thead><tr>
         <th class="sortable" onclick="sortTable('concursos-tbody','codigo')">Código</th>
         <th class="sortable" onclick="sortTable('concursos-tbody','sigla')">Sigla</th>
         <th class="sortable" onclick="sortTable('concursos-tbody','nome')" style="text-align:left">Designação</th>
         <th class="sortable" onclick="sortTable('concursos-tbody','valor')">Valor</th>
-        <th>FISC</th><th>CSO</th><th>CONC</th>
         <th class="sortable" onclick="sortTable('concursos-tbody','estado')">Estado</th>
         <th class="sortable" onclick="sortTable('concursos-tbody','inicio')">Início</th>
         <th class="sortable" onclick="sortTable('concursos-tbody','prazo')">Fim</th>
@@ -571,10 +553,6 @@
       <button class="btn btn-sm" onclick="clearFilterFromTab('previsoes')" id="btn-clear-previsoes" style="display:none;color:var(--amber);border-color:var(--amber)">Limpar filtros</button>
     </div>
     <div class="filter-bar" id="filter-bar-previsoes">
-      <div class="fg-group">
-        <div class="fg-label">Tipo</div>
-        <div class="fg-checks" id="previsoes-chips-tipos"></div>
-      </div>
       <div class="fg-group">
         <div class="fg-label">Estado</div>
         <div class="fg-checks" id="previsoes-chips-estados"></div>
@@ -598,17 +576,15 @@
     </div>
     <div class="table-wrap"><table style="table-layout:fixed">
       <colgroup>
-        <col style="width:8%"><col style="width:6%"><col style="width:18%"><col style="width:10%">
-        <col style="width:3%"><col style="width:3%"><col style="width:3%">
-        <col style="width:9%"><col style="width:8%"><col style="width:8%">
-        <col style="width:5%"><col style="width:10%"><col style="width:9%">
+        <col style="width:8%"><col style="width:6%"><col style="width:22%"><col style="width:11%">
+        <col style="width:10%"><col style="width:8%"><col style="width:8%">
+        <col style="width:5%"><col style="width:12%"><col style="width:10%">
       </colgroup>
       <thead><tr>
         <th class="sortable" onclick="sortTable('previsoes-tbody','codigo')">Código</th>
         <th class="sortable" onclick="sortTable('previsoes-tbody','sigla')">Sigla</th>
         <th class="sortable" onclick="sortTable('previsoes-tbody','nome')" style="text-align:left">Designação</th>
         <th class="sortable" onclick="sortTable('previsoes-tbody','valor')">Valor</th>
-        <th>FISC</th><th>CSO</th><th>CONC</th>
         <th class="sortable" onclick="sortTable('previsoes-tbody','estado')">Estado</th>
         <th class="sortable" onclick="sortTable('previsoes-tbody','inicio')">Início</th>
         <th class="sortable" onclick="sortTable('previsoes-tbody','prazo')">Fim</th>
@@ -730,10 +706,6 @@
       <div class="form-group">
         <label class="form-label">Valor (€)</label>
         <input class="form-input" id="f-valor" type="number" min="0" step="0.01" placeholder="0,00">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Tipo (pode selecionar mais do que um)</label>
-        <div class="tipo-checks" id="f-tipo-checks"></div>
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -999,10 +971,10 @@ function applySortToList(list, tbodyId){
 
 // ── FILTROS INLINE ────────────────────────────────────────────────────────────
 const filters = {
-  obras:     {tipos:[], estados:[], dateFrom:'', dateTo:'', fiscal:'', cso:''},
-  projetos:  {tipos:[], estados:[], dateFrom:'', dateTo:'', fiscal:'', cso:''},
-  concursos: {tipos:[], estados:[], dateFrom:'', dateTo:'', fiscal:'', cso:''},
-  previsoes: {tipos:[], estados:[], dateFrom:'', dateTo:'', fiscal:'', cso:''},
+  obras:     {estados:[], dateFrom:'', dateTo:'', fiscal:'', cso:''},
+  projetos:  {estados:[], dateFrom:'', dateTo:'', fiscal:'', cso:''},
+  concursos: {estados:[], dateFrom:'', dateTo:'', fiscal:'', cso:''},
+  previsoes: {estados:[], dateFrom:'', dateTo:'', fiscal:'', cso:''},
 };
 
 function initFilterBars(){
@@ -1011,14 +983,6 @@ function initFilterBars(){
     if(!meta) return;
     const f = filters[tab];
     if(!f) return;
-
-    const elT = document.getElementById(`${tab}-chips-tipos`);
-    if(elT) elT.innerHTML = meta.tipos.map(t=>
-      `<label class="fg-chip ${f.tipos.includes(t)?'on':''}">
-        <input type="checkbox" value="${t}" ${f.tipos.includes(t)?'checked':''}
-          onchange="toggleChip(this,'${tab}','tipos')"> ${t}
-      </label>`
-    ).join('');
 
     const elE = document.getElementById(`${tab}-chips-estados`);
     if(elE) elE.innerHTML = meta.estados.map(e=>
@@ -1047,14 +1011,12 @@ function liveFilter(tab){
 }
 
 function countFilters(f){
-  return (f.tipos.length?1:0)+(f.estados.length?1:0)+
+  return (f.estados.length?1:0)+
     (f.dateFrom||f.dateTo?1:0)+(f.fiscal?1:0)+(f.cso?1:0);
 }
 
 function applyFiltersToList(list, f){
   return list.filter(item=>{
-    const tipos = normTipos(item.tipos);
-    if(f.tipos.length   && !f.tipos.some(t=>tipos.includes(t)))   return false;
     if(f.estados.length && !f.estados.includes(item.estado))       return false;
     if(f.dateFrom && item.prazo && item.prazo < f.dateFrom)        return false;
     if(f.dateTo   && item.prazo && item.prazo > f.dateTo)          return false;
@@ -1077,7 +1039,7 @@ function renderFiltered(tab){
 
   const tbody = document.getElementById(tbodyId);
   if(!filtered.length){
-    tbody.innerHTML=`<tr><td colspan="13"><div class="empty"><div class="empty-icon">◎</div>
+    tbody.innerHTML=`<tr><td colspan="10"><div class="empty"><div class="empty-icon">◎</div>
       <div class="empty-title">Sem resultados</div>
       <div>${n?'Nenhum registo para os filtros ativos.':' Cria um novo com o botão + Novo'}</div>
     </div></td></tr>`;
@@ -1089,9 +1051,6 @@ function renderFiltered(tab){
         <td class="col-sigla">${item.sigla}</td>
         <td class="col-nome" style="text-align:left">${item.nome}</td>
         <td class="col-valor">${fmtValor(item.valor)}</td>
-        <td>${tipoX(item.tipos,'FISC')}</td>
-        <td>${tipoX(item.tipos,'CSO')}</td>
-        <td>${tipoX(item.tipos,'CONC')}</td>
         <td>${badgeEstado(item.estado)}</td>
         <td class="col-prazo">${fmtDate(item.inicio)}</td>
         <td class="col-prazo${venc?' vencido':''}">${fmtDate(item.prazo)}${venc?' ⚠':''}</td>
@@ -1114,13 +1073,13 @@ function renderFiltered(tab){
 
 function clearFilterFromTab(tab){
   const f = filters[tab];
-  f.tipos=[]; f.estados=[]; f.dateFrom=''; f.dateTo=''; f.fiscal=''; f.cso='';
+  f.estados=[]; f.dateFrom=''; f.dateTo=''; f.fiscal=''; f.cso='';
   // reset UI
   document.getElementById(`${tab}-date-from`).value = '';
   document.getElementById(`${tab}-date-to`).value   = '';
   document.getElementById(`${tab}-fiscal`).value    = '';
   document.getElementById(`${tab}-cso`).value       = '';
-  document.querySelectorAll(`#${tab}-chips-tipos .fg-chip, #${tab}-chips-estados .fg-chip`)
+  document.querySelectorAll(`#${tab}-chips-estados .fg-chip`)
     .forEach(el=>{ el.classList.remove('on'); el.querySelector('input').checked=false; });
   renderFiltered(tab);
 }
@@ -1520,165 +1479,7 @@ function filterAndGoObras(campo,valor){
       el.classList.toggle('on',on);
       el.querySelector('input').checked=on;
     });
-  } else if(campo==='tipo'){
-    filters.obras.tipos=[valor];
-    document.querySelectorAll('#obras-chips-tipos .fg-chip').forEach(el=>{
-      const v=el.querySelector('input').value;
-      const on=v===valor;
-      el.classList.toggle('on',on);
-      el.querySelector('input').checked=on;
     });
-  }
-  setTab('obras');
-}
-
-
-// ── CASHFLOW ──────────────────────────────────────────────────────────────────
-let cfChart = null;
-const MESES_PT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-
-function cfEstadosOk(item, tipo){
-  if(tipo==='obra')    return ['Em Curso','Suspenso'].includes(item.estado);
-  if(tipo==='projeto') return ['Ativo','Pendente','Suspenso'].includes(item.estado);
-  return false;
-}
-
-function cfMesesAtivos(item){
-  // início: max(Janeiro 2026, data de início do item)
-  const anoRef = 2026;
-  let mIni = 0; // Jan 2026 = índice 0
-  if(item.inicio){
-    const d = new Date(item.inicio);
-    if(d.getFullYear() === anoRef) mIni = d.getMonth();
-    else if(d.getFullYear() > anoRef) return []; // começa depois de 2026
-    // se começa antes de 2026, usa Jan 2026 (mIni=0)
-  }
-  // fim: min(Dezembro 2026, data de fim do item)
-  let mFim = 11; // Dez 2026 = índice 11
-  if(item.prazo){
-    const d = new Date(item.prazo);
-    if(d.getFullYear() === anoRef) mFim = d.getMonth();
-    else if(d.getFullYear() < anoRef) return []; // terminou antes de 2026
-    // se termina depois de 2026, usa Dez 2026 (mFim=11)
-  }
-  if(mIni > mFim) return [];
-  const meses = [];
-  for(let m = mIni; m <= mFim; m++) meses.push(m);
-  return meses;
-}
-
-function renderCashflow(){
-  const mesAtual = new Date().getMonth(); // para highlight do mês actual
-
-  // Recolher items elegíveis
-  const items = [
-    ...obras.filter(o=>cfEstadosOk(o,'obra')).map(o=>({...o,_tipo:'OB'})),
-    ...projetos.filter(p=>cfEstadosOk(p,'projeto')).map(p=>({...p,_tipo:'PJ'})),
-    ...concursos.filter(c=>['Em Curso'].includes(c.estado)).map(c=>({...c,_tipo:'CONC'})),
-    ...previsoes.filter(p=>['Previsto','Em Curso'].includes(p.estado)).map(p=>({...p,_tipo:'PREV'})),
-  ];
-
-  // Calcular valor mensal por item
-  const rows = items.map(item=>{
-    const meses = cfMesesAtivos(item);
-    const n = meses.length;
-    const valorTotal = item.valor || 0;
-    const valorMes   = n > 0 && valorTotal > 0 ? valorTotal / n : 0;
-    const mensal = Array(12).fill(0);
-    meses.forEach(m => { mensal[m] = valorMes; });
-    return { item, mensal, valorTotal };
-  });
-
-  // Totais por mês
-  const totais = Array(12).fill(0);
-  rows.forEach(r => r.mensal.forEach((v,m) => { totais[m] += v; }));
-  const totalAnual = totais.reduce((s,v)=>s+v,0);
-
-  // Total anual
-  document.getElementById('cf-total-anual').textContent = fmtValor(totalAnual);
-
-  // Highlight mês actual nos cabeçalhos
-  MESES_PT.forEach((nome,i)=>{
-    const ids = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
-    const th = document.getElementById('cf-th-'+ids[i]);
-    if(th) th.style.background = i === mesAtual ? 'var(--blue-bg)' : '';
-  });
-
-  // Tabela
-  const tbody = document.getElementById('cf-tbody');
-  if(!rows.length){
-    tbody.innerHTML = `<tr><td colspan="15" style="text-align:center;padding:32px;color:var(--text3)">Sem obras ou projetos elegíveis com valor definido</td></tr>`;
-  } else {
-    tbody.innerHTML = rows.map(({item,mensal,valorTotal})=>{
-      const meses = cfMesesAtivos(item);
-      const mAtivos = new Set(meses);
-      const tipoBadgeMap = {
-        'OB':   `<span class="badge badge-blue"   style="font-size:10px;padding:1px 6px">OB</span>`,
-        'PJ':   `<span class="badge badge-purple" style="font-size:10px;padding:1px 6px">PJ</span>`,
-        'CONC': `<span class="badge badge-gray"   style="font-size:10px;padding:1px 6px">CONC</span>`,
-        'PREV': `<span class="badge badge-amber"  style="font-size:10px;padding:1px 6px">PREV</span>`,
-      };
-      const tipoBadge = tipoBadgeMap[item._tipo]||tipoBadgeMap['OB'];
-      const celulasMes = mensal.map((v,m)=>{
-        const ativo = mAtivos.has(m);
-        const bg = m===mesAtual ? 'background:var(--blue-bg);' : ativo ? 'background:#FAFAF7;' : '';
-        const cls = v>0 ? 'has-val' : 'zero';
-        return `<td class="cf-val ${cls}" style="${bg}">${v>0?fmtValor(v):'—'}</td>`;
-      }).join('');
-      return `<tr class="cf-row">
-        <td class="cf-nome">${item.sigla}<br><span class="cf-nome-sub">${item.nome}</span></td>
-        <td class="cf-tipo">${tipoBadge}</td>
-        <td class="cf-total-val">${valorTotal>0?fmtValor(valorTotal):'—'}</td>
-        ${celulasMes}
-      </tr>`;
-    }).join('');
-  }
-
-  // Rodapé totais
-  const tfoot = document.getElementById('cf-tfoot');
-  const celulasTot = totais.map((v,m)=>{
-    const bg = m===mesAtual ? 'background:var(--blue-bg);' : '';
-    return `<td style="${bg};font-size:11px;font-weight:700;color:${v>0?'var(--text)':'var(--text3)'}">${v>0?fmtValor(v):'—'}</td>`;
-  }).join('');
-  tfoot.innerHTML = `<tr class="cf-foot">
-    <td colspan="2" style="text-align:left;padding:9px 12px;font-size:11px;font-weight:700;position:sticky;left:0;background:var(--surface2)">Total mensal</td>
-    <td style="text-align:right;padding:9px 8px;font-size:11px;font-weight:700">${fmtValor(totalAnual)}</td>
-    ${celulasTot}
-  </tr>`;
-
-  // Gráfico
-  if(cfChart){ cfChart.destroy(); cfChart=null; }
-  const ctx = document.getElementById('cf-chart').getContext('2d');
-  const mesAtualColor = totais.map((_,i)=>i===mesAtual?'#185FA5':'#B5D4F4');
-  cfChart = new Chart(ctx,{
-    type:'bar',
-    data:{
-      labels: MESES_PT,
-      datasets:[{
-        label:'Entradas (€)',
-        data: totais,
-        backgroundColor: mesAtualColor,
-        borderRadius: 5,
-        borderSkipped: false,
-      }]
-    },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      animation:{duration:500},
-      plugins:{
-        legend:{display:false},
-        tooltip:{callbacks:{label:c=>'  '+fmtValor(c.raw)}}
-      },
-      scales:{
-        x:{grid:{display:false}, ticks:{font:{size:11}}},
-        y:{
-          beginAtZero:true,
-          ticks:{callback:v=>fmtValor(v), font:{size:10}},
-          grid:{color:'rgba(0,0,0,.04)'}
-        }
-      }
-    }
-  });
 }
 
 // ── DETAIL ────────────────────────────────────────────────────────────────────
@@ -1689,7 +1490,7 @@ function openDetail(id){
   activeId=id;
   document.getElementById('d-sigla').textContent=item.codigo?item.codigo+' · '+item.sigla:item.sigla;
   document.getElementById('d-nome').textContent=item.nome;
-  document.getElementById('d-badges').innerHTML=badgeEstado(item.estado)+' '+tipoBadges(item.tipos);
+  document.getElementById('d-badges').innerHTML=badgeEstado(item.estado);
   document.getElementById('d-info-grid').innerHTML=`
     <div class="detail-field"><div class="detail-label">Estado</div><div class="detail-val">${item.estado}</div></div>
     <div class="detail-field"><div class="detail-label">Valor</div><div class="detail-val" style="font-weight:600">${fmtValor(item.valor)}</div></div>
@@ -1797,25 +1598,12 @@ async function deleteItem(){
 // ── FORM ──────────────────────────────────────────────────────────────────────
 let editingId=null;
 
-function buildTipoChecks(selected){
-  const tipos=getTabMeta(activeTab)?.tipos||TIPOS_OBRAS;
-  const sel=normTipos(selected);
-  document.getElementById('f-tipo-checks').innerHTML=tipos.map(t=>
-    `<label class="tipo-check"><input type="checkbox" value="${t}" ${sel.includes(t)?'checked':''}> ${t}</label>`
-  ).join('');
-}
-
-function getTiposSelected(){
-  return [...document.querySelectorAll('#f-tipo-checks input:checked')].map(el=>el.value);
-}
-
 function openFormModal(){
   editingId=null;
   const meta=getTabMeta(activeTab);
   document.getElementById('form-title-text').textContent='Novo '+meta.label;
   document.getElementById('form-subtitle').textContent=meta.labelPlural;
   document.getElementById('f-estado').innerHTML=meta.estados.map(e=>`<option>${e}</option>`).join('');
-  buildTipoChecks([]);
   ['f-codigo','f-sigla','f-nome','f-valor','f-afet','f-inicio','f-prazo'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('form-overlay').classList.add('open');
   setTimeout(()=>document.getElementById('f-sigla').focus(),120);
@@ -1828,7 +1616,6 @@ function openEditModal(){
   document.getElementById('form-title-text').textContent='Editar '+(isObra?'Obra':'Projeto');
   document.getElementById('form-subtitle').textContent=item.sigla;
   document.getElementById('f-estado').innerHTML=(isObra?ESTADOS_OBRAS:ESTADOS_PROJ).map(e=>`<option ${e===item.estado?'selected':''}>${e}</option>`).join('');
-  buildTipoChecks(item.tipos);
   document.getElementById('f-codigo').value = item.codigo||'';
   document.getElementById('f-sigla').value  = item.sigla||'';
   document.getElementById('f-nome').value   = item.nome||'';
@@ -1843,11 +1630,10 @@ async function saveForm(){
   const sigla=document.getElementById('f-sigla').value.trim();
   const nome=document.getElementById('f-nome').value.trim();
   if(!sigla||!nome){toast('Sigla e Designação são obrigatórios');return;}
-  const tipos=getTiposSelected();
   const valorRaw = document.getElementById('f-valor').value;
   const codigo=document.getElementById('f-codigo').value.trim();
   const dbData={
-    codigo:codigo||null, sigla, nome, tipos,
+    codigo:codigo||null, sigla, nome,
     estado:    document.getElementById('f-estado').value,
     valor:     valorRaw!==''?parseFloat(valorRaw):null,
     afet_prev: document.getElementById('f-afet').value!==''?parseInt(document.getElementById('f-afet').value):null,
@@ -1887,9 +1673,7 @@ function flattenList(list){
         'Sigla':            i===0?item.sigla:'',
         'Designação':       i===0?item.nome:'',
         'Valor (€)':        i===0?(item.valor!=null?item.valor:''):'',
-        'FISC':             i===0?(tipos.includes('FISC')?'x':''):'',
-        'CSO':              i===0?(tipos.includes('CSO')?'x':''):'',
-        'CONC':             i===0?(tipos.includes('CONC')?'x':''):'',
+
         'Estado':           i===0?item.estado:'',
         'Início Previsto':  i===0?(item.inicio||''):'',
         'Fim Previsto':     i===0?(item.prazo||''):'',
@@ -1906,7 +1690,7 @@ function flattenList(list){
 
 function exportXlsx(){
   const wb=XLSX.utils.book_new();
-  const cols=[{wch:12},{wch:10},{wch:40},{wch:14},{wch:6},{wch:6},{wch:6},{wch:14},{wch:13},{wch:13},{wch:12},{wch:40},{wch:24},{wch:18},{wch:20}];
+  const cols=[{wch:12},{wch:10},{wch:40},{wch:14},{wch:14},{wch:13},{wch:13},{wch:12},{wch:40},{wch:24},{wch:18},{wch:20}];
 
   const wsO=XLSX.utils.json_to_sheet(flattenList(obras));
   wsO['!cols']=cols;
@@ -1964,14 +1748,7 @@ function importXlsx(event){
           const sigla=(row['Sigla']||'').toString().trim();
           if(sigla){
             // suporte a formato novo (FISC/CSO/CONC) e legado (Tipo)
-            let tipos=[];
-            const legado=(row['Tipo']||'').toString().trim();
-            if(legado){tipos=normTipos(legado);}
-            else{
-              if((row['FISC']||'').toString().trim()==='x')tipos.push('FISC');
-              if((row['CSO']||'').toString().trim()==='x')tipos.push('CSO');
-              if((row['CONC']||'').toString().trim()==='x')tipos.push('CONC');
-            }
+            const tipos=[];
             cur={
               id:uid(), sigla,
               codigo:   (row['Código']||'').toString().trim(),
