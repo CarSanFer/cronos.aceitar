@@ -93,7 +93,7 @@
   tbody tr{cursor:pointer;transition:background .12s;}
   tbody tr:hover td{background:#FAFAF7;}
   .col-codigo{font-size:12px;color:var(--text);white-space:nowrap;overflow:visible!important;}
-  .col-sigla{font-size:12px;color:var(--text);white-space:nowrap;}
+  .col-sigla{font-size:12px;color:var(--text);white-space:nowrap;text-align:left!important;}
   .col-nome{font-size:12px;color:var(--text);text-align:left!important;}
   .col-valor{font-size:12px;color:var(--text);white-space:nowrap;text-align:center!important;overflow:visible!important;}
   .col-prazo{font-size:12px;color:var(--text);white-space:nowrap;}
@@ -1496,6 +1496,145 @@ function filterAndGoObras(campo,valor){
     });
   }
   setTab('obras');
+}
+
+
+// ── CASHFLOW ──────────────────────────────────────────────────────────────────
+let cfChart = null;
+const MESES_PT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const MESES_IDS = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+
+function cfMesesAtivos(item){
+  const anoRef = 2026;
+  let mIni = 0;
+  if(item.inicio){
+    const d = new Date(item.inicio);
+    if(d.getFullYear() === anoRef) mIni = d.getMonth();
+    else if(d.getFullYear() > anoRef) return [];
+  }
+  let mFim = 11;
+  if(item.prazo){
+    const d = new Date(item.prazo);
+    if(d.getFullYear() === anoRef) mFim = d.getMonth();
+    else if(d.getFullYear() < anoRef) return [];
+  }
+  if(mIni > mFim) return [];
+  const meses = [];
+  for(let m = mIni; m <= mFim; m++) meses.push(m);
+  return meses;
+}
+
+function renderCashflow(){
+  const mesAtual = new Date().getMonth();
+
+  // itens elegíveis: obras (Em Curso/Suspenso) + projetos (Ativo/Pendente/Suspenso)
+  // + concursos (Em Curso) + previsoes (Previsto/Em Curso)
+  const estadosOk = {
+    obras:     ['Em Curso','Suspenso'],
+    projetos:  ['Ativo','Pendente','Suspenso'],
+    concursos: ['Em Curso'],
+    previsoes: ['Previsto','Em Curso'],
+  };
+  const tipoLabel = {obras:'OB', projetos:'PJ', concursos:'CONC', previsoes:'PREV'};
+  const tipoBadgeClass = {obras:'badge-blue', projetos:'badge-purple', concursos:'badge-gray', previsoes:'badge-amber'};
+
+  const items = [];
+  ['obras','projetos','concursos','previsoes'].forEach(tab=>{
+    const meta = getTabMeta(tab);
+    meta.list.filter(i=>estadosOk[tab].includes(i.estado)).forEach(i=>{
+      items.push({...i, _tab:tab});
+    });
+  });
+
+  // calcular valor mensal
+  const rows = items.map(item=>{
+    const meses = cfMesesAtivos(item);
+    const n = meses.length;
+    const valorTotal = item.valor || 0;
+    const valorMes = n > 0 && valorTotal > 0 ? valorTotal / n : 0;
+    const mensal = Array(12).fill(0);
+    meses.forEach(m => { mensal[m] = valorMes; });
+    return { item, mensal, valorTotal, mAtivos: new Set(meses) };
+  });
+
+  // totais por mês
+  const totais = Array(12).fill(0);
+  rows.forEach(r => r.mensal.forEach((v,m) => { totais[m] += v; }));
+  const totalAnual = totais.reduce((s,v)=>s+v,0);
+
+  document.getElementById('cf-total-anual').textContent = fmtValor(totalAnual);
+
+  // highlight mês actual nos th
+  MESES_IDS.forEach((id,i)=>{
+    const th = document.getElementById('cf-th-'+id);
+    if(th) th.style.background = i === mesAtual ? 'var(--blue-bg)' : '';
+  });
+
+  // tbody
+  const tbody = document.getElementById('cf-tbody');
+  if(!rows.length){
+    tbody.innerHTML = `<tr><td colspan="15" style="text-align:center;padding:32px;color:var(--text3)">Sem registos elegíveis com valor definido</td></tr>`;
+  } else {
+    tbody.innerHTML = rows.map(({item, mensal, valorTotal, mAtivos})=>{
+      const tab = item._tab;
+      const badge = `<span class="badge ${tipoBadgeClass[tab]}" style="font-size:10px;padding:1px 6px">${tipoLabel[tab]}</span>`;
+      const celulasMes = mensal.map((v,m)=>{
+        const bg = m===mesAtual ? 'background:var(--blue-bg);' : mAtivos.has(m) ? 'background:#FAFAF7;' : '';
+        return `<td class="cf-val ${v>0?'has-val':'zero'}" style="${bg}">${v>0?fmtValor(v):'—'}</td>`;
+      }).join('');
+      return `<tr class="cf-row">
+        <td class="cf-nome">${item.sigla}<br><span class="cf-nome-sub">${item.nome}</span></td>
+        <td class="cf-tipo">${badge}</td>
+        <td class="cf-total-val">${valorTotal>0?fmtValor(valorTotal):'—'}</td>
+        ${celulasMes}
+      </tr>`;
+    }).join('');
+  }
+
+  // tfoot
+  const tfoot = document.getElementById('cf-tfoot');
+  const celulasTot = totais.map((v,m)=>{
+    const bg = m===mesAtual ? 'background:var(--blue-bg);' : '';
+    return `<td style="${bg};font-weight:700;color:${v>0?'var(--text)':'var(--text3)'}">${v>0?fmtValor(v):'—'}</td>`;
+  }).join('');
+  tfoot.innerHTML = `<tr class="cf-foot">
+    <td colspan="2" style="text-align:left;padding:9px 12px;font-size:11px;font-weight:700;position:sticky;left:0;background:var(--surface2)">Total mensal</td>
+    <td style="text-align:right;padding:9px 8px;font-size:11px;font-weight:700">${fmtValor(totalAnual)}</td>
+    ${celulasTot}
+  </tr>`;
+
+  // gráfico
+  if(cfChart){ cfChart.destroy(); cfChart=null; }
+  const ctx = document.getElementById('cf-chart').getContext('2d');
+  cfChart = new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels: MESES_PT,
+      datasets:[{
+        label:'Entradas (€)',
+        data: totais,
+        backgroundColor: totais.map((_,i)=>i===mesAtual?'#185FA5':'#B5D4F4'),
+        borderRadius: 5,
+        borderSkipped: false,
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      animation:{duration:500},
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:c=>'  '+fmtValor(c.raw)}}
+      },
+      scales:{
+        x:{grid:{display:false}, ticks:{font:{size:11}}},
+        y:{
+          beginAtZero:true,
+          ticks:{callback:v=>fmtValor(v), font:{size:10}},
+          grid:{color:'rgba(0,0,0,.04)'}
+        }
+      }
+    }
+  });
 }
 
 // ── DETAIL ────────────────────────────────────────────────────────────────────
