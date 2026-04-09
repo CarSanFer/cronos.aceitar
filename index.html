@@ -88,17 +88,17 @@
   th.sort-asc::after{content:" ↑";font-size:10px;opacity:.7;}
   th.sort-desc::after{content:" ↓";font-size:10px;opacity:.7;}
   td{padding:10px 8px;border-bottom:1px solid var(--border);vertical-align:middle;text-align:center;overflow:hidden;text-overflow:ellipsis;font-size:12px;color:var(--text);font-family:var(--sans);font-weight:400;}
-  th:nth-child(2),td:nth-child(2){text-align:left;}
+
   tr:last-child td{border-bottom:none;}
   tbody tr{cursor:pointer;transition:background .12s;}
   tbody tr:hover td{background:#FAFAF7;}
   .col-codigo{font-size:12px;color:var(--text);white-space:nowrap;overflow:visible!important;}
   .col-sigla{font-size:12px;color:var(--text);white-space:nowrap;}
-  .col-nome{font-size:12px;color:var(--text);}
-  .col-valor{font-size:12px;color:var(--text);white-space:nowrap;text-align:right!important;overflow:visible!important;}
+  .col-nome{font-size:12px;color:var(--text);text-align:left!important;}
+  .col-valor{font-size:12px;color:var(--text);white-space:nowrap;text-align:center!important;overflow:visible!important;}
   .col-prazo{font-size:12px;color:var(--text);white-space:nowrap;}
   .col-prazo.vencido{color:var(--red);}
-  .col-afet{font-size:12px;color:var(--text);text-align:right!important;}
+  .col-afet{font-size:12px;color:var(--text);text-align:center!important;}
   .col-pessoa{font-size:12px;color:var(--text);}
   .col-pessoa .p-nome{color:var(--text);}
   .col-pessoa .p-pct{font-size:12px;color:var(--text);}
@@ -384,7 +384,7 @@
       <thead><tr>
         <th class="sortable" onclick="sortTable('obras-tbody','codigo')">Código</th>
         <th class="sortable" onclick="sortTable('obras-tbody','sigla')">Sigla</th>
-        <th class="sortable" onclick="sortTable('obras-tbody','nome')" style="text-align:left">Designação</th>
+        <th class="sortable" onclick="sortTable('obras-tbody','nome')">Designação</th>
         <th class="sortable" onclick="sortTable('obras-tbody','afetPrev')">Afet.</th>
         <th class="sortable" onclick="sortTable('obras-tbody','valor')">Valor</th>
         <th class="sortable" onclick="sortTable('obras-tbody','estado')">Estado</th>
@@ -436,7 +436,7 @@
       <thead><tr>
         <th class="sortable" onclick="sortTable('projetos-tbody','codigo')">Código</th>
         <th class="sortable" onclick="sortTable('projetos-tbody','sigla')">Sigla</th>
-        <th class="sortable" onclick="sortTable('projetos-tbody','nome')" style="text-align:left">Designação</th>
+        <th class="sortable" onclick="sortTable('projetos-tbody','nome')">Designação</th>
         <th class="sortable" onclick="sortTable('projetos-tbody','afetPrev')">Afet.</th>
         <th class="sortable" onclick="sortTable('projetos-tbody','valor')">Valor</th>
         <th class="sortable" onclick="sortTable('projetos-tbody','estado')">Estado</th>
@@ -537,7 +537,7 @@
       <thead><tr>
         <th class="sortable" onclick="sortTable('concursos-tbody','codigo')">Código</th>
         <th class="sortable" onclick="sortTable('concursos-tbody','sigla')">Sigla</th>
-        <th class="sortable" onclick="sortTable('concursos-tbody','nome')" style="text-align:left">Designação</th>
+        <th class="sortable" onclick="sortTable('concursos-tbody','nome')">Designação</th>
         <th class="sortable" onclick="sortTable('concursos-tbody','afetPrev')">Afet.</th>
         <th class="sortable" onclick="sortTable('concursos-tbody','valor')">Valor</th>
         <th class="sortable" onclick="sortTable('concursos-tbody','estado')">Estado</th>
@@ -589,7 +589,7 @@
       <thead><tr>
         <th class="sortable" onclick="sortTable('previsoes-tbody','codigo')">Código</th>
         <th class="sortable" onclick="sortTable('previsoes-tbody','sigla')">Sigla</th>
-        <th class="sortable" onclick="sortTable('previsoes-tbody','nome')" style="text-align:left">Designação</th>
+        <th class="sortable" onclick="sortTable('previsoes-tbody','nome')">Designação</th>
         <th class="sortable" onclick="sortTable('previsoes-tbody','afetPrev')">Afet.</th>
         <th class="sortable" onclick="sortTable('previsoes-tbody','valor')">Valor</th>
         <th class="sortable" onclick="sortTable('previsoes-tbody','estado')">Estado</th>
