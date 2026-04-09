@@ -87,21 +87,21 @@
   th.sortable:hover{background:var(--border);}
   th.sort-asc::after{content:" ↑";font-size:10px;opacity:.7;}
   th.sort-desc::after{content:" ↓";font-size:10px;opacity:.7;}
-  td{padding:10px 8px;border-bottom:1px solid var(--border);vertical-align:middle;text-align:center;overflow:hidden;text-overflow:ellipsis;}
+  td{padding:10px 8px;border-bottom:1px solid var(--border);vertical-align:middle;text-align:center;overflow:hidden;text-overflow:ellipsis;font-size:12px;color:var(--text);font-family:var(--sans);font-weight:400;}
   th:nth-child(2),td:nth-child(2){text-align:left;}
   tr:last-child td{border-bottom:none;}
   tbody tr{cursor:pointer;transition:background .12s;}
   tbody tr:hover td{background:#FAFAF7;}
-  .col-codigo{font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:visible!important;}
-  .col-sigla{font-family:var(--mono);font-size:11px;color:var(--text3);white-space:nowrap;}
-  .col-nome{font-weight:500;font-size:13px;}
-  .col-valor{font-size:12px;color:var(--text2);white-space:nowrap;text-align:right!important;overflow:visible!important;}
-  .col-prazo{font-size:12px;color:var(--text2);white-space:nowrap;}
-  .col-prazo.vencido{color:var(--red);font-weight:500;}
-  .col-afet{font-family:var(--mono);font-size:12px;color:var(--text2);}
-  .col-pessoa{font-size:12px;}
-  .col-pessoa .p-nome{font-weight:500;color:var(--text);}
-  .col-pessoa .p-pct{font-family:var(--mono);font-size:11px;color:var(--text3);}
+  .col-codigo{font-size:12px;color:var(--text);white-space:nowrap;overflow:visible!important;}
+  .col-sigla{font-size:12px;color:var(--text);white-space:nowrap;}
+  .col-nome{font-size:12px;color:var(--text);}
+  .col-valor{font-size:12px;color:var(--text);white-space:nowrap;text-align:right!important;overflow:visible!important;}
+  .col-prazo{font-size:12px;color:var(--text);white-space:nowrap;}
+  .col-prazo.vencido{color:var(--red);}
+  .col-afet{font-size:12px;color:var(--text);text-align:right!important;}
+  .col-pessoa{font-size:12px;color:var(--text);}
+  .col-pessoa .p-nome{color:var(--text);}
+  .col-pessoa .p-pct{font-size:12px;color:var(--text);}
 
   .badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:99px;font-size:11px;font-weight:500;white-space:nowrap;}
   .badge-green{background:var(--green-bg);color:var(--green-text);}
@@ -929,12 +929,12 @@ function afetDistColor(dist,prev){
 function equipaByRole(equipa,role){
   const found=(equipa||[]).filter(c=>c.funcao===role);
   if(!found.length)return'—';
-  return found.map(c=>`<span style="font-size:12px;font-weight:500;color:var(--text)">${c.nome}</span>`).join(', ');
+  return found.map(c=>c.nome).join(', ');
 }
 function equipaByRolePct(equipa,role){
   const found=(equipa||[]).filter(c=>c.funcao===role);
   if(!found.length)return'—';
-  return found.map(c=>`<span style="font-family:var(--mono);font-size:11px;color:var(--text3)">${c.afet!=null?c.afet+'%':'—'}</span>`).join(', ');
+  return found.map(c=>c.afet!=null?c.afet+'%':'—').join(', ');
 }
 
 function tipoX(tipos,t){
@@ -1068,9 +1068,9 @@ function renderFiltered(tab){
         <td>${badgeEstado(item.estado)}</td>
         <td class="col-prazo">${fmtDate(item.inicio)}</td>
         <td class="col-prazo${venc?' vencido':''}">${fmtDate(item.prazo)}${venc?' ⚠':''}</td>
-        <td style="font-size:12px;font-weight:500">${equipaByRole(item.equipa,'Fiscal')}</td>
+        <td>${equipaByRole(item.equipa,'Fiscal')}</td>
         <td class="col-afet">${equipaByRolePct(item.equipa,'Fiscal')}</td>
-        <td style="font-size:12px;font-weight:500">${equipaByRole(item.equipa,'CSO')}</td>
+        <td>${equipaByRole(item.equipa,'CSO')}</td>
         <td class="col-afet">${equipaByRolePct(item.equipa,'CSO')}</td>
       </tr>`;
     }).join('');
