@@ -207,6 +207,20 @@
   .cf-extra-row td{background:#FFF9EE!important;}
   .fat-card-matched{border-color:#1D9E75!important;background:#FAFFFE!important;}
   .fat-card-matched::after{content:'✓ No Cashflow';position:absolute;top:10px;right:12px;font-size:10px;font-weight:600;color:#1D9E75;background:#E8F7EE;padding:2px 7px;border-radius:99px;}
+
+  /* SYNC MODAL */
+  .sync-overlay{position:fixed;inset:0;z-index:400;background:rgba(20,20,18,.6);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+  .sync-overlay.open{opacity:1;pointer-events:all;}
+  .sync-box{background:var(--surface);border-radius:var(--radius-lg);width:420px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+  .sync-title{font-size:15px;font-weight:600;margin-bottom:4px;}
+  .sync-sub{font-size:12px;color:var(--text3);margin-bottom:20px;}
+  .sync-row{display:flex;gap:10px;align-items:flex-end;margin-bottom:16px;}
+  .sync-log{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;font-size:11px;font-family:var(--mono);min-height:80px;max-height:200px;overflow-y:auto;color:var(--text2);margin-bottom:16px;}
+  .sync-log-line{margin-bottom:2px;}
+  .sync-log-ok{color:#1D9E75;}
+  .sync-log-err{color:var(--red);}
+  .sync-log-info{color:var(--blue);}
+  .sync-footer{display:flex;justify-content:flex-end;gap:8px;}
   /* FATURAS */
   .fat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;margin-bottom:20px;}
   .fat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;cursor:pointer;transition:all .15s;position:relative;}
@@ -217,6 +231,8 @@
   .fat-row{display:flex;align-items:center;justify-content:space-between;gap:8px;}
   .fat-valor{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--text);}
   .fat-data{font-size:11px;color:var(--text3);}
+  .fat-datas{display:flex;gap:12px;margin-top:6px;font-size:10px;color:var(--text3);}
+  .fat-datas span{display:flex;gap:3px;align-items:center;}
   .fat-obra{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:500;background:var(--blue-bg);color:var(--blue-text);margin-top:8px;}
   .fat-grupo-header{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);margin:20px 0 10px;padding-bottom:6px;border-bottom:2px solid var(--border-strong);display:flex;justify-content:space-between;align-items:center;}
   .fat-grupo-total{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--text);}
@@ -366,6 +382,7 @@
     <div class="topbar-div"></div>
     <div class="user-pill"><div class="user-dot"></div><span id="user-email-label"></span></div>
     <div class="topbar-div"></div>
+    <button class="btn btn-sm" onclick="document.getElementById('sync-overlay').classList.add('open');resetSyncLog()" style="color:var(--blue);border:1px solid var(--blue)">🔄 Sincronizar</button>
     <button class="btn btn-primary" onclick="openFormModal()">+ Novo</button>
     <button class="btn btn-sm" onclick="doLogout()" style="color:var(--text3)">Sair</button>
   </div>
@@ -652,6 +669,39 @@
         </div>
       </div>
       <iframe id="fat-pdf-iframe" style="flex:1;border:none;width:100%;"></iframe>
+    </div>
+  </div>
+
+  <!-- SYNC MODAL -->
+  <div class="sync-overlay" id="sync-overlay" onclick="closeSyncIfBg(event)">
+    <div class="sync-box">
+      <div class="sync-title">🔄 Sincronizar Faturas</div>
+      <div class="sync-sub">Vai à NAS e importa as faturas novas do mês escolhido</div>
+      <div class="sync-row">
+        <div class="form-group" style="flex:1;margin:0">
+          <label class="form-label">Ano</label>
+          <select class="form-select" id="sync-ano">
+            <option value="2026" selected>2026</option>
+            <option value="2025">2025</option>
+          </select>
+        </div>
+        <div class="form-group" style="flex:1;margin:0">
+          <label class="form-label">Mês</label>
+          <select class="form-select" id="sync-mes">
+            <option value="01">Janeiro</option><option value="02">Fevereiro</option>
+            <option value="03">Março</option><option value="04" selected>Abril</option>
+            <option value="05">Maio</option><option value="06">Junho</option>
+            <option value="07">Julho</option><option value="08">Agosto</option>
+            <option value="09">Setembro</option><option value="10">Outubro</option>
+            <option value="11">Novembro</option><option value="12">Dezembro</option>
+          </select>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="runSync()" id="btn-run-sync">Sincronizar</button>
+      </div>
+      <div class="sync-log" id="sync-log"><span style="color:var(--text3)">Pronto para sincronizar...</span></div>
+      <div class="sync-footer">
+        <button class="btn btn-sm" onclick="document.getElementById('sync-overlay').classList.remove('open')">Fechar</button>
+      </div>
     </div>
   </div>
 <!-- DETAIL MODAL -->
@@ -1043,8 +1093,9 @@ let activeTab='obras', activeId=null;
 
 const FATURAS_DATA = [];
 
+
 function renderFaturas(){
-  const grupos = ['Obras','Projetos','Extras'];
+  const grupos = ['Obras','Projetos','AInspec','Extras'];
   const totalGlobal = FATURAS_DATA.reduce((s,f)=>s+f.valor,0);
   const nTotal = FATURAS_DATA.length;
 
@@ -1070,13 +1121,17 @@ function renderFaturas(){
       const todasSiglas = new Set();
       CF_SECOES.forEach(sec => getTabMeta(sec.tab).list.forEach(item => todasSiglas.add(item.sigla)));
       const matched = f.sigla_obra && todasSiglas.has(f.sigla_obra);
+      const vencFmt = f.vencimento ? f.vencimento.split('-').reverse().join('/') : '—';
       html += `<div class="fat-card${matched?' fat-card-matched':''}" onclick="openFatPdf(${FATURAS_DATA.indexOf(f)})">
         <div class="fat-num">${f.num}</div>
         <div class="fat-cliente">${f.cliente}</div>
         <div class="fat-desc">${f.descricao}</div>
         <div class="fat-row">
           <div class="fat-valor">${fmtValor(f.valor)}</div>
-          <div class="fat-data">${dataFmt}</div>
+        </div>
+        <div class="fat-datas">
+          <span>📅 Emissão: <b>${dataFmt}</b></span>
+          <span>⏱ Vencimento: <b>${vencFmt}</b></span>
         </div>
         ${f.sigla_obra?`<div class="fat-obra">⬡ ${f.sigla_obra}</div>`:''}
       </div>`;
@@ -1103,6 +1158,79 @@ function closeFatPdf(e){
     document.getElementById('fat-pdf-overlay').classList.remove('open');
     document.getElementById('fat-pdf-iframe').src='';
   }
+}
+
+
+// ── SYNC FATURAS ──────────────────────────────────────────────────────────
+function resetSyncLog(){
+  document.getElementById('sync-log').innerHTML='<span style="color:var(--text3)">Pronto para sincronizar...</span>';
+}
+function syncLog(msg, tipo=''){
+  const log=document.getElementById('sync-log');
+  const cls=tipo==='ok'?'sync-log-ok':tipo==='err'?'sync-log-err':tipo==='info'?'sync-log-info':'';
+  log.innerHTML+=`<div class="sync-log-line ${cls}">${msg}</div>`;
+  log.scrollTop=log.scrollHeight;
+}
+function closeSyncIfBg(e){if(e.target===document.getElementById('sync-overlay'))document.getElementById('sync-overlay').classList.remove('open');}
+
+async function runSync(){
+  const ano  = document.getElementById('sync-ano').value;
+  const mes  = document.getElementById('sync-mes').value;
+  const mesStr = `${ano} ${mes}`;
+  const btn  = document.getElementById('btn-run-sync');
+  btn.disabled=true; btn.textContent='A sincronizar...';
+  document.getElementById('sync-log').innerHTML='';
+  syncLog(`📂 A aceder à pasta: 100 Departamentos/200 DFIN/900 FTs/${mesStr}`, 'info');
+
+  try {
+    const r = await fetch('/api/sync-faturas', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({mes: mesStr})
+    });
+    const data = await r.json();
+    if(!r.ok || !data.ok){
+      syncLog(`❌ Erro: ${data.error || 'Resposta inesperada'}`, 'err');
+      if(data.detalhe) syncLog(`   ${data.detalhe}`, 'err');
+    } else {
+      if(data.existentes>0) syncLog(`ℹ️ ${data.existentes} fatura(s) já existia(m) — ignorada(s)`);
+      if(data.resultados?.length){
+        data.resultados.forEach(r=>syncLog(`✓ ${r.ficheiro} — ${r.numero} — ${r.grupo}${r.sigla_obra?' ('+r.sigla_obra+')':''}`, 'ok'));
+      }
+      if(data.erros?.length){
+        data.erros.forEach(e=>syncLog(`✗ ${e.ficheiro}: ${e.erro}`, 'err'));
+      }
+      syncLog(`─────────────────────────────`);
+      syncLog(data.mensagem, data.novos>0?'ok':'');
+      if(data.novos>0){
+        await loadFaturas();
+        if(activeTab==='faturas') renderFaturas();
+        if(activeTab==='cashflow') renderCashflow();
+      }
+    }
+  } catch(e){
+    syncLog(`❌ Erro de rede: ${e.message}`, 'err');
+  }
+  btn.disabled=false; btn.textContent='Sincronizar';
+}
+
+async function loadFaturas(){
+  const {data} = await supa.from('faturas').select('*').order('data_fatura');
+  FATURAS_DATA.length=0;
+  (data||[]).forEach(f=>FATURAS_DATA.push({
+    num:        f.numero,
+    data:       f.data_fatura,
+    vencimento: f.vencimento,
+    cliente:    f.cliente||'',
+    nif:        f.nif_cliente||'',
+    valor:      f.valor||0,
+    descricao:  f.descricao||'',
+    sigla_obra: f.sigla_obra||null,
+    grupo:      f.grupo||'Extras',
+    ficheiro:   f.ficheiro_nome||'',
+    ficheiro_nas: f.ficheiro_nas||'',
+    b64:        ''
+  }));
 }
 
 // ── TABS ──────────────────────────────────────────────────────────────────────
