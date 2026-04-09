@@ -507,44 +507,31 @@
       <div class="fg-checks" id="ainspec-chips-estados"></div>
       <input type="date" class="fg-date" id="ainspec-date-from" oninput="liveFilter('ainspec')" style="display:none">
       <input type="date" class="fg-date" id="ainspec-date-to" oninput="liveFilter('ainspec')" style="display:none">
+      <input type="text" class="fg-input" id="ainspec-fiscal" style="display:none">
+      <input type="text" class="fg-input" id="ainspec-cso" style="display:none">
     </div>
     <div class="table-wrap"><table style="table-layout:fixed">
       <colgroup>
-        <col style="width:8%"><col style="width:7%"><col style="width:12%"><col style="width:8%"><col style="width:8%">
+        <col style="width:8%"><col style="width:7%"><col style="width:18%"><col style="width:9%">
         <col style="width:9%"><col style="width:8%"><col style="width:8%">
-        <col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:8%">
+        <col style="width:8%"><col style="width:8%"><col style="width:9%"><col style="width:8%">
       </colgroup>
-      <thead>
-        <tr>
-          <th colspan="8" style="border-bottom:none;padding:0"></th>
-          <th colspan="2" style="border-bottom:none;padding:4px 4px 0">
-            <input type="text" id="ainspec-fiscal" placeholder="Fiscal..." oninput="liveFilter('ainspec')"
-              style="width:100%;font-family:var(--sans);font-size:11px;padding:4px 7px;border-radius:var(--radius);border:1px solid var(--border-strong);outline:none;font-weight:400;text-transform:none;letter-spacing:0">
-          </th>
-          <th colspan="2" style="border-bottom:none;padding:4px 4px 0">
-            <input type="text" id="ainspec-cso" placeholder="CSO..." oninput="liveFilter('ainspec')"
-              style="width:100%;font-family:var(--sans);font-size:11px;padding:4px 7px;border-radius:var(--radius);border:1px solid var(--border-strong);outline:none;font-weight:400;text-transform:none;letter-spacing:0">
-          </th>
-        </tr>
-        <tr>
-          <th class="sortable" onclick="sortTable('ainspec-tbody','codigo')">Código</th>
-          <th class="sortable" onclick="sortTable('ainspec-tbody','sigla')">Sigla</th>
-          <th class="sortable" onclick="sortTable('ainspec-tbody','nome')">Designação</th>
-          <th class="sortable" onclick="sortTable('ainspec-tbody','afetPrev')">Afet.</th>
-          <th class="sortable" onclick="sortTable('ainspec-tbody','valor')">Valor</th>
-          <th class="sortable" onclick="sortTable('ainspec-tbody','estado')">Estado</th>
-          <th class="sortable" onclick="sortTable('ainspec-tbody','inicio')">Início</th>
-          <th class="sortable" onclick="sortTable('ainspec-tbody','prazo')">Fim</th>
-          <th class="sortable" onclick="sortTable('ainspec-tbody','_fiscal')">Fiscal</th>
-          <th>%</th>
-          <th class="sortable" onclick="sortTable('ainspec-tbody','_cso')">CSO</th>
-          <th>%</th>
-        </tr>
-      </thead>
+      <thead><tr>
+        <th class="sortable" onclick="sortTable('ainspec-tbody','codigo')">Código</th>
+        <th class="sortable" onclick="sortTable('ainspec-tbody','sigla')">Sigla</th>
+        <th class="sortable" onclick="sortTable('ainspec-tbody','nome')">Designação</th>
+        <th class="sortable" onclick="sortTable('ainspec-tbody','valor')">Valor</th>
+        <th class="sortable" onclick="sortTable('ainspec-tbody','estado')">Estado</th>
+        <th class="sortable" onclick="sortTable('ainspec-tbody','inicio')">Início</th>
+        <th class="sortable" onclick="sortTable('ainspec-tbody','prazo')">Fim</th>
+        <th class="sortable" onclick="sortTable('ainspec-tbody','adjPct')">Adj.%</th>
+        <th class="sortable" onclick="sortTable('ainspec-tbody','adjData')">Adj.Data</th>
+        <th class="sortable" onclick="sortTable('ainspec-tbody','entPct')">Ent.%</th>
+        <th class="sortable" onclick="sortTable('ainspec-tbody','entData')">Ent.Data</th>
+      </tr></thead>
       <tbody id="ainspec-tbody"></tbody>
     </table></div>
   </div>
-
   <!-- CASHFLOW -->
   <div id="tab-content-cashflow" class="hidden">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
@@ -564,23 +551,23 @@
     <!-- Tabela cashflow -->
     <div class="dash-card">
       <div style="overflow-x:auto">
-        <table id="cf-table" style="width:100%;border-collapse:collapse;font-size:12px;min-width:980px">
+        <table id="cf-table" style="width:100%;border-collapse:collapse;font-size:12px;min-width:1050px">
           <thead>
             <tr style="background:var(--surface2)">
-              <th style="text-align:center;padding:9px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text);border-bottom:1px solid var(--border);position:sticky;left:0;background:var(--surface2);min-width:110px">Secção</th>
-              <th style="padding:9px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:88px">Total</th>
-              <th id="cf-th-jan" style="padding:9px 5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:76px">Jan</th>
-              <th id="cf-th-fev" style="padding:9px 5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:76px">Fev</th>
-              <th id="cf-th-mar" style="padding:9px 5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:76px">Mar</th>
-              <th id="cf-th-abr" style="padding:9px 5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:76px">Abr</th>
-              <th id="cf-th-mai" style="padding:9px 5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:76px">Mai</th>
-              <th id="cf-th-jun" style="padding:9px 5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:76px">Jun</th>
-              <th id="cf-th-jul" style="padding:9px 5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:76px">Jul</th>
-              <th id="cf-th-ago" style="padding:9px 5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:76px">Ago</th>
-              <th id="cf-th-set" style="padding:9px 5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:76px">Set</th>
-              <th id="cf-th-out" style="padding:9px 5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:76px">Out</th>
-              <th id="cf-th-nov" style="padding:9px 5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:76px">Nov</th>
-              <th id="cf-th-dez" style="padding:9px 5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:76px">Dez</th>
+              <th style="text-align:center;padding:9px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text);border-bottom:1px solid var(--border);position:sticky;left:0;background:var(--surface2);min-width:120px">Secção</th>
+              <th style="padding:9px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:90px">Total</th>
+              <th id="cf-th-jan" style="padding:9px 5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:75px">Jan</th>
+              <th id="cf-th-fev" style="padding:9px 5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:75px">Fev</th>
+              <th id="cf-th-mar" style="padding:9px 5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:75px">Mar</th>
+              <th id="cf-th-abr" style="padding:9px 5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:75px">Abr</th>
+              <th id="cf-th-mai" style="padding:9px 5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:75px">Mai</th>
+              <th id="cf-th-jun" style="padding:9px 5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:75px">Jun</th>
+              <th id="cf-th-jul" style="padding:9px 5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:75px">Jul</th>
+              <th id="cf-th-ago" style="padding:9px 5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:75px">Ago</th>
+              <th id="cf-th-set" style="padding:9px 5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:75px">Set</th>
+              <th id="cf-th-out" style="padding:9px 5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:75px">Out</th>
+              <th id="cf-th-nov" style="padding:9px 5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:75px">Nov</th>
+              <th id="cf-th-dez" style="padding:9px 5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:75px">Dez</th>
             </tr>
           </thead>
           <tbody id="cf-tbody"></tbody>
@@ -601,96 +588,63 @@
       <div class="fg-checks" id="concursos-chips-estados"></div>
       <input type="date" class="fg-date" id="concursos-date-from" oninput="liveFilter('concursos')" style="display:none">
       <input type="date" class="fg-date" id="concursos-date-to" oninput="liveFilter('concursos')" style="display:none">
+      <input type="text" class="fg-input" id="concursos-fiscal" style="display:none">
+      <input type="text" class="fg-input" id="concursos-cso" style="display:none">
     </div>
     <div class="table-wrap"><table style="table-layout:fixed">
       <colgroup>
-        <col style="width:8%"><col style="width:7%"><col style="width:12%"><col style="width:8%"><col style="width:8%">
+        <col style="width:8%"><col style="width:7%"><col style="width:18%"><col style="width:9%">
         <col style="width:9%"><col style="width:8%"><col style="width:8%">
-        <col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:8%">
+        <col style="width:8%"><col style="width:8%"><col style="width:9%"><col style="width:8%">
       </colgroup>
-      <thead>
-        <tr>
-          <th colspan="8" style="border-bottom:none;padding:0"></th>
-          <th colspan="2" style="border-bottom:none;padding:4px 4px 0">
-            <input type="text" id="concursos-fiscal" placeholder="Fiscal..." oninput="liveFilter('concursos')"
-              style="width:100%;font-family:var(--sans);font-size:11px;padding:4px 7px;border-radius:var(--radius);border:1px solid var(--border-strong);outline:none;font-weight:400;text-transform:none;letter-spacing:0">
-          </th>
-          <th colspan="2" style="border-bottom:none;padding:4px 4px 0">
-            <input type="text" id="concursos-cso" placeholder="CSO..." oninput="liveFilter('concursos')"
-              style="width:100%;font-family:var(--sans);font-size:11px;padding:4px 7px;border-radius:var(--radius);border:1px solid var(--border-strong);outline:none;font-weight:400;text-transform:none;letter-spacing:0">
-          </th>
-        </tr>
-        <tr>
-          <th class="sortable" onclick="sortTable('concursos-tbody','codigo')">Código</th>
-          <th class="sortable" onclick="sortTable('concursos-tbody','sigla')">Sigla</th>
-          <th class="sortable" onclick="sortTable('concursos-tbody','nome')">Designação</th>
-          <th class="sortable" onclick="sortTable('concursos-tbody','afetPrev')">Afet.</th>
-          <th class="sortable" onclick="sortTable('concursos-tbody','valor')">Valor</th>
-          <th class="sortable" onclick="sortTable('concursos-tbody','estado')">Estado</th>
-          <th class="sortable" onclick="sortTable('concursos-tbody','inicio')">Início</th>
-          <th class="sortable" onclick="sortTable('concursos-tbody','prazo')">Fim</th>
-          <th class="sortable" onclick="sortTable('concursos-tbody','_fiscal')">Fiscal</th>
-          <th>%</th>
-          <th class="sortable" onclick="sortTable('concursos-tbody','_cso')">CSO</th>
-          <th>%</th>
-        </tr>
-      </thead>
+      <thead><tr>
+        <th class="sortable" onclick="sortTable('concursos-tbody','codigo')">Código</th>
+        <th class="sortable" onclick="sortTable('concursos-tbody','sigla')">Sigla</th>
+        <th class="sortable" onclick="sortTable('concursos-tbody','nome')">Designação</th>
+        <th class="sortable" onclick="sortTable('concursos-tbody','valor')">Valor</th>
+        <th class="sortable" onclick="sortTable('concursos-tbody','estado')">Estado</th>
+        <th class="sortable" onclick="sortTable('concursos-tbody','inicio')">Início</th>
+        <th class="sortable" onclick="sortTable('concursos-tbody','prazo')">Fim</th>
+        <th class="sortable" onclick="sortTable('concursos-tbody','adjPct')">Adj.%</th>
+        <th class="sortable" onclick="sortTable('concursos-tbody','adjData')">Adj.Data</th>
+        <th class="sortable" onclick="sortTable('concursos-tbody','entPct')">Ent.%</th>
+        <th class="sortable" onclick="sortTable('concursos-tbody','entData')">Ent.Data</th>
+      </tr></thead>
       <tbody id="concursos-tbody"></tbody>
     </table></div>
   </div>
-
   <!-- PREVISTOS -->
   <div id="tab-content-previsoes" class="hidden">
     <div class="sec-header" style="margin-bottom:10px">
       <div class="sec-title" id="previsoes-count-label">Previstos</div>
       <button class="btn btn-sm" onclick="clearFilterFromTab('previsoes')" id="btn-clear-previsoes" style="display:none;color:var(--amber);border-color:var(--amber)">Limpar filtros</button>
     </div>
-    <div class="filter-bar" id="filter-bar-previsoes">
-      <div class="fg-group">
-        <div class="fg-label">Estado</div>
-        <div class="fg-checks" id="previsoes-chips-estados"></div>
-      </div>
-      <div class="fg-group">
-        <div class="fg-label">Fim Previsto — De</div>
-        <input type="date" class="fg-date" id="previsoes-date-from" oninput="liveFilter('previsoes')">
-      </div>
-      <div class="fg-group">
-        <div class="fg-label">Até</div>
-        <input type="date" class="fg-date" id="previsoes-date-to" oninput="liveFilter('previsoes')">
-      </div>
-      <div class="fg-group">
-        <div class="fg-label">Fiscal</div>
-        <input type="text" class="fg-input" id="previsoes-fiscal" placeholder="nome..." oninput="liveFilter('previsoes')">
-      </div>
-      <div class="fg-group">
-        <div class="fg-label">CSO</div>
-        <input type="text" class="fg-input" id="previsoes-cso" placeholder="nome..." oninput="liveFilter('previsoes')">
-      </div>
+    <div id="filter-bar-previsoes" style="display:none">
+      <div class="fg-checks" id="previsoes-chips-estados"></div>
+      <input type="date" class="fg-date" id="previsoes-date-from" oninput="liveFilter('previsoes')" style="display:none">
+      <input type="date" class="fg-date" id="previsoes-date-to" oninput="liveFilter('previsoes')" style="display:none">
+      <input type="text" class="fg-input" id="previsoes-fiscal" style="display:none">
+      <input type="text" class="fg-input" id="previsoes-cso" style="display:none">
     </div>
     <div class="table-wrap"><table style="table-layout:fixed">
       <colgroup>
-        <col style="width:8%"><col style="width:7%"><col style="width:12%"><col style="width:8%"><col style="width:8%">
-        <col style="width:9%"><col style="width:8%"><col style="width:8%">
-        <col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:8%">
+        <col style="width:10%"><col style="width:8%"><col style="width:24%"><col style="width:12%">
+        <col style="width:12%"><col style="width:12%"><col style="width:12%">
+        <col style="width:10%">
       </colgroup>
       <thead><tr>
         <th class="sortable" onclick="sortTable('previsoes-tbody','codigo')">Código</th>
         <th class="sortable" onclick="sortTable('previsoes-tbody','sigla')">Sigla</th>
         <th class="sortable" onclick="sortTable('previsoes-tbody','nome')">Designação</th>
-        <th class="sortable" onclick="sortTable('previsoes-tbody','afetPrev')">Afet.</th>
         <th class="sortable" onclick="sortTable('previsoes-tbody','valor')">Valor</th>
         <th class="sortable" onclick="sortTable('previsoes-tbody','estado')">Estado</th>
         <th class="sortable" onclick="sortTable('previsoes-tbody','inicio')">Início</th>
         <th class="sortable" onclick="sortTable('previsoes-tbody','prazo')">Fim</th>
-        <th class="sortable" onclick="sortTable('previsoes-tbody','_fiscal')">Fiscal</th>
-        <th>%</th>
-        <th class="sortable" onclick="sortTable('previsoes-tbody','_cso')">CSO</th>
-        <th>%</th>
+        <th class="sortable" onclick="sortTable('previsoes-tbody','notas')">Notas</th>
       </tr></thead>
       <tbody id="previsoes-tbody"></tbody>
     </table></div>
   </div>
-
 
   <!-- FATURAS -->
   <div id="tab-content-faturas" class="hidden">
@@ -831,12 +785,36 @@
           <input class="form-input" id="f-prazo" type="date">
         </div>
       </div>
-      <div class="form-row">
+      <!-- Afetação — só para Obras/Projetos/Previstos -->
+      <div class="form-row" id="f-row-afet">
         <div class="form-group">
           <label class="form-label">Afetação Prevista (%)</label>
           <input class="form-input" id="f-afet" type="number" min="0" max="100" placeholder="Ex: 50">
         </div>
         <div></div>
+      </div>
+      <!-- Adjudicação/Entrega — só para Concursos/AInspec -->
+      <div id="f-row-adj" style="display:none">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Adjudicação (%)</label>
+            <input class="form-input" id="f-adj-pct" type="number" min="0" max="100" placeholder="Ex: 30">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Data Adjudicação</label>
+            <input class="form-input" id="f-adj-data" type="date">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Entrega (%)</label>
+            <input class="form-input" id="f-ent-pct" type="number" min="0" max="100" placeholder="Ex: 70">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Data Entrega</label>
+            <input class="form-input" id="f-ent-data" type="date">
+          </div>
+        </div>
       </div>
     </div>
     <div class="modal-footer">
@@ -962,6 +940,10 @@ async function loadAllData(){
     afetPrev: c.afet_prev!=null?c.afet_prev:null,
     valor:    c.valor!=null?c.valor:null,
     notas:    c.notas||'',
+    adjPct:   c.adj_pct!=null?c.adj_pct:null,
+    adjData:  c.adj_data||'',
+    entPct:   c.ent_pct!=null?c.ent_pct:null,
+    entData:  c.ent_data||'',
     equipa:   (c.equipa_concursos||[]).map(e=>({id:e.id,nome:e.nome,funcao:e.funcao,afet:e.afet})),
   }));
 
@@ -979,6 +961,10 @@ async function loadAllData(){
     afetPrev: a.afet_prev!=null?a.afet_prev:null,
     valor:    a.valor!=null?a.valor:null,
     notas:    a.notas||'',
+    adjPct:   a.adj_pct!=null?a.adj_pct:null,
+    adjData:  a.adj_data||'',
+    entPct:   a.ent_pct!=null?a.ent_pct:null,
+    entData:  a.ent_data||'',
     equipa:   (a.equipa_ainspec||[]).map(e=>({id:e.id,nome:e.nome,funcao:e.funcao,afet:e.afet})),
   }));
 
@@ -1208,6 +1194,10 @@ function sortTable(tbodyId, field){
 
 function getSortVal(item, field){
   if(field==='codigo')  return (item.codigo||'').toLowerCase();
+  if(field==='adjPct')   return item.adjPct!=null?item.adjPct:-1;
+  if(field==='adjData')  return item.adjData||'';
+  if(field==='entPct')   return item.entPct!=null?item.entPct:-1;
+  if(field==='entData')  return item.entData||'';
   if(field==='_fiscal') return (item.equipa||[]).filter(c=>c.funcao==='Fiscal').map(c=>c.nome).join('');
   if(field==='_cso')    return (item.equipa||[]).filter(c=>c.funcao==='CSO').map(c=>c.nome).join('');
   if(field==='valor')   return item.valor||0;
@@ -1297,13 +1287,42 @@ function renderFiltered(tab){
 
   const tbody = document.getElementById(tbodyId);
   if(!filtered.length){
-    tbody.innerHTML=`<tr><td colspan="12"><div class="empty"><div class="empty-icon">◎</div>
+    tbody.innerHTML=`<tr><td ${tab==='previsoes'?8:tab==='concursos'||tab==='ainspec'?11:12}><div class="empty"><div class="empty-icon">◎</div>
       <div class="empty-title">Sem resultados</div>
       <div>${n?'Nenhum registo para os filtros ativos.':' Cria um novo com o botão + Novo'}</div>
     </div></td></tr>`;
   } else {
     tbody.innerHTML=filtered.map(item=>{
       const venc=isVencido(item.prazo,item.estado);
+      const isPrevView = tab==='previsoes';
+      const isAdjView  = tab==='concursos'||tab==='ainspec';
+      if(isPrevView){
+        return`<tr onclick="openDetail('${item.id}')">
+          <td class="col-codigo">${item.codigo||'—'}</td>
+          <td class="col-sigla">${item.sigla}</td>
+          <td class="col-nome" style="text-align:left">${item.nome}</td>
+          <td class="col-valor">${fmtValor(item.valor)}</td>
+          <td>${badgeEstado(item.estado)}</td>
+          <td class="col-prazo">${fmtDate(item.inicio)}</td>
+          <td class="col-prazo${venc?' vencido':''}">${fmtDate(item.prazo)}${venc?' ⚠':''}</td>
+          <td style="font-size:11px;color:var(--text2);text-align:left;overflow:hidden;text-overflow:ellipsis">${item.notas||'—'}</td>
+        </tr>`;
+      }
+      if(isAdjView){
+        return`<tr onclick="openDetail('${item.id}')">
+          <td class="col-codigo">${item.codigo||'—'}</td>
+          <td class="col-sigla">${item.sigla}</td>
+          <td class="col-nome" style="text-align:left">${item.nome}</td>
+          <td class="col-valor">${fmtValor(item.valor)}</td>
+          <td>${badgeEstado(item.estado)}</td>
+          <td class="col-prazo">${fmtDate(item.inicio)}</td>
+          <td class="col-prazo${venc?' vencido':''}">${fmtDate(item.prazo)}${venc?' ⚠':''}</td>
+          <td class="col-afet">${item.adjPct!=null?item.adjPct+'%':'—'}</td>
+          <td class="col-prazo">${fmtDate(item.adjData)}</td>
+          <td class="col-afet">${item.entPct!=null?item.entPct+'%':'—'}</td>
+          <td class="col-prazo">${fmtDate(item.entData)}</td>
+        </tr>`;
+      }
       return`<tr onclick="openDetail('${item.id}')">
         <td class="col-codigo">${item.codigo||'—'}</td>
         <td class="col-sigla">${item.sigla}</td>
@@ -1749,13 +1768,14 @@ function filterAndGoObras(campo,valor){
 let cfChart = null;
 const MESES_PT  = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 const MESES_IDS = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
-const cfCollapsed = {obras:false, projetos:false, concursos:false, previsoes:false};
+const cfCollapsed = {obras:false, concursos:false, ainspec:false, projetos:false, previsoes:false};
 
 const CF_SECOES = [
-  {tab:'obras',     label:'Obras',     estados:['Em Curso','Suspenso'],          badge:'badge-blue'},
-  {tab:'projetos',  label:'Projetos',  estados:['Ativo','Pendente','Suspenso'],   badge:'badge-purple'},
-  {tab:'concursos', label:'Concursos', estados:['Em Curso'],                      badge:'badge-gray'},
-  {tab:'previsoes', label:'Previstos', estados:['Previsto','Em Curso'],            badge:'badge-amber'},
+  {tab:'obras',     label:'Obras',     estados:['Em Curso','Suspenso'],  badge:'badge-blue'},
+  {tab:'concursos', label:'Concursos', estados:['Em Curso','Pendente','Concluído'], badge:'badge-gray'},
+  {tab:'ainspec',   label:'AInspec',   estados:['Em Curso','Concluído'], badge:'badge-blue'},
+  {tab:'projetos',  label:'Projetos',  estados:['Em Curso','Pendente','Concluído'], badge:'badge-purple'},
+  {tab:'previsoes', label:'Previstos', estados:['Pendente'],             badge:'badge-amber'},
 ];
 
 function cfMesesAtivos(item){
@@ -1778,10 +1798,48 @@ function cfMesesAtivos(item){
   return m;
 }
 
-function cfValorMensal(item, mes){
-  // valor fixo — recebe o valor total em cada mês activo
+function cfValorMensal(item, mes, tab){
+  if(!item.valor) return 0;
+  // Concursos e AInspec — distribuição por adj/ent
+  if(tab==='concursos'||tab==='ainspec'){
+    let v=0;
+    if(item.adjPct&&item.adjData){
+      const d=new Date(item.adjData);
+      if(d.getFullYear()===2026&&d.getMonth()===mes) v+=item.valor*(item.adjPct/100);
+    }
+    if(item.entPct&&item.entData){
+      const d=new Date(item.entData);
+      if(d.getFullYear()===2026&&d.getMonth()===mes) v+=item.valor*(item.entPct/100);
+    }
+    // se não tiver datas definidas, coloca tudo no mês de início
+    if(!item.adjData&&!item.entData){
+      const meses=cfMesesAtivos(item);
+      if(meses.length&&mes===meses[0]) v=item.valor;
+    }
+    return v;
+  }
+  // Previstos — distribuição entre início e fim; se sem fim, usa Dez 2026
+  if(tab==='previsoes'){
+    const anoRef=2026;
+    let mIni=0;
+    if(item.inicio){
+      const d=new Date(item.inicio);
+      if(d.getFullYear()>anoRef) return 0;
+      if(d.getFullYear()===anoRef) mIni=d.getMonth();
+    }
+    let mFim=11; // Dezembro por defeito
+    if(item.prazo){
+      const d=new Date(item.prazo);
+      if(d.getFullYear()<anoRef) return 0;
+      if(d.getFullYear()===anoRef) mFim=d.getMonth();
+    }
+    if(mes<mIni||mes>mFim) return 0;
+    return item.valor/(mFim-mIni+1);
+  }
+  // Obras e Projetos — distribuição uniforme entre início e fim
   const meses=cfMesesAtivos(item);
-  return (item.valor&&meses.includes(mes)) ? item.valor : 0;
+  if(!meses.length) return 0;
+  return meses.includes(mes) ? item.valor/meses.length : 0;
 }
 
 function cfFaturasMatch(sigla, mes){
@@ -1828,7 +1886,7 @@ function renderCashflow(){
 
     items.forEach(item=>{
       for(let m=0;m<12;m++){
-        const v=cfValorMensal(item,m);
+        const v=cfValorMensal(item,m,sec.tab);
         totaisSec[m]+=v;
         totaisGlobal[m]+=v;
         const fats=cfFaturasMatch(item.sigla,m);
@@ -1860,7 +1918,7 @@ function renderCashflow(){
     if(!collapsed){
       items.forEach(item=>{
         const celulas=Array(12).fill(0).map((_,m)=>{
-          const v=cfValorMensal(item,m);
+          const v=cfValorMensal(item,m,sec.tab);
           const meses=cfMesesAtivos(item);
           const ativo=meses.includes(m);
           const fats=cfFaturasMatch(item.sigla,m);
@@ -1870,7 +1928,7 @@ function renderCashflow(){
           const icon=faturado?`<span style="font-size:9px;color:#1D9E75;font-weight:700;margin-right:3px">✓</span>`:'';
           return`<td class="cf-val ${v>0?'has-val':'zero'}" style="${bg};text-align:right"${tooltip}>${icon}${v>0?fmtValorInt(v):'—'}</td>`;
         }).join('');
-        const totalItem=Array(12).fill(0).map((_,m)=>cfValorMensal(item,m)).reduce((s,v)=>s+v,0);
+        const totalItem=Array(12).fill(0).map((_,m)=>cfValorMensal(item,m,sec.tab)).reduce((s,v)=>s+v,0);
         const itemFaturado=Array(12).fill(0).some((_,m)=>cfFaturasMatch(item.sigla,m).length>0);
         tbodyHtml+=`<tr class="cf-row cf-row-detail">
           <td class="cf-nome" style="padding-left:32px;text-align:left">${item.sigla}${itemFaturado?'<span style="color:#1D9E75;font-size:10px;margin-left:5px">✓</span>':''}</td>
@@ -1952,9 +2010,9 @@ function renderCashflow(){
         const meta=getTabMeta(sec.tab);
         const items=meta.list.filter(i=>sec.estados.includes(i.estado)&&i.valor>0);
         const data=Array(12).fill(0).map((_,m)=>
-          items.reduce((s,item)=>s+cfValorMensal(item,m),0)
+          items.reduce((s,item)=>s+cfValorMensal(item,m,sec.tab),0)
         );
-        const colors=['#185FA5','#534AB7','#888780','#BA7517'];
+        const colors=['#185FA5','#888780','#378ADD','#534AB7','#BA7517'];
         return{label:sec.label,data,backgroundColor:colors[si],borderRadius:3,borderSkipped:false};
       })
     },
@@ -2106,7 +2164,10 @@ function openFormModal(){
   document.getElementById('form-title-text').textContent='Novo '+meta.label;
   document.getElementById('form-subtitle').textContent=meta.labelPlural;
   document.getElementById('f-estado').innerHTML=meta.estados.map(e=>`<option>${e}</option>`).join('');
-  ['f-codigo','f-sigla','f-nome','f-valor','f-afet','f-inicio','f-prazo'].forEach(id=>document.getElementById(id).value='');
+  ['f-codigo','f-sigla','f-nome','f-valor','f-afet','f-inicio','f-prazo','f-adj-pct','f-adj-data','f-ent-pct','f-ent-data'].forEach(id=>document.getElementById(id).value='');
+  const isAdjTab = activeTab==='concursos'||activeTab==='ainspec'||activeTab==='previsoes';
+  document.getElementById('f-row-afet').style.display = isAdjTab?'none':'';
+  document.getElementById('f-row-adj').style.display  = (activeTab==='concursos'||activeTab==='ainspec')?'':'none';
   document.getElementById('form-overlay').classList.add('open');
   setTimeout(()=>document.getElementById('f-sigla').focus(),120);
 }
@@ -2123,8 +2184,15 @@ function openEditModal(){
   document.getElementById('f-nome').value   = item.nome||'';
   document.getElementById('f-valor').value  = item.valor!=null?item.valor:'';
   document.getElementById('f-afet').value   = item.afetPrev??'';
-  document.getElementById('f-inicio').value = item.inicio||'';
-  document.getElementById('f-prazo').value  = item.prazo||'';
+  document.getElementById('f-inicio').value    = item.inicio||'';
+  document.getElementById('f-prazo').value      = item.prazo||'';
+  const isAdjTab2 = activeTab==='concursos'||activeTab==='ainspec'||activeTab==='previsoes';
+  document.getElementById('f-row-afet').style.display = isAdjTab2?'none':'';
+  document.getElementById('f-row-adj').style.display  = (activeTab==='concursos'||activeTab==='ainspec')?'':'none';
+  document.getElementById('f-adj-pct').value  = item.adjPct!=null?item.adjPct:'';
+  document.getElementById('f-adj-data').value = item.adjData||'';
+  document.getElementById('f-ent-pct').value  = item.entPct!=null?item.entPct:'';
+  document.getElementById('f-ent-data').value = item.entData||'';
   document.getElementById('form-overlay').classList.add('open');
 }
 
@@ -2141,6 +2209,10 @@ async function saveForm(){
     afet_prev: document.getElementById('f-afet').value!==''?parseInt(document.getElementById('f-afet').value):null,
     inicio:    document.getElementById('f-inicio').value||null,
     prazo:     document.getElementById('f-prazo').value||null,
+    adj_pct:   (activeTab==='concursos'||activeTab==='ainspec')&&document.getElementById('f-adj-pct').value!==''?parseInt(document.getElementById('f-adj-pct').value):null,
+    adj_data:  (activeTab==='concursos'||activeTab==='ainspec')?document.getElementById('f-adj-data').value||null:null,
+    ent_pct:   (activeTab==='concursos'||activeTab==='ainspec')&&document.getElementById('f-ent-pct').value!==''?parseInt(document.getElementById('f-ent-pct').value):null,
+    ent_data:  (activeTab==='concursos'||activeTab==='ainspec')?document.getElementById('f-ent-data').value||null:null,
   };
   const meta = getTabMeta(activeTab);
   if(editingId){
