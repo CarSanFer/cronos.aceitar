@@ -82,7 +82,7 @@
   .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:auto;box-shadow:var(--shadow);}
   table{width:100%;border-collapse:collapse;table-layout:fixed;}
   thead tr{background:var(--surface2);}
-  th{font-size:11px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.05em;padding:10px 8px;text-align:center;border-bottom:1px solid var(--border);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  th{font-family:var(--sans);font-size:11px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.05em;padding:10px 8px;text-align:center;border-bottom:1px solid var(--border);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   th.sortable{cursor:pointer;user-select:none;transition:background .12s;}
   th.sortable:hover{background:var(--border);}
   th.sort-asc::after{content:" ↑";font-size:10px;opacity:.7;}
@@ -188,13 +188,13 @@
 
   /* CASHFLOW */
   .cf-mes-ativo{background:var(--blue-bg)!important;}
-  .cf-val{font-size:11px;color:var(--text2);text-align:right;padding:8px 8px;border-bottom:1px solid var(--border);}
+  .cf-val{font-size:11px;color:var(--text2);text-align:right!important;padding:8px 8px;border-bottom:1px solid var(--border);}
   .cf-val.has-val{color:var(--text);font-weight:500;}
   .cf-val.zero{color:var(--text3);}
   .cf-nome{font-size:12px;font-weight:500;color:var(--text);padding:8px 12px;border-bottom:1px solid var(--border);position:sticky;left:0;background:var(--surface);}
   .cf-nome-sub{font-size:10px;color:var(--text3);font-weight:400;}
   .cf-tipo{font-size:10px;padding:8px 6px;border-bottom:1px solid var(--border);text-align:center;}
-  .cf-total-val{font-size:11px;font-weight:500;color:var(--text2);text-align:right;padding:8px 10px;border-bottom:1px solid var(--border);}
+  .cf-total-val{font-size:11px;font-weight:500;color:var(--text2);text-align:right!important;padding:8px 10px;border-bottom:1px solid var(--border);}
   .cf-sec-header:hover td{filter:brightness(.97);}
   .cf-row-detail td{background:var(--surface);}
   .cf-foot td{padding:9px 8px;font-size:11px;font-weight:700;color:var(--text);text-align:right;background:var(--surface2);border-top:2px solid var(--border-strong);}
@@ -307,6 +307,7 @@
     <button class="tab" onclick="setTab('projetos')" id="tab-projetos">Projetos</button>
     <button class="tab" onclick="setTab('previsoes')" id="tab-previsoes">Previsões</button>
     <button class="tab" onclick="setTab('cashflow')" id="tab-cashflow">Cashflow</button>
+    <button class="tab" onclick="setTab('dashboard')" id="tab-dashboard">Dashboard</button>
   </div>
   <div class="topbar-right">
     <button class="btn btn-sm btn-green" onclick="exportXlsx()">↓ Exportar</button>
@@ -355,27 +356,10 @@
       <div class="sec-title" id="obras-count-label">Obras</div>
       <button class="btn btn-sm" onclick="clearFilterFromTab('obras')" id="btn-clear-obras" style="display:none;color:var(--amber);border-color:var(--amber)">Limpar filtros</button>
     </div>
-    <div class="filter-bar" id="filter-bar-obras">
-      <div class="fg-group">
-        <div class="fg-label">Estado</div>
-        <div class="fg-checks" id="obras-chips-estados"></div>
-      </div>
-      <div class="fg-group">
-        <div class="fg-label">Fim Previsto — De</div>
-        <input type="date" class="fg-date" id="obras-date-from" oninput="liveFilter('obras')">
-      </div>
-      <div class="fg-group">
-        <div class="fg-label">Até</div>
-        <input type="date" class="fg-date" id="obras-date-to" oninput="liveFilter('obras')">
-      </div>
-      <div class="fg-group">
-        <div class="fg-label">Fiscal</div>
-        <input type="text" class="fg-input" id="obras-fiscal" placeholder="nome..." oninput="liveFilter('obras')">
-      </div>
-      <div class="fg-group">
-        <div class="fg-label">CSO</div>
-        <input type="text" class="fg-input" id="obras-cso" placeholder="nome..." oninput="liveFilter('obras')">
-      </div>
+    <div id="filter-bar-obras" style="display:none">
+      <div class="fg-checks" id="obras-chips-estados"></div>
+      <input type="date" class="fg-date" id="obras-date-from" oninput="liveFilter('obras')" style="display:none">
+      <input type="date" class="fg-date" id="obras-date-to" oninput="liveFilter('obras')" style="display:none">
     </div>
     <div class="table-wrap"><table style="table-layout:fixed">
       <colgroup>
@@ -383,20 +367,33 @@
         <col style="width:9%"><col style="width:8%"><col style="width:8%">
         <col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:8%">
       </colgroup>
-      <thead><tr>
-        <th class="sortable" onclick="sortTable('obras-tbody','codigo')">Código</th>
-        <th class="sortable" onclick="sortTable('obras-tbody','sigla')">Sigla</th>
-        <th class="sortable" onclick="sortTable('obras-tbody','nome')">Designação</th>
-        <th class="sortable" onclick="sortTable('obras-tbody','afetPrev')">Afet.</th>
-        <th class="sortable" onclick="sortTable('obras-tbody','valor')">Valor</th>
-        <th class="sortable" onclick="sortTable('obras-tbody','estado')">Estado</th>
-        <th class="sortable" onclick="sortTable('obras-tbody','inicio')">Início</th>
-        <th class="sortable" onclick="sortTable('obras-tbody','prazo')">Fim</th>
-        <th class="sortable" onclick="sortTable('obras-tbody','_fiscal')">Fiscal</th>
-        <th style="font-size:10px">%</th>
-        <th class="sortable" onclick="sortTable('obras-tbody','_cso')">CSO</th>
-        <th style="font-size:10px">%</th>
-      </tr></thead>
+      <thead>
+        <tr>
+          <th colspan="8" style="border-bottom:none;padding:0"></th>
+          <th colspan="2" style="border-bottom:none;padding:4px 4px 0">
+            <input type="text" id="obras-fiscal" placeholder="Fiscal..." oninput="liveFilter('obras')"
+              style="width:100%;font-family:var(--sans);font-size:11px;padding:4px 7px;border-radius:var(--radius);border:1px solid var(--border-strong);outline:none;font-weight:400;text-transform:none;letter-spacing:0">
+          </th>
+          <th colspan="2" style="border-bottom:none;padding:4px 4px 0">
+            <input type="text" id="obras-cso" placeholder="CSO..." oninput="liveFilter('obras')"
+              style="width:100%;font-family:var(--sans);font-size:11px;padding:4px 7px;border-radius:var(--radius);border:1px solid var(--border-strong);outline:none;font-weight:400;text-transform:none;letter-spacing:0">
+          </th>
+        </tr>
+        <tr>
+          <th class="sortable" onclick="sortTable('obras-tbody','codigo')">Código</th>
+          <th class="sortable" onclick="sortTable('obras-tbody','sigla')">Sigla</th>
+          <th class="sortable" onclick="sortTable('obras-tbody','nome')">Designação</th>
+          <th class="sortable" onclick="sortTable('obras-tbody','afetPrev')">Afet.</th>
+          <th class="sortable" onclick="sortTable('obras-tbody','valor')">Valor</th>
+          <th class="sortable" onclick="sortTable('obras-tbody','estado')">Estado</th>
+          <th class="sortable" onclick="sortTable('obras-tbody','inicio')">Início</th>
+          <th class="sortable" onclick="sortTable('obras-tbody','prazo')">Fim</th>
+          <th class="sortable" onclick="sortTable('obras-tbody','_fiscal')">Fiscal</th>
+          <th>%</th>
+          <th class="sortable" onclick="sortTable('obras-tbody','_cso')">CSO</th>
+          <th>%</th>
+        </tr>
+      </thead>
       <tbody id="obras-tbody"></tbody>
     </table></div>
   </div>
@@ -407,27 +404,10 @@
       <div class="sec-title" id="projetos-count-label">Projetos</div>
       <button class="btn btn-sm" onclick="clearFilterFromTab('projetos')" id="btn-clear-projetos" style="display:none;color:var(--amber);border-color:var(--amber)">Limpar filtros</button>
     </div>
-    <div class="filter-bar" id="filter-bar-projetos">
-      <div class="fg-group">
-        <div class="fg-label">Estado</div>
-        <div class="fg-checks" id="projetos-chips-estados"></div>
-      </div>
-      <div class="fg-group">
-        <div class="fg-label">Fim Previsto — De</div>
-        <input type="date" class="fg-date" id="projetos-date-from" oninput="liveFilter('projetos')">
-      </div>
-      <div class="fg-group">
-        <div class="fg-label">Até</div>
-        <input type="date" class="fg-date" id="projetos-date-to" oninput="liveFilter('projetos')">
-      </div>
-      <div class="fg-group">
-        <div class="fg-label">Fiscal</div>
-        <input type="text" class="fg-input" id="projetos-fiscal" placeholder="nome..." oninput="liveFilter('projetos')">
-      </div>
-      <div class="fg-group">
-        <div class="fg-label">CSO</div>
-        <input type="text" class="fg-input" id="projetos-cso" placeholder="nome..." oninput="liveFilter('projetos')">
-      </div>
+    <div id="filter-bar-projetos" style="display:none">
+      <div class="fg-checks" id="projetos-chips-estados"></div>
+      <input type="date" class="fg-date" id="projetos-date-from" oninput="liveFilter('projetos')" style="display:none">
+      <input type="date" class="fg-date" id="projetos-date-to" oninput="liveFilter('projetos')" style="display:none">
     </div>
     <div class="table-wrap"><table style="table-layout:fixed">
       <colgroup>
@@ -435,24 +415,36 @@
         <col style="width:9%"><col style="width:8%"><col style="width:8%">
         <col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:8%">
       </colgroup>
-      <thead><tr>
-        <th class="sortable" onclick="sortTable('projetos-tbody','codigo')">Código</th>
-        <th class="sortable" onclick="sortTable('projetos-tbody','sigla')">Sigla</th>
-        <th class="sortable" onclick="sortTable('projetos-tbody','nome')">Designação</th>
-        <th class="sortable" onclick="sortTable('projetos-tbody','afetPrev')">Afet.</th>
-        <th class="sortable" onclick="sortTable('projetos-tbody','valor')">Valor</th>
-        <th class="sortable" onclick="sortTable('projetos-tbody','estado')">Estado</th>
-        <th class="sortable" onclick="sortTable('projetos-tbody','inicio')">Início</th>
-        <th class="sortable" onclick="sortTable('projetos-tbody','prazo')">Fim</th>
-        <th class="sortable" onclick="sortTable('projetos-tbody','_fiscal')">Fiscal</th>
-        <th style="font-size:10px">%</th>
-        <th class="sortable" onclick="sortTable('projetos-tbody','_cso')">CSO</th>
-        <th style="font-size:10px">%</th>
-      </tr></thead>
+      <thead>
+        <tr>
+          <th colspan="8" style="border-bottom:none;padding:0"></th>
+          <th colspan="2" style="border-bottom:none;padding:4px 4px 0">
+            <input type="text" id="projetos-fiscal" placeholder="Fiscal..." oninput="liveFilter('projetos')"
+              style="width:100%;font-family:var(--sans);font-size:11px;padding:4px 7px;border-radius:var(--radius);border:1px solid var(--border-strong);outline:none;font-weight:400;text-transform:none;letter-spacing:0">
+          </th>
+          <th colspan="2" style="border-bottom:none;padding:4px 4px 0">
+            <input type="text" id="projetos-cso" placeholder="CSO..." oninput="liveFilter('projetos')"
+              style="width:100%;font-family:var(--sans);font-size:11px;padding:4px 7px;border-radius:var(--radius);border:1px solid var(--border-strong);outline:none;font-weight:400;text-transform:none;letter-spacing:0">
+          </th>
+        </tr>
+        <tr>
+          <th class="sortable" onclick="sortTable('projetos-tbody','codigo')">Código</th>
+          <th class="sortable" onclick="sortTable('projetos-tbody','sigla')">Sigla</th>
+          <th class="sortable" onclick="sortTable('projetos-tbody','nome')">Designação</th>
+          <th class="sortable" onclick="sortTable('projetos-tbody','afetPrev')">Afet.</th>
+          <th class="sortable" onclick="sortTable('projetos-tbody','valor')">Valor</th>
+          <th class="sortable" onclick="sortTable('projetos-tbody','estado')">Estado</th>
+          <th class="sortable" onclick="sortTable('projetos-tbody','inicio')">Início</th>
+          <th class="sortable" onclick="sortTable('projetos-tbody','prazo')">Fim</th>
+          <th class="sortable" onclick="sortTable('projetos-tbody','_fiscal')">Fiscal</th>
+          <th>%</th>
+          <th class="sortable" onclick="sortTable('projetos-tbody','_cso')">CSO</th>
+          <th>%</th>
+        </tr>
+      </thead>
       <tbody id="projetos-tbody"></tbody>
     </table></div>
   </div>
-</div>
 
 
   <!-- CASHFLOW -->
@@ -477,20 +469,20 @@
         <table id="cf-table" style="width:100%;border-collapse:collapse;font-size:12px;min-width:1100px">
           <thead>
             <tr style="background:var(--surface2)">
-              <th style="text-align:left;padding:9px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text);border-bottom:1px solid var(--border);position:sticky;left:0;background:var(--surface2);min-width:120px">Obra / Projeto</th>
-              <th style="padding:9px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:right;min-width:100px">Total</th>
-              <th id="cf-th-jan" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:right;min-width:88px">Jan</th>
-              <th id="cf-th-fev" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:right;min-width:88px">Fev</th>
-              <th id="cf-th-mar" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:right;min-width:88px">Mar</th>
-              <th id="cf-th-abr" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:right;min-width:88px">Abr</th>
-              <th id="cf-th-mai" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:right;min-width:88px">Mai</th>
-              <th id="cf-th-jun" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:right;min-width:88px">Jun</th>
-              <th id="cf-th-jul" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:right;min-width:88px">Jul</th>
-              <th id="cf-th-ago" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:right;min-width:88px">Ago</th>
-              <th id="cf-th-set" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:right;min-width:88px">Set</th>
-              <th id="cf-th-out" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:right;min-width:88px">Out</th>
-              <th id="cf-th-nov" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:right;min-width:88px">Nov</th>
-              <th id="cf-th-dez" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:right;min-width:88px">Dez</th>
+              <th style="text-align:left;padding:9px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text);border-bottom:1px solid var(--border);position:sticky;left:0;background:var(--surface2);min-width:120px">Secção</th>
+              <th style="padding:9px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:100px">Total</th>
+              <th id="cf-th-jan" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:88px">Jan</th>
+              <th id="cf-th-fev" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:88px">Fev</th>
+              <th id="cf-th-mar" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:88px">Mar</th>
+              <th id="cf-th-abr" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:88px">Abr</th>
+              <th id="cf-th-mai" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:88px">Mai</th>
+              <th id="cf-th-jun" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:88px">Jun</th>
+              <th id="cf-th-jul" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:88px">Jul</th>
+              <th id="cf-th-ago" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:88px">Ago</th>
+              <th id="cf-th-set" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:88px">Set</th>
+              <th id="cf-th-out" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:88px">Out</th>
+              <th id="cf-th-nov" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:88px">Nov</th>
+              <th id="cf-th-dez" style="padding:9px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);border-bottom:1px solid var(--border);text-align:center;min-width:88px">Dez</th>
             </tr>
           </thead>
           <tbody id="cf-tbody"></tbody>
@@ -507,27 +499,10 @@
       <div class="sec-title" id="concursos-count-label">Concursos</div>
       <button class="btn btn-sm" onclick="clearFilterFromTab('concursos')" id="btn-clear-concursos" style="display:none;color:var(--amber);border-color:var(--amber)">Limpar filtros</button>
     </div>
-    <div class="filter-bar" id="filter-bar-concursos">
-      <div class="fg-group">
-        <div class="fg-label">Estado</div>
-        <div class="fg-checks" id="concursos-chips-estados"></div>
-      </div>
-      <div class="fg-group">
-        <div class="fg-label">Fim Previsto — De</div>
-        <input type="date" class="fg-date" id="concursos-date-from" oninput="liveFilter('concursos')">
-      </div>
-      <div class="fg-group">
-        <div class="fg-label">Até</div>
-        <input type="date" class="fg-date" id="concursos-date-to" oninput="liveFilter('concursos')">
-      </div>
-      <div class="fg-group">
-        <div class="fg-label">Fiscal</div>
-        <input type="text" class="fg-input" id="concursos-fiscal" placeholder="nome..." oninput="liveFilter('concursos')">
-      </div>
-      <div class="fg-group">
-        <div class="fg-label">CSO</div>
-        <input type="text" class="fg-input" id="concursos-cso" placeholder="nome..." oninput="liveFilter('concursos')">
-      </div>
+    <div id="filter-bar-concursos" style="display:none">
+      <div class="fg-checks" id="concursos-chips-estados"></div>
+      <input type="date" class="fg-date" id="concursos-date-from" oninput="liveFilter('concursos')" style="display:none">
+      <input type="date" class="fg-date" id="concursos-date-to" oninput="liveFilter('concursos')" style="display:none">
     </div>
     <div class="table-wrap"><table style="table-layout:fixed">
       <colgroup>
@@ -535,20 +510,33 @@
         <col style="width:9%"><col style="width:8%"><col style="width:8%">
         <col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:8%">
       </colgroup>
-      <thead><tr>
-        <th class="sortable" onclick="sortTable('concursos-tbody','codigo')">Código</th>
-        <th class="sortable" onclick="sortTable('concursos-tbody','sigla')">Sigla</th>
-        <th class="sortable" onclick="sortTable('concursos-tbody','nome')">Designação</th>
-        <th class="sortable" onclick="sortTable('concursos-tbody','afetPrev')">Afet.</th>
-        <th class="sortable" onclick="sortTable('concursos-tbody','valor')">Valor</th>
-        <th class="sortable" onclick="sortTable('concursos-tbody','estado')">Estado</th>
-        <th class="sortable" onclick="sortTable('concursos-tbody','inicio')">Início</th>
-        <th class="sortable" onclick="sortTable('concursos-tbody','prazo')">Fim</th>
-        <th class="sortable" onclick="sortTable('concursos-tbody','_fiscal')">Fiscal</th>
-        <th style="font-size:10px">%</th>
-        <th class="sortable" onclick="sortTable('concursos-tbody','_cso')">CSO</th>
-        <th style="font-size:10px">%</th>
-      </tr></thead>
+      <thead>
+        <tr>
+          <th colspan="8" style="border-bottom:none;padding:0"></th>
+          <th colspan="2" style="border-bottom:none;padding:4px 4px 0">
+            <input type="text" id="concursos-fiscal" placeholder="Fiscal..." oninput="liveFilter('concursos')"
+              style="width:100%;font-family:var(--sans);font-size:11px;padding:4px 7px;border-radius:var(--radius);border:1px solid var(--border-strong);outline:none;font-weight:400;text-transform:none;letter-spacing:0">
+          </th>
+          <th colspan="2" style="border-bottom:none;padding:4px 4px 0">
+            <input type="text" id="concursos-cso" placeholder="CSO..." oninput="liveFilter('concursos')"
+              style="width:100%;font-family:var(--sans);font-size:11px;padding:4px 7px;border-radius:var(--radius);border:1px solid var(--border-strong);outline:none;font-weight:400;text-transform:none;letter-spacing:0">
+          </th>
+        </tr>
+        <tr>
+          <th class="sortable" onclick="sortTable('concursos-tbody','codigo')">Código</th>
+          <th class="sortable" onclick="sortTable('concursos-tbody','sigla')">Sigla</th>
+          <th class="sortable" onclick="sortTable('concursos-tbody','nome')">Designação</th>
+          <th class="sortable" onclick="sortTable('concursos-tbody','afetPrev')">Afet.</th>
+          <th class="sortable" onclick="sortTable('concursos-tbody','valor')">Valor</th>
+          <th class="sortable" onclick="sortTable('concursos-tbody','estado')">Estado</th>
+          <th class="sortable" onclick="sortTable('concursos-tbody','inicio')">Início</th>
+          <th class="sortable" onclick="sortTable('concursos-tbody','prazo')">Fim</th>
+          <th class="sortable" onclick="sortTable('concursos-tbody','_fiscal')">Fiscal</th>
+          <th>%</th>
+          <th class="sortable" onclick="sortTable('concursos-tbody','_cso')">CSO</th>
+          <th>%</th>
+        </tr>
+      </thead>
       <tbody id="concursos-tbody"></tbody>
     </table></div>
   </div>
@@ -597,9 +585,9 @@
         <th class="sortable" onclick="sortTable('previsoes-tbody','inicio')">Início</th>
         <th class="sortable" onclick="sortTable('previsoes-tbody','prazo')">Fim</th>
         <th class="sortable" onclick="sortTable('previsoes-tbody','_fiscal')">Fiscal</th>
-        <th style="font-size:10px">%</th>
+        <th>%</th>
         <th class="sortable" onclick="sortTable('previsoes-tbody','_cso')">CSO</th>
-        <th style="font-size:10px">%</th>
+        <th>%</th>
       </tr></thead>
       <tbody id="previsoes-tbody"></tbody>
     </table></div>
@@ -834,10 +822,44 @@ async function loadAllData(){
     estado:   p.estado,
     inicio:   p.inicio||'',
     prazo:    p.prazo||'',
-    afetPrev: p.afet_prev||0,
-    valor:    p.valor||null,
+    afetPrev: p.afet_prev!=null?p.afet_prev:null,
+    valor:    p.valor!=null?p.valor:null,
     notas:    p.notas||'',
     equipa:   (p.equipa_projetos||[]).map(e=>({id:e.id,nome:e.nome,funcao:e.funcao,afet:e.afet})),
+  }));
+
+  // concursos + equipa_concursos
+  const {data: concData} = await supa.from('concursos').select('*, equipa_concursos(*)').order('sigla');
+  concursos = (concData||[]).map(c=>({
+    id:       c.id,
+    codigo:   c.codigo||'',
+    sigla:    c.sigla,
+    nome:     c.nome,
+    tipos:    c.tipos||[],
+    estado:   c.estado,
+    inicio:   c.inicio||'',
+    prazo:    c.prazo||'',
+    afetPrev: c.afet_prev!=null?c.afet_prev:null,
+    valor:    c.valor!=null?c.valor:null,
+    notas:    c.notas||'',
+    equipa:   (c.equipa_concursos||[]).map(e=>({id:e.id,nome:e.nome,funcao:e.funcao,afet:e.afet})),
+  }));
+
+  // previsoes + equipa_previsoes
+  const {data: prevData} = await supa.from('previsoes').select('*, equipa_previsoes(*)').order('sigla');
+  previsoes = (prevData||[]).map(p=>({
+    id:       p.id,
+    codigo:   p.codigo||'',
+    sigla:    p.sigla,
+    nome:     p.nome,
+    tipos:    p.tipos||[],
+    estado:   p.estado,
+    inicio:   p.inicio||'',
+    prazo:    p.prazo||'',
+    afetPrev: p.afet_prev!=null?p.afet_prev:null,
+    valor:    p.valor!=null?p.valor:null,
+    notas:    p.notas||'',
+    equipa:   (p.equipa_previsoes||[]).map(e=>({id:e.id,nome:e.nome,funcao:e.funcao,afet:e.afet})),
   }));
 }
 function getAv(name){
@@ -893,13 +915,14 @@ let activeTab='obras', activeId=null;
 // ── TABS ──────────────────────────────────────────────────────────────────────
 function setTab(tab){
   activeTab=tab;
-  ['obras','concursos','projetos','previsoes','cashflow'].forEach(t=>{
+  ['obras','concursos','projetos','previsoes','cashflow','dashboard'].forEach(t=>{
     const btn=document.getElementById(`tab-${t}`);
     const cnt=document.getElementById(`tab-content-${t}`);
     if(btn) btn.classList.toggle('active',t===tab);
     if(cnt) cnt.classList.toggle('hidden',t!==tab);
   });
   if(tab==='cashflow') renderCashflow();
+  else if(tab==='dashboard') renderDashboard();
   else render();
 }
 
@@ -1571,16 +1594,16 @@ function renderCashflow(){
     // linha de cabeçalho da secção
     const celulasSec=totaisSec.map((v,m)=>{
       const bg=m===mesAtual?'background:var(--blue-bg);':'';
-      return`<td style="${bg};font-weight:600;font-size:11px;color:${v>0?'var(--text)':'var(--text3)'}">${v>0?fmtValor(v):'—'}</td>`;
+      return`<td style="${bg};font-weight:600;font-size:11px;text-align:right;color:${v>0?'var(--text)':'var(--text3)'}">${v>0?fmtValor(v):'—'}</td>`;
     }).join('');
     const totalSecMeses=totaisSec.reduce((s,v)=>s+v,0);
 
     tbodyHtml+=`<tr class="cf-sec-header" onclick="cfToggle('${sec.tab}')" style="background:var(--surface2);cursor:pointer">
-      <td style="padding:8px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;position:sticky;left:0;background:var(--surface2)">
+      <td style="padding:8px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:left;position:sticky;left:0;background:var(--surface2)">
         <span style="margin-right:6px">${collapsed?'▶':'▼'}</span>
         <span class="badge ${sec.badge}" style="font-size:10px;padding:1px 6px">${sec.label}</span>
       </td>
-      <td style="font-size:11px;font-weight:600;text-align:right;padding:8px 10px">${fmtValor(totalSecMeses)}</td>
+      <td style="font-size:11px;font-weight:600;text-align:right!important;padding:8px 10px">${fmtValor(totalSecMeses)}</td>
       ${celulasSec}
     </tr>`;
 
@@ -1591,7 +1614,7 @@ function renderCashflow(){
           const meses=cfMesesAtivos(item);
           const ativo=meses.includes(m);
           const bg=m===mesAtual?'background:var(--blue-bg);':ativo?'background:#FAFAF7;':'';
-          return`<td class="cf-val ${v>0?'has-val':'zero'}" style="${bg}">${v>0?fmtValor(v):'—'}</td>`;
+          return`<td class="cf-val ${v>0?'has-val':'zero'}" style="${bg};text-align:right">${v>0?fmtValor(v):'—'}</td>`;
         }).join('');
         tbodyHtml+=`<tr class="cf-row cf-row-detail">
           <td class="cf-nome" style="padding-left:28px">${item.sigla}</td>
@@ -1609,11 +1632,11 @@ function renderCashflow(){
   document.getElementById('cf-total-anual').textContent=fmtValor(totalAnual);
   const celulasTot=totaisGlobal.map((v,m)=>{
     const bg=m===mesAtual?'background:var(--blue-bg);':'';
-    return`<td style="${bg};font-weight:700;color:${v>0?'var(--text)':'var(--text3)'}">${v>0?fmtValor(v):'—'}</td>`;
+    return`<td style="${bg};font-weight:700;text-align:right;color:${v>0?'var(--text)':'var(--text3)'}">${v>0?fmtValor(v):'—'}</td>`;
   }).join('');
   document.getElementById('cf-tfoot').innerHTML=`<tr class="cf-foot">
     <td style="text-align:left;padding:9px 12px;font-size:11px;font-weight:700;position:sticky;left:0;background:var(--surface2)">Total global</td>
-    <td style="text-align:right;padding:9px 8px;font-size:11px;font-weight:700">${fmtValor(totaisGlobal.reduce((s,v)=>s+v,0))}</td>
+    <td style="text-align:right!important;padding:9px 8px;font-size:11px;font-weight:700">${fmtValor(totaisGlobal.reduce((s,v)=>s+v,0))}</td>
     ${celulasTot}
   </tr>`;
 
@@ -1784,10 +1807,10 @@ function openFormModal(){
 function openEditModal(){
   const item=getActiveItem();if(!item)return;
   editingId=activeId;closeDetail();
-  const isObra=activeTab==='obras';
-  document.getElementById('form-title-text').textContent='Editar '+(isObra?'Obra':'Projeto');
+  const meta=getTabMeta(activeTab);
+  document.getElementById('form-title-text').textContent='Editar '+meta.label;
   document.getElementById('form-subtitle').textContent=item.sigla;
-  document.getElementById('f-estado').innerHTML=(isObra?ESTADOS_OBRAS:ESTADOS_PROJ).map(e=>`<option ${e===item.estado?'selected':''}>${e}</option>`).join('');
+  document.getElementById('f-estado').innerHTML=meta.estados.map(e=>`<option ${e===item.estado?'selected':''}>${e}</option>`).join('');
   document.getElementById('f-codigo').value = item.codigo||'';
   document.getElementById('f-sigla').value  = item.sigla||'';
   document.getElementById('f-nome').value   = item.nome||'';
