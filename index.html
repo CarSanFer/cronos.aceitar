@@ -458,6 +458,8 @@
       <div class="fg-checks" id="projetos-chips-estados"></div>
       <input type="date" class="fg-date" id="projetos-date-from" oninput="liveFilter('projetos')" style="display:none">
       <input type="date" class="fg-date" id="projetos-date-to" oninput="liveFilter('projetos')" style="display:none">
+      <input type="text" class="fg-input" id="projetos-fiscal" style="display:none">
+      <input type="text" class="fg-input" id="projetos-cso" style="display:none">
     </div>
     <div class="table-wrap"><table style="table-layout:fixed">
       <colgroup>
@@ -465,19 +467,7 @@
         <col style="width:9%"><col style="width:8%"><col style="width:8%">
         <col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:8%">
       </colgroup>
-      <thead>
-        <tr>
-          <th colspan="8" style="border-bottom:none;padding:0"></th>
-          <th colspan="2" style="border-bottom:none;padding:4px 4px 0">
-            <input type="text" id="projetos-fiscal" placeholder="Fiscal..." oninput="liveFilter('projetos')"
-              style="width:100%;font-family:var(--sans);font-size:11px;padding:4px 7px;border-radius:var(--radius);border:1px solid var(--border-strong);outline:none;font-weight:400;text-transform:none;letter-spacing:0">
-          </th>
-          <th colspan="2" style="border-bottom:none;padding:4px 4px 0">
-            <input type="text" id="projetos-cso" placeholder="CSO..." oninput="liveFilter('projetos')"
-              style="width:100%;font-family:var(--sans);font-size:11px;padding:4px 7px;border-radius:var(--radius);border:1px solid var(--border-strong);outline:none;font-weight:400;text-transform:none;letter-spacing:0">
-          </th>
-        </tr>
-        <tr>
+      <thead><tr>
           <th class="sortable" onclick="sortTable('projetos-tbody','codigo')">Código</th>
           <th class="sortable" onclick="sortTable('projetos-tbody','sigla')">Sigla</th>
           <th class="sortable" onclick="sortTable('projetos-tbody','nome')">Designação</th>
