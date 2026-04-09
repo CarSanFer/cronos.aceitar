@@ -307,8 +307,8 @@
     <button class="tab" onclick="setTab('cashflow')" id="tab-cashflow">Cashflow</button>
   </div>
   <div class="topbar-right">
-    <button class="btn btn-sm btn-green" onclick="exportXlsx()">↓ Exportar XLSX</button>
-    <button class="btn btn-sm" onclick="document.getElementById('import-input').click()">↑ Importar XLSX</button>
+    <button class="btn btn-sm btn-green" onclick="exportXlsx()">↓ Exportar</button>
+    <button class="btn btn-sm" onclick="document.getElementById('import-input').click()">↑ Importar</button>
     <input type="file" id="import-input" accept=".xlsx" onchange="importXlsx(event)">
     <div class="topbar-div"></div>
     <div class="user-pill"><div class="user-dot"></div><span id="user-email-label"></span></div>
@@ -1656,7 +1656,7 @@ async function saveForm(){
     inicio:    document.getElementById('f-inicio').value||null,
     prazo:     document.getElementById('f-prazo').value||null,
   };
-  const table = activeTab==='obras' ? 'obras' : 'projetos';
+  const meta = getTabMeta(activeTab);
   if(editingId){
     const {error} = await supa.from(meta.table).update(dbData).eq('id', editingId);
     if(error){toast('Erro ao atualizar: '+error.message);return;}
@@ -1705,27 +1705,16 @@ function flattenList(list){
 }
 
 function exportXlsx(){
+  const meta = getTabMeta(activeTab);
+  if(!meta){ toast('Seleciona um tab para exportar.'); return; }
+  const cols=[{wch:12},{wch:10},{wch:40},{wch:8},{wch:14},{wch:14},{wch:13},{wch:13},{wch:12},{wch:40},{wch:24},{wch:18},{wch:20}];
   const wb=XLSX.utils.book_new();
-  const cols=[{wch:12},{wch:10},{wch:40},{wch:14},{wch:14},{wch:13},{wch:13},{wch:12},{wch:40},{wch:24},{wch:18},{wch:20}];
-
-  const wsO=XLSX.utils.json_to_sheet(flattenList(obras));
-  wsO['!cols']=cols;
-  XLSX.utils.book_append_sheet(wb,wsO,'Obras');
-
-  const wsP=XLSX.utils.json_to_sheet(flattenList(projetos));
-  wsP['!cols']=cols;
-  XLSX.utils.book_append_sheet(wb,wsP,'Projetos');
-
-  const wsC=XLSX.utils.json_to_sheet(flattenList(concursos));
-  wsC['!cols']=cols;
-  XLSX.utils.book_append_sheet(wb,wsC,'Concursos');
-
-  const wsPr=XLSX.utils.json_to_sheet(flattenList(previsoes));
-  wsPr['!cols']=cols;
-  XLSX.utils.book_append_sheet(wb,wsPr,'Previsoes');
-
-  XLSX.writeFile(wb,`CRONOS_${new Date().toISOString().slice(0,10)}.xlsx`);
-  toast('Ficheiro exportado para a pasta Downloads do browser');
+  const ws=XLSX.utils.json_to_sheet(flattenList(meta.list));
+  ws['!cols']=cols;
+  XLSX.utils.book_append_sheet(wb,ws,meta.labelPlural);
+  const date=new Date().toISOString().slice(0,10);
+  XLSX.writeFile(wb,`CRONOS_${meta.labelPlural}_${date}.xlsx`);
+  toast(`${meta.labelPlural} exportado para Downloads`);
 }
 
 // ── XLSX IMPORT ───────────────────────────────────────────────────────────────
@@ -1746,134 +1735,89 @@ function xlsxDateToISO(val){
   return'';
 }
 
+function parseXlsxRows(wb, sheetName){
+  // tenta o nome exacto ou o primeiro separador
+  const ws = wb.Sheets[sheetName] || wb.Sheets[wb.SheetNames[0]];
+  if(!ws) return null;
+  const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
+  const items=[];
+  let cur=null;
+  rows.forEach(row=>{
+    const sigla=(row['Sigla']||'').toString().trim();
+    if(sigla){
+      cur={
+        id:uid(), sigla,
+        codigo:   (row['Código']||'').toString().trim(),
+        nome:     (row['Designação']||'').toString().trim(),
+        tipos:    [],
+        estado:   (row['Estado']||'').toString().trim(),
+        inicio:   xlsxDateToISO(row['Início Previsto']||row['Inicio Previsto']||''),
+        valor:    row['Valor (€)']!==''&&row['Valor (€)']!==undefined?parseFloat(row['Valor (€)'])||null:null,
+        prazo:    xlsxDateToISO(row['Fim Previsto']),
+        afetPrev: (row['Afetação (%)']!==''&&row['Afetação (%)']!==undefined)?parseFloat(row['Afetação (%)'])||0:null,
+        notas:    (row['Notas']||'').toString().trim(),
+        equipa:   [],
+      };
+      items.push(cur);
+    }
+    const cNome=(row['Colaborador Nome']||'').toString().trim();
+    if(cNome&&cur){
+      cur.equipa.push({
+        nome:cNome,
+        funcao:(row['Colaborador Função']||'').toString().trim(),
+        afet:parseFloat(row['Colaborador Afet (%)'])||0,
+      });
+    }
+  });
+  return items.length ? items : null;
+}
+
 function importXlsx(event){
   const file=event.target.files[0];
   if(!file)return;
+  const meta=getTabMeta(activeTab);
+  if(!meta){toast('Seleciona um tab para importar.');return;}
   const reader=new FileReader();
   reader.onload=function(e){
     try{
       const wb=XLSX.read(e.target.result,{type:'array',cellDates:false});
-
-      function parseSheet(sheetName){
-        const ws=wb.Sheets[sheetName];
-        if(!ws)return null;
-        const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
-        const items=[];
-        let cur=null;
-        rows.forEach(row=>{
-          const sigla=(row['Sigla']||'').toString().trim();
-          if(sigla){
-            // suporte a formato novo (FISC/CSO/CONC) e legado (Tipo)
-            const tipos=[];
-            cur={
-              id:uid(), sigla,
-              codigo:   (row['Código']||'').toString().trim(),
-              nome:     (row['Designação']||'').toString().trim(),
-              tipos,
-              estado:   (row['Estado']||'').toString().trim(),
-              inicio:   xlsxDateToISO(row['Início Previsto']||row['Inicio Previsto']||''),
-              valor:    row['Valor (€)']!==''?parseFloat(row['Valor (€)'])||null:null,
-              prazo:    xlsxDateToISO(row['Fim Previsto']),
-              afetPrev: (row['Afetação (%)']!==''&&row['Afetação (%)']!==undefined)?parseFloat(row['Afetação (%)'])||0:null,
-              notas:    (row['Notas']||'').toString().trim(),
-              equipa:   [],
-            };
-            items.push(cur);
-          }
-          const cNome=(row['Colaborador Nome']||'').toString().trim();
-          if(cNome&&cur){
-            cur.equipa.push({
-              nome:cNome,
-              funcao:(row['Colaborador Função']||'').toString().trim(),
-              afet:parseFloat(row['Colaborador Afet (%)'])||0,
-            });
-          }
-        });
-        return items;
-      }
-
-      const obrasImp=parseSheet('Obras');
-      const projImp=parseSheet('Projetos');
-      const concImp=parseSheet('Concursos');
-      const prevImp=parseSheet('Previsoes');
-      if(!obrasImp&&!projImp&&!concImp&&!prevImp){toast('Não foi possível ler o ficheiro.');return;}
-      // importar para Supabase
+      const imp=parseXlsxRows(wb, meta.labelPlural);
+      if(!imp){toast('Não foi possível ler o ficheiro.');return;}
+      // importar só o tab activo
       async function importToSupabase(){
-        let nO=0, nP=0, nC=0, nPr=0;
         const errors=[];
+        const defaultEstados={obras:'Em Curso',projetos:'Ativo',concursos:'Em Curso',previsoes:'Previsto'};
 
-        async function clearTable(eq,main){
-          // apagar equipa primeiro (FK), depois main
-          try{ await supa.from(eq).delete().gte('created_at','2000-01-01'); }catch(e){}
-          try{ await supa.from(main).delete().gte('created_at','2000-01-01'); }catch(e){}
-        }
+        // apagar equipa primeiro (FK), depois main
+        try{ await supa.from(meta.eqTable).delete().gte('created_at','2000-01-01'); }catch(e){}
+        try{ await supa.from(meta.table).delete().gte('created_at','2000-01-01'); }catch(e){}
 
-        async function insertItem(table,eqTable,fkName,item,fields){
-          const {data:ins,error:e}=await supa.from(table).insert(fields).select().single();
-          if(e){errors.push(table+': '+e.message);return;}
+        let n=0;
+        for(const item of imp){
+          const fields={
+            codigo:item.codigo||null, sigla:item.sigla, nome:item.nome,
+            estado:item.estado||defaultEstados[activeTab]||'Em Curso',
+            valor:item.valor!=null?parseFloat(item.valor):null,
+            inicio:item.inicio||null, prazo:item.prazo||null,
+            afet_prev:item.afetPrev!=null?item.afetPrev:null,
+            notas:item.notas||''
+          };
+          const {data:ins,error:e}=await supa.from(meta.table).insert(fields).select().single();
+          if(e){errors.push(e.message);continue;}
           if(ins&&item.equipa&&item.equipa.length){
-            const rows=item.equipa.map(c=>({[fkName]:ins.id,nome:c.nome,funcao:c.funcao,afet:c.afet}));
-            const {error:e2}=await supa.from(eqTable).insert(rows);
-            if(e2)errors.push(eqTable+': '+e2.message);
+            const rows=item.equipa.map(c=>({[meta.fk]:ins.id,nome:c.nome,funcao:c.funcao,afet:c.afet}));
+            const {error:e2}=await supa.from(meta.eqTable).insert(rows);
+            if(e2)errors.push(e2.message);
           }
+          n++;
         }
-
-        if(obrasImp&&obrasImp.length){
-          await clearTable('equipa_obras','obras');
-          for(const o of obrasImp){
-            await insertItem('obras','equipa_obras','obra_id',o,{
-              codigo:o.codigo||null,sigla:o.sigla,nome:o.nome,tipos:normTipos(o.tipos),
-              estado:o.estado||'Em Curso',valor:o.valor!=null?parseFloat(o.valor):null,
-              inicio:o.inicio||null,prazo:o.prazo||null,
-              afet_prev:o.afetPrev!=null?o.afetPrev:null,notas:o.notas||''
-            });
-            nO++;
-          }
-        }
-        if(projImp&&projImp.length){
-          await clearTable('equipa_projetos','projetos');
-          for(const p of projImp){
-            await insertItem('projetos','equipa_projetos','projeto_id',p,{
-              codigo:p.codigo||null,sigla:p.sigla,nome:p.nome,tipos:normTipos(p.tipos),
-              estado:p.estado||'Ativo',valor:p.valor!=null?parseFloat(p.valor):null,
-              inicio:p.inicio||null,prazo:p.prazo||null,
-              afet_prev:p.afetPrev!=null?p.afetPrev:null,notas:p.notas||''
-            });
-            nP++;
-          }
-        }
-        if(concImp&&concImp.length){
-          await clearTable('equipa_concursos','concursos');
-          for(const c of concImp){
-            await insertItem('concursos','equipa_concursos','concurso_id',c,{
-              codigo:c.codigo||null,sigla:c.sigla,nome:c.nome,tipos:normTipos(c.tipos),
-              estado:c.estado||'Em Curso',valor:c.valor!=null?parseFloat(c.valor):null,
-              inicio:c.inicio||null,prazo:c.prazo||null,
-              afet_prev:c.afetPrev!=null?c.afetPrev:null,notas:c.notas||''
-            });
-            nC++;
-          }
-        }
-        if(prevImp&&prevImp.length){
-          await clearTable('equipa_previsoes','previsoes');
-          for(const p of prevImp){
-            await insertItem('previsoes','equipa_previsoes','previsao_id',p,{
-              codigo:p.codigo||null,sigla:p.sigla,nome:p.nome,tipos:normTipos(p.tipos),
-              estado:p.estado||'Previsto',valor:p.valor!=null?parseFloat(p.valor):null,
-              inicio:p.inicio||null,prazo:p.prazo||null,
-              afet_prev:p.afetPrev!=null?p.afetPrev:null,notas:p.notas||''
-            });
-            nPr++;
-          }
-        }
-
         await loadAllData();
         render();
         if(errors.length){
           console.error('Erros import:',errors);
-          toast(`Importado com avisos: ${nO} obras, ${nP} projetos, ${nC} concursos, ${nPr} previsões`);
+          toast(`Importado com avisos: ${n} ${meta.label.toLowerCase()}${n!==1?'s':''}`);
         } else {
-          toast(`✓ Importado: ${nO} obra${nO!==1?'s':''}, ${nP} projeto${nP!==1?'s':''}, ${nC} concurso${nC!==1?'s':''}, ${nPr} previsão${nPr!==1?'ões':''}`);
+          toast(`✓ ${n} ${meta.labelPlural} importado${n!==1?'s':''} com sucesso`);
         }
       }
       importToSupabase();
