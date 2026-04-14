@@ -67,8 +67,9 @@ module.exports = async function handler(req, res) {
 
     // ── 3. Verificar o que já existe no Supabase ──────────────────────────
     const existR = await sbFetch(`faturas?select=ficheiro_nome&ficheiro_nome=in.(${ficheiros.map(f=>`"${f.name}"`).join(',')})`);
-    const exist = await existR.json();
-    const existentes = new Set((exist||[]).map(r => r.ficheiro_nome));
+    const existJson = await existR.json();
+    const existArr = Array.isArray(existJson) ? existJson : [];
+    const existentes = new Set(existArr.map(r => r.ficheiro_nome));
 
     const novos = ficheiros.filter(f => !existentes.has(f.name));
 
@@ -172,7 +173,7 @@ O valor deve ser o TOTAL LÍQUIDO (sem IVA). Se não encontrares algum campo, co
     await fetch(`${NAS_URL}/webapi/auth.cgi?api=SYNO.API.Auth&version=3&method=logout&session=filestation&_sid=${sid}`);
 
     return res.json({
-      ok: true, novos: resultados.length, existentes: existentes.size,
+      ok: true, novos: resultados.length, existentes: existentes.size || 0,
       erros, resultados,
       mensagem: `${resultados.length} fatura(s) nova(s) sincronizada(s). ${existentes.size} já existia(m).`
     });
