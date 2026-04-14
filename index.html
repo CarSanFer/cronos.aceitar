@@ -110,8 +110,8 @@
   .col-sigla{font-size:12px;color:var(--text);white-space:nowrap;text-align:left!important;}
   .col-nome{font-size:12px;color:var(--text);text-align:left!important;}
   .col-valor{font-size:12px;color:var(--text);white-space:nowrap;text-align:center!important;overflow:visible!important;}
-  .col-prazo{font-size:12px;color:var(--text);white-space:nowrap;}
-  .col-prazo.vencido{color:var(--red);}
+  .col-prazo{font-size:12px;color:var(--text);white-space:nowrap;font-variant-numeric:tabular-nums;font-family:var(--mono);}
+  .col-prazo.vencido{color:var(--red);font-variant-numeric:tabular-nums;font-family:var(--mono);}
   .col-afet{font-size:12px;color:var(--text);text-align:center!important;}
   .col-pessoa{font-size:12px;color:var(--text);}
   .col-pessoa .p-nome{color:var(--text);}
@@ -213,6 +213,7 @@
   #fin-table th{text-align:center!important;font-weight:700!important;}
   #fin-table td{padding:8px 8px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:12px;font-family:var(--sans);}
   .fin-readonly{color:var(--text2);text-align:left;}
+  td.col-prazo{font-variant-numeric:tabular-nums!important;font-family:var(--mono)!important;}
 
   /* INLINE EDIT */
   .ie-cell{position:relative;cursor:pointer;}
@@ -386,11 +387,11 @@
     <button class="tab tab-gestao active" onclick="setTab('obras')" id="tab-obras">Obras</button>
     <button class="tab tab-gestao" onclick="setTab('previsoes')" id="tab-previsoes">Previstas</button>
     <button class="tab tab-gestao" onclick="setTab('concursos')" id="tab-concursos">Concursos</button>
-    <button class="tab tab-gestao" onclick="setTab('ainspec')" id="tab-ainspec">AInspec</button>
     <button class="tab tab-gestao" onclick="setTab('projetos')" id="tab-projetos">Projetos</button>
-    <button class="tab tab-gestao" onclick="setTab('financeiro')" id="tab-financeiro">Financeiro</button>
-    <div class="tab-sep"></div>
+    <button class="tab tab-gestao" onclick="setTab('ainspec')" id="tab-ainspec">AInspec</button>
     <button class="tab tab-analise" onclick="setTab('dashboard')" id="tab-dashboard">Dashboard</button>
+    <div class="tab-sep"></div>
+    <button class="tab tab-gestao" onclick="setTab('financeiro')" id="tab-financeiro">Financeiro</button>
     <button class="tab tab-faturas" onclick="setTab('faturas')" id="tab-faturas">Faturas</button>
     <button class="tab tab-analise" onclick="setTab('cashflow')" id="tab-cashflow">Cashflow</button>
   </div>
@@ -450,9 +451,9 @@
     </div>
     <div class="table-wrap"><table style="table-layout:fixed">
       <colgroup>
-        <col style="width:8%"><col style="width:7%"><col style="width:12%"><col style="width:8%"><col style="width:8%">
-        <col style="width:9%"><col style="width:8%"><col style="width:8%">
-        <col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:8%">
+        <col style="width:6%"><col style="width:5%"><col style="width:14%"><col style="width:5%"><col style="width:8%">
+        <col style="width:7%"><col style="width:8%"><col style="width:8%">
+        <col style="width:11%"><col style="width:4%"><col style="width:11%"><col style="width:4%">
       </colgroup>
       <thead>
         <tr>
@@ -2687,16 +2688,54 @@ function flattenList(list){
 }
 
 function exportXlsx(){
-  const meta = getTabMeta(activeTab);
-  if(!meta){ toast('Seleciona um tab para exportar.'); return; }
-  const cols=[{wch:12},{wch:10},{wch:40},{wch:8},{wch:14},{wch:14},{wch:13},{wch:13},{wch:12},{wch:40},{wch:24},{wch:18},{wch:20}];
-  const wb=XLSX.utils.book_new();
-  const ws=XLSX.utils.json_to_sheet(flattenList(meta.list));
-  ws['!cols']=cols;
-  XLSX.utils.book_append_sheet(wb,ws,meta.labelPlural);
-  const date=new Date().toISOString().slice(0,10);
-  XLSX.writeFile(wb,`CRONOS_${meta.labelPlural}_${date}.xlsx`);
-  toast(`${meta.labelPlural} exportado para Downloads`);
+  const date = new Date().toISOString().slice(0,10);
+  const wb   = XLSX.utils.book_new();
+  let rows=[], label='';
+
+  if(activeTab==='faturas'){
+    label='Faturas';
+    rows = FATURAS_DATA.map(f=>({
+      'Nº Fatura':   f.num,
+      'Data':        f.data,
+      'Vencimento':  f.vencimento,
+      'Cliente':     f.cliente,
+      'NIF':         f.nif,
+      'Valor (€)':   f.valor,
+      'Descrição':   f.descricao,
+      'Sigla Obra':  f.sigla_obra||'',
+      'Grupo':       f.grupo,
+      'Ficheiro':    f.ficheiro,
+    }));
+  } else if(activeTab==='financeiro'){
+    label='Financeiro';
+    rows = obras.map(o=>{
+      const r=finGetRow(o.sigla);
+      return{
+        'Código':   o.codigo||'',
+        'Sigla':    o.sigla,
+        'Nome':     o.nome,
+        'Cliente':  r.cliente||'',
+        'Morada':   r.morada||'',
+        'CP':       r.cp||'',
+        'Localidade': r.localidade||'',
+        'NIF':      r.nif||'',
+        'Dia Faturação': r.dia_fat||'',
+        'Observações': r.obs||'',
+      };
+    });
+  } else {
+    const meta = getTabMeta(activeTab);
+    if(!meta){ toast('Seleciona um tab para exportar.'); return; }
+    label = meta.labelPlural;
+    rows  = flattenList(meta.list);
+  }
+
+  if(!rows.length){ toast('Sem dados para exportar.'); return; }
+  const ws=XLSX.utils.json_to_sheet(rows);
+  ws['!cols']=Object.keys(rows[0]).map(()=>({wch:18}));
+  XLSX.utils.book_append_sheet(wb,ws,label);
+  XLSX.writeFile(wb,`CRONOS_${label}_${date}.xlsx`);
+  toast(`${label} exportado para Downloads`);
 }
 
 // ── XLSX IMPORT ───────────────────────────────────────────────────────────────
