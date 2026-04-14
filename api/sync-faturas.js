@@ -151,7 +151,7 @@ O valor deve ser o TOTAL LÍQUIDO (sem IVA). Se não encontrares algum campo, co
         }
 
         // Guardar no Supabase (sem b64 — PDFs ficam na NAS)
-        await sbFetch('faturas', {
+        const sbR = await sbFetch('faturas', {
           method: 'POST',
           body: JSON.stringify({
             numero: dados.numero, data_fatura: dados.data_fatura,
@@ -162,6 +162,8 @@ O valor deve ser o TOTAL LÍQUIDO (sem IVA). Se não encontrares algum campo, co
             ficheiro_nas: `${PASTA_MES}/${fich.name}`
           })
         });
+        const sbJson = await sbR.json();
+        if(!sbR.ok) throw new Error(`Supabase insert falhou: ${JSON.stringify(sbJson)}`);
 
         resultados.push({ ficheiro: fich.name, numero: dados.numero, valor: dados.valor, grupo, sigla_obra });
       } catch(e) {
