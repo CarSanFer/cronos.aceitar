@@ -1416,11 +1416,10 @@ async function importarDeFaturas(){
   const {data: fats, error} = await supa
     .from('faturas')
     .select('sigla_obra, cliente, nif_cliente, morada_cliente, cp_cliente, localidade_cliente')
-    .not('sigla_obra','is',null)
-    .not('cliente','is',null);
+    .not('sigla_obra','is',null);
 
   if(error){ toast('Erro: '+error.message); return; }
-  if(!fats||!fats.length){ toast('Sem faturas com sigla e cliente preenchidos'); return; }
+  if(!fats||!fats.length){ toast('Sem faturas com sigla preenchida'); return; }
 
   // 2. Agrupar por sigla — melhor registo por campo
   const mapa = {};
