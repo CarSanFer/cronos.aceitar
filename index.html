@@ -564,6 +564,7 @@
   <div id="tab-content-financeiro" class="hidden">
     <div class="sec-header" style="margin-bottom:10px">
       <div class="sec-title" id="financeiro-count-label">Financeiro</div>
+      <button class="btn btn-sm" onclick="importarDeFaturas()" style="color:var(--amber);border-color:var(--amber)">🪄 Importar de Faturas</button>
     </div>
     <div class="table-wrap"><table id="fin-table" style="table-layout:fixed;width:100%;border-collapse:collapse;font-size:12px">
       <colgroup>
@@ -1404,6 +1405,69 @@ async function finSave(sigla, field, val){
     const {data} = await supa.from('obras_financeiro').insert(update).select().single();
     if(data){ finData.push(data); }
   }
+  renderFinanceiro();
+}
+
+
+async function importarDeFaturas(){
+  if(!confirm('Vai preencher Cliente e NIF a partir das faturas existentes. Dados já preenchidos serão mantidos. Continuar?')) return;
+
+  // 1. Ler todas as faturas com sigla_obra + dados cliente
+  const {data: fats, error} = await supa
+    .from('faturas')
+    .select('sigla_obra, cliente, nif_cliente')
+    .not('sigla_obra','is',null);
+
+  if(error){ toast('Erro ao ler faturas: '+error.message); return; }
+
+  // 2. Agrupar por sigla — pegar o primeiro cliente não vazio
+  const mapaClientes = {};
+  (fats||[]).forEach(f=>{
+    if(!f.sigla_obra) return;
+    if(!mapaClientes[f.sigla_obra]){
+      mapaClientes[f.sigla_obra] = { cliente: f.cliente||'', nif: f.nif_cliente||'' };
+    } else {
+      // Se ainda não temos cliente, tenta preencher
+      if(!mapaClientes[f.sigla_obra].cliente && f.cliente)
+        mapaClientes[f.sigla_obra].cliente = f.cliente;
+      if(!mapaClientes[f.sigla_obra].nif && f.nif_cliente)
+        mapaClientes[f.sigla_obra].nif = f.nif_cliente;
+    }
+  });
+
+  let atualizados = 0, ignorados = 0, erros = 0;
+
+  for(const [sigla, dados] of Object.entries(mapaClientes)){
+    if(!dados.cliente && !dados.nif){ ignorados++; continue; }
+
+    // Verificar se já existe entrada em obras_financeiro
+    const existente = finGetRow(sigla);
+
+    // Não sobrescrever dados já preenchidos manualmente
+    const update = {};
+    if(!existente.cliente && dados.cliente) update.cliente = dados.cliente;
+    if(!existente.nif     && dados.nif)     update.nif     = dados.nif;
+
+    if(Object.keys(update).length === 0){ ignorados++; continue; }
+
+    update.obra_sigla = sigla;
+
+    if(existente.id){
+      const {error: e} = await supa.from('obras_financeiro').update(update).eq('id', existente.id);
+      if(e){ erros++; } else {
+        Object.assign(existente, update);
+        atualizados++;
+      }
+    } else {
+      const {data: novo, error: e} = await supa.from('obras_financeiro').insert(update).select().single();
+      if(e){ erros++; } else {
+        finData.push(novo);
+        atualizados++;
+      }
+    }
+  }
+
+  toast(`🪄 ${atualizados} obra(s) preenchida(s)${ignorados?' · '+ignorados+' sem dados':''}${erros?' · '+erros+' erro(s)':''}`);
   renderFinanceiro();
 }
 
@@ -2896,7 +2960,7 @@ supa.auth.onAuthStateChange((event, session) => {
     document.getElementById('login-screen').style.display='none';
     document.getElementById('user-email-label').textContent = session.user.email;
     document.getElementById('app-loading').classList.remove('hidden');
-    loadAllData().then(()=>{
+    Promise.all([loadAllData(), loadFaturas(), loadFinanceiro()]).then(()=>{
       document.getElementById('app-loading').classList.add('hidden');
       render();
       console.log('App carregada — obras:', obras.length, 'projetos:', projetos.length);
