@@ -209,6 +209,11 @@
   .fat-card-matched::after{content:'✓ No Cashflow';position:absolute;top:10px;right:12px;font-size:10px;font-weight:600;color:#1D9E75;background:#E8F7EE;padding:2px 7px;border-radius:99px;}
 
 
+
+  #fin-table th{text-align:center!important;font-weight:700!important;}
+  #fin-table td{padding:8px 8px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:12px;font-family:var(--sans);}
+  .fin-readonly{color:var(--text2);text-align:left;}
+
   /* INLINE EDIT */
   .ie-cell{position:relative;cursor:pointer;}
   .ie-cell:hover{background:var(--blue-bg)!important;}
@@ -383,6 +388,7 @@
     <button class="tab tab-gestao" onclick="setTab('concursos')" id="tab-concursos">Concursos</button>
     <button class="tab tab-gestao" onclick="setTab('ainspec')" id="tab-ainspec">AInspec</button>
     <button class="tab tab-gestao" onclick="setTab('projetos')" id="tab-projetos">Projetos</button>
+    <button class="tab tab-gestao" onclick="setTab('financeiro')" id="tab-financeiro">Financeiro</button>
     <div class="tab-sep"></div>
     <button class="tab tab-analise" onclick="setTab('dashboard')" id="tab-dashboard">Dashboard</button>
     <button class="tab tab-faturas" onclick="setTab('faturas')" id="tab-faturas">Faturas</button>
@@ -553,6 +559,28 @@
       <tbody id="ainspec-tbody"></tbody>
     </table></div>
   </div>
+  <!-- FINANCEIRO -->
+  <div id="tab-content-financeiro" class="hidden">
+    <div class="sec-header" style="margin-bottom:10px">
+      <div class="sec-title" id="financeiro-count-label">Financeiro</div>
+    </div>
+    <div class="table-wrap"><table id="fin-table" style="table-layout:fixed;width:100%;border-collapse:collapse;font-size:12px">
+      <colgroup>
+        <col style="width:7%"><col style="width:6%"><col style="width:14%">
+        <col style="width:12%"><col style="width:12%"><col style="width:7%">
+        <col style="width:10%"><col style="width:8%"><col style="width:6%">
+        <col style="width:18%">
+      </colgroup>
+      <thead><tr>
+        <th>Código</th><th>Sigla</th><th>Nome</th>
+        <th>Cliente</th><th>Morada</th><th>CP</th>
+        <th>Localidade</th><th>NIF</th><th>Dia Fat.</th>
+        <th>Observações</th>
+      </tr></thead>
+      <tbody id="financeiro-tbody"></tbody>
+    </table></div>
+  </div>
+
   <!-- CASHFLOW -->
   <div id="tab-content-cashflow" class="hidden">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
@@ -1274,6 +1302,89 @@ async function ieSave(id, field, val, type){
   if(activeTab==='cashflow') renderCashflow();
 }
 
+
+// ── FINANCEIRO ────────────────────────────────────────────────────────────
+let finData = []; // [{obra_sigla, cliente, morada, cp, localidade, nif, dia_fat, obs}]
+
+async function loadFinanceiro(){
+  const {data} = await supa.from('obras_financeiro').select('*');
+  finData = data || [];
+}
+
+function finGetRow(sigla){
+  return finData.find(r=>r.obra_sigla===sigla) || {};
+}
+
+function renderFinanceiro(){
+  const tbody = document.getElementById('financeiro-tbody');
+  if(!tbody) return;
+  // Usar lista de obras como base
+  const lista = obras.slice().sort((a,b)=>a.sigla.localeCompare(b.sigla));
+  document.getElementById('financeiro-count-label').textContent = `Financeiro · ${lista.length}`;
+
+  tbody.innerHTML = lista.map(o=>{
+    const r = finGetRow(o.sigla);
+    const sid = `data-sid="${o.sigla}"`;
+    return`<tr id="fin-row-${o.sigla}">
+      <td class="fin-readonly">${o.codigo||'—'}</td>
+      <td class="fin-readonly">${o.sigla}</td>
+      <td class="fin-readonly" style="text-align:left">${o.nome}</td>
+      <td class="ie-cell" onclick="finEdit('${o.sigla}','cliente','text',this)">${r.cliente||'—'}</td>
+      <td class="ie-cell" onclick="finEdit('${o.sigla}','morada','text',this)">${r.morada||'—'}</td>
+      <td class="ie-cell" onclick="finEdit('${o.sigla}','cp','text',this)">${r.cp||'—'}</td>
+      <td class="ie-cell" onclick="finEdit('${o.sigla}','localidade','text',this)">${r.localidade||'—'}</td>
+      <td class="ie-cell" onclick="finEdit('${o.sigla}','nif','text',this)">${r.nif||'—'}</td>
+      <td class="ie-cell" style="text-align:center" onclick="finEdit('${o.sigla}','dia_fat','number',this)">${r.dia_fat||'—'}</td>
+      <td class="ie-cell" style="text-align:left" onclick="finEdit('${o.sigla}','obs','text',this)">${r.obs||'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+let _finActive = null;
+
+function finEdit(sigla, field, type, cell){
+  if(_finActive && _finActive.cell !== cell){
+    _finActive.cell.innerHTML = _finActive.origHtml;
+    _finActive.cell.classList.remove('editing');
+    _finActive = null;
+  }
+  const r = finGetRow(sigla);
+  const cur = r[field] ?? '';
+  const origHtml = cell.innerHTML;
+  _finActive = {sigla, field, cell, origHtml};
+  cell.classList.add('editing');
+
+  const inputType = type==='number' ? 'number' : 'text';
+  cell.innerHTML = `<input class="ie-input" type="${inputType}" value="${String(cur).replace(/"/g,'&quot;')}"
+    onblur="finSave('${sigla}','${field}',this.value)"
+    onkeydown="finKey(event,'${sigla}','${field}',this)">`;
+  const el = cell.querySelector('input');
+  if(el){ el.focus(); el.select(); }
+}
+
+function finKey(e, sigla, field, input){
+  if(e.key==='Enter')  { e.preventDefault(); finSave(sigla, field, input.value); }
+  if(e.key==='Escape') { if(_finActive){ _finActive.cell.innerHTML=_finActive.origHtml; _finActive.cell.classList.remove('editing'); _finActive=null; } }
+}
+
+async function finSave(sigla, field, val){
+  if(!_finActive) return;
+  _finActive.cell.classList.remove('editing');
+  _finActive = null;
+
+  const r = finGetRow(sigla);
+  const update = { obra_sigla: sigla, [field]: val||null };
+
+  if(r.id){
+    await supa.from('obras_financeiro').update(update).eq('id', r.id);
+    r[field] = val || null;
+  } else {
+    const {data} = await supa.from('obras_financeiro').insert(update).select().single();
+    if(data){ finData.push(data); }
+  }
+  renderFinanceiro();
+}
+
 // ── SYNC FATURAS ──────────────────────────────────────────────────────────
 function resetSyncLog(){
   document.getElementById('sync-log').innerHTML='<span style="color:var(--text3)">Pronto para sincronizar...</span>';
@@ -1425,7 +1536,7 @@ async function loadFaturas(){
 // ── TABS ──────────────────────────────────────────────────────────────────────
 function setTab(tab){
   activeTab=tab;
-  ['obras','previsoes','concursos','ainspec','projetos','cashflow','faturas','dashboard'].forEach(t=>{
+  ['obras','previsoes','concursos','ainspec','projetos','financeiro','cashflow','faturas','dashboard'].forEach(t=>{
     const btn=document.getElementById(`tab-${t}`);
     const cnt=document.getElementById(`tab-content-${t}`);
     if(btn) btn.classList.toggle('active',t===tab);
@@ -1435,6 +1546,7 @@ function setTab(tab){
   else if(tab==='dashboard') renderDashboard();
   else if(tab==='faturas') renderFaturas();
   else if(tab==='ainspec') renderAinspec();
+  else if(tab==='financeiro') renderFinanceiro();
   else render();
 }
 
@@ -1630,24 +1742,24 @@ function renderFiltered(tab){
           <td class="col-prazo">${fmtDate(item.entData)}</td>
         </tr>`;
       }
-      // linha editável inline — clica numa célula para editar
+      // Campos do SID são só leitura; só Valor e Afet são editáveis
       const fiscal   = equipaByRole(item.equipa,'Fiscal');
       const fiscalPct= equipaByRolePct(item.equipa,'Fiscal');
       const cso      = equipaByRole(item.equipa,'CSO');
       const csoPct   = equipaByRolePct(item.equipa,'CSO');
       return`<tr id="ie-row-${item.id}" data-id="${item.id}">
-        <td class="col-codigo ie-cell" onclick="ieEdit('${item.id}','codigo','text',this)">${item.codigo||'—'}</td>
-        <td class="col-sigla ie-cell" onclick="ieEdit('${item.id}','sigla','text',this)">${item.sigla}</td>
-        <td class="col-nome ie-cell" style="text-align:left" onclick="ieEdit('${item.id}','nome','text',this)">${item.nome}</td>
+        <td class="col-codigo fin-readonly">${item.codigo||'—'}</td>
+        <td class="col-sigla fin-readonly">${item.sigla}</td>
+        <td class="col-nome fin-readonly" style="text-align:left">${item.nome}</td>
         <td class="col-afet ie-cell" onclick="ieEdit('${item.id}','afetPrev','number',this)">${fmtAfet(item.afetPrev)}</td>
         <td class="col-valor ie-cell" onclick="ieEdit('${item.id}','valor','number',this)">${fmtValor(item.valor)}</td>
-        <td class="ie-cell" onclick="ieEdit('${item.id}','estado','select',this)">${badgeEstado(item.estado)}</td>
-        <td class="col-prazo ie-cell" onclick="ieEdit('${item.id}','inicio','date',this)">${fmtDate(item.inicio)}</td>
-        <td class="col-prazo${venc?' vencido':''} ie-cell" onclick="ieEdit('${item.id}','prazo','date',this)">${fmtDate(item.prazo)}${venc?' ⚠':''}</td>
-        <td class="ie-cell" onclick="ieEdit('${item.id}','_fiscal','search',this)">${fiscal}</td>
-        <td class="col-afet">${fiscalPct}</td>
-        <td class="ie-cell" onclick="ieEdit('${item.id}','_cso','search',this)">${cso}</td>
-        <td class="col-afet">${csoPct}</td>
+        <td class="fin-readonly">${badgeEstado(item.estado)}</td>
+        <td class="col-prazo fin-readonly">${fmtDate(item.inicio)}</td>
+        <td class="col-prazo${venc?' vencido':''} fin-readonly">${fmtDate(item.prazo)}${venc?' ⚠':''}</td>
+        <td class="fin-readonly">${fiscal}</td>
+        <td class="col-afet fin-readonly">${fiscalPct}</td>
+        <td class="fin-readonly">${cso}</td>
+        <td class="col-afet fin-readonly">${csoPct}</td>
       </tr>`;
     }).join('');
   }
