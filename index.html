@@ -1426,7 +1426,7 @@ async function runSync(){
   const btn  = document.getElementById('btn-run-sync');
   btn.disabled=true; btn.textContent='A sincronizar...';
   document.getElementById('sync-log').innerHTML='';
-  syncLog(`📂 A aceder à pasta: 100 Departamentos/200 DFIN/900 FTs/${mesStr}`, 'info');
+  syncLog(`📂 A aceder à pasta: 100 DEPS/200 FIN/900 FTs/${mesStr}`, 'info');
 
   try {
     const r = await fetch('/api/sync-faturas', {
