@@ -1422,7 +1422,7 @@ function closeSyncIfBg(e){if(e.target===document.getElementById('sync-overlay'))
 async function runSync(){
   const ano  = document.getElementById('sync-ano').value;
   const mes  = document.getElementById('sync-mes').value;
-  const mesStr = `${ano} ${mes}`;
+  const mesStr = `${ano}${mes}`;
   const btn  = document.getElementById('btn-run-sync');
   btn.disabled=true; btn.textContent='A sincronizar...';
   document.getElementById('sync-log').innerHTML='';
