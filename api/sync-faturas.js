@@ -8,8 +8,8 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Método não permitido' });
 
-  const { mes } = req.body; // ex: "2026 04"
-  if (!mes || !/^\d{4} \d{2}$/.test(mes))
+  const { mes } = req.body; // ex: "202601"
+  if (!mes || !/^\d{6}$/.test(mes))
     return res.status(400).json({ error: 'Formato de mês inválido. Use "YYYY MM"' });
 
   const NAS_URL   = process.env.NAS_URL;           // http://aceitar.synology.me:5000
