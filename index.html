@@ -208,6 +208,19 @@
   .fat-card-matched{border-color:#1D9E75!important;background:#FAFFFE!important;}
   .fat-card-matched::after{content:'✓ No Cashflow';position:absolute;top:10px;right:12px;font-size:10px;font-weight:600;color:#1D9E75;background:#E8F7EE;padding:2px 7px;border-radius:99px;}
 
+
+  /* INLINE EDIT */
+  .ie-cell{position:relative;cursor:pointer;}
+  .ie-cell:hover{background:var(--blue-bg)!important;}
+  .ie-cell.editing{padding:0!important;background:var(--surface)!important;}
+  .ie-input{width:100%;height:100%;border:none;border-bottom:2px solid var(--blue);background:var(--blue-bg);font-family:var(--sans);font-size:12px;padding:8px 8px;outline:none;box-sizing:border-box;}
+  .ie-select{width:100%;height:100%;border:none;border-bottom:2px solid var(--blue);background:var(--blue-bg);font-family:var(--sans);font-size:12px;padding:6px 8px;outline:none;box-sizing:border-box;cursor:pointer;}
+  tr.ie-row-editing td{background:var(--blue-bg)!important;}
+  tr.ie-row-editing .ie-cell:not(.editing){opacity:.6;}
+  .ie-actions{display:flex;gap:4px;padding:4px;}
+  .ie-btn{border:none;border-radius:4px;padding:3px 8px;font-size:11px;cursor:pointer;font-family:var(--sans);}
+  .ie-btn-save{background:var(--blue);color:#fff;}
+  .ie-btn-cancel{background:var(--surface2);color:var(--text2);}
   /* SYNC MODAL */
   .sync-overlay{position:fixed;inset:0;z-index:400;background:rgba(20,20,18,.6);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
   .sync-overlay.open{opacity:1;pointer-events:all;}
@@ -383,7 +396,7 @@
     <div class="user-pill"><div class="user-dot"></div><span id="user-email-label"></span></div>
     <div class="topbar-div"></div>
     <button class="btn btn-sm" onclick="document.getElementById('sync-overlay').classList.add('open');resetSyncLog()" style="color:var(--blue);border:1px solid var(--blue)">🔄 Sincronizar</button>
-    <button class="btn btn-primary" onclick="openFormModal()">+ Novo</button>
+
     <button class="btn btn-sm" onclick="doLogout()" style="color:var(--text3)">Sair</button>
   </div>
 </div>
@@ -1162,6 +1175,105 @@ function closeFatPdf(e){
 }
 
 
+
+// ── INLINE EDIT ───────────────────────────────────────────────────────────
+let _ieActive = null; // {id, field, cell, origHtml}
+
+function ieEdit(id, field, type, cell){
+  // Fechar edição anterior sem gravar
+  if(_ieActive && _ieActive.cell !== cell){
+    _ieActive.cell.innerHTML = _ieActive.origHtml;
+    _ieActive.cell.classList.remove('editing');
+    const row = document.getElementById('ie-row-'+_ieActive.id);
+    if(row) row.classList.remove('ie-row-editing');
+  }
+
+  const item = obras.find(o=>o.id===id) ||
+               projetos.find(o=>o.id===id) ||
+               concursos.find(o=>o.id===id) ||
+               previsoes.find(o=>o.id===id) ||
+               ainspec.find(o=>o.id===id);
+  if(!item) return;
+
+  const origHtml = cell.innerHTML;
+  _ieActive = {id, field, cell, origHtml};
+  cell.classList.add('editing');
+  const row = document.getElementById('ie-row-'+id);
+  if(row) row.classList.add('ie-row-editing');
+
+  let input;
+  if(type==='select'){
+    const meta = getTabMeta(activeTab);
+    const opts = meta.estados.map(e=>`<option value="${e}"${e===item.estado?' selected':''}>${e}</option>`).join('');
+    input = `<select class="ie-select" onchange="ieSave('${id}','${field}',this.value,'${type}')" onblur="ieCancel()" onkeydown="ieKey(event,'${id}','${field}',this.value,'${type}')">${opts}</select>`;
+  } else if(type==='date'){
+    const cur = field==='inicio'?item.inicio:item.prazo;
+    input = `<input class="ie-input" type="date" value="${cur||''}" onblur="ieSave('${id}','${field}',this.value,'${type}')" onkeydown="ieKey(event,'${id}','${field}',this.value,'${type}')">`;
+  } else if(type==='number'){
+    const cur = field==='valor'?item.valor:(item.afetPrev??'');
+    input = `<input class="ie-input" type="number" value="${cur!=null?cur:''}" min="0" onblur="ieSave('${id}','${field}',this.value,'${type}')" onkeydown="ieKey(event,'${id}','${field}',this.value,'${type}')">`;
+  } else {
+    const cur = field==='codigo'?item.codigo:field==='sigla'?item.sigla:item.nome;
+    input = `<input class="ie-input" type="text" value="${(cur||'').replace(/"/g,'&quot;')}" onblur="ieSave('${id}','${field}',this.value,'${type}')" onkeydown="ieKey(event,'${id}','${field}',this.value,'${type}')">`;
+  }
+  cell.innerHTML = input;
+  const el = cell.querySelector('input,select');
+  if(el){ el.focus(); if(el.select) el.select(); }
+}
+
+function ieKey(e, id, field, val, type){
+  if(e.key==='Enter')  { e.preventDefault(); ieSave(id,field,val,type); }
+  if(e.key==='Escape') { ieCancel(); }
+}
+
+function ieCancel(){
+  if(!_ieActive) return;
+  _ieActive.cell.innerHTML = _ieActive.origHtml;
+  _ieActive.cell.classList.remove('editing');
+  const row = document.getElementById('ie-row-'+_ieActive.id);
+  if(row) row.classList.remove('ie-row-editing');
+  _ieActive = null;
+}
+
+async function ieSave(id, field, val, type){
+  if(!_ieActive || _ieActive.id!==id) return;
+  const meta = getTabMeta(activeTab);
+  const item = meta.list.find(o=>o.id===id);
+  if(!item){ ieCancel(); return; }
+
+  // Construir update
+  let dbField, dbVal;
+  switch(field){
+    case 'codigo':   dbField='codigo';    dbVal=val||null; break;
+    case 'sigla':    dbField='sigla';     dbVal=val; break;
+    case 'nome':     dbField='nome';      dbVal=val; break;
+    case 'valor':    dbField='valor';     dbVal=val!==''?parseFloat(val):null; break;
+    case 'afetPrev': dbField='afet_prev'; dbVal=val!==''?parseInt(val):null; break;
+    case 'estado':   dbField='estado';    dbVal=val; break;
+    case 'inicio':   dbField='inicio';    dbVal=val||null; break;
+    case 'prazo':    dbField='prazo';     dbVal=val||null; break;
+    default: ieCancel(); return;
+  }
+
+  _ieActive = null; // limpar antes do await para evitar duplos
+
+  const {error} = await supa.from(meta.table).update({[dbField]:dbVal}).eq('id',id);
+  if(error){ toast('Erro: '+error.message); }
+  else {
+    // Actualizar em memória
+    if(field==='valor')    item.valor   = dbVal;
+    if(field==='afetPrev') item.afetPrev= dbVal;
+    if(field==='estado')   item.estado  = dbVal;
+    if(field==='inicio')   item.inicio  = dbVal;
+    if(field==='prazo')    item.prazo   = dbVal;
+    if(field==='codigo')   item.codigo  = dbVal;
+    if(field==='sigla')    item.sigla   = dbVal;
+    if(field==='nome')     item.nome    = dbVal;
+  }
+  renderFiltered(activeTab);
+  if(activeTab==='cashflow') renderCashflow();
+}
+
 // ── SYNC FATURAS ──────────────────────────────────────────────────────────
 function resetSyncLog(){
   document.getElementById('sync-log').innerHTML='<span style="color:var(--text3)">Pronto para sincronizar...</span>';
@@ -1518,19 +1630,24 @@ function renderFiltered(tab){
           <td class="col-prazo">${fmtDate(item.entData)}</td>
         </tr>`;
       }
-      return`<tr onclick="openDetail('${item.id}')">
-        <td class="col-codigo">${item.codigo||'—'}</td>
-        <td class="col-sigla">${item.sigla}</td>
-        <td class="col-nome" style="text-align:left">${item.nome}</td>
-        <td class="col-afet">${fmtAfet(item.afetPrev)}</td>
-        <td class="col-valor">${fmtValor(item.valor)}</td>
-        <td>${badgeEstado(item.estado)}</td>
-        <td class="col-prazo">${fmtDate(item.inicio)}</td>
-        <td class="col-prazo${venc?' vencido':''}">${fmtDate(item.prazo)}${venc?' ⚠':''}</td>
-        <td>${equipaByRole(item.equipa,'Fiscal')}</td>
-        <td class="col-afet">${equipaByRolePct(item.equipa,'Fiscal')}</td>
-        <td>${equipaByRole(item.equipa,'CSO')}</td>
-        <td class="col-afet">${equipaByRolePct(item.equipa,'CSO')}</td>
+      // linha editável inline — clica numa célula para editar
+      const fiscal   = equipaByRole(item.equipa,'Fiscal');
+      const fiscalPct= equipaByRolePct(item.equipa,'Fiscal');
+      const cso      = equipaByRole(item.equipa,'CSO');
+      const csoPct   = equipaByRolePct(item.equipa,'CSO');
+      return`<tr id="ie-row-${item.id}" data-id="${item.id}">
+        <td class="col-codigo ie-cell" onclick="ieEdit('${item.id}','codigo','text',this)">${item.codigo||'—'}</td>
+        <td class="col-sigla ie-cell" onclick="ieEdit('${item.id}','sigla','text',this)">${item.sigla}</td>
+        <td class="col-nome ie-cell" style="text-align:left" onclick="ieEdit('${item.id}','nome','text',this)">${item.nome}</td>
+        <td class="col-afet ie-cell" onclick="ieEdit('${item.id}','afetPrev','number',this)">${fmtAfet(item.afetPrev)}</td>
+        <td class="col-valor ie-cell" onclick="ieEdit('${item.id}','valor','number',this)">${fmtValor(item.valor)}</td>
+        <td class="ie-cell" onclick="ieEdit('${item.id}','estado','select',this)">${badgeEstado(item.estado)}</td>
+        <td class="col-prazo ie-cell" onclick="ieEdit('${item.id}','inicio','date',this)">${fmtDate(item.inicio)}</td>
+        <td class="col-prazo${venc?' vencido':''} ie-cell" onclick="ieEdit('${item.id}','prazo','date',this)">${fmtDate(item.prazo)}${venc?' ⚠':''}</td>
+        <td class="ie-cell" onclick="ieEdit('${item.id}','_fiscal','search',this)">${fiscal}</td>
+        <td class="col-afet">${fiscalPct}</td>
+        <td class="ie-cell" onclick="ieEdit('${item.id}','_cso','search',this)">${cso}</td>
+        <td class="col-afet">${csoPct}</td>
       </tr>`;
     }).join('');
   }
