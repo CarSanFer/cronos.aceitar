@@ -1420,6 +1420,7 @@ async function importarDeFaturas(){
 
   if(error){ toast('Erro: '+error.message); return; }
   if(!fats||!fats.length){ toast('Sem faturas com sigla preenchida'); return; }
+  console.log('faturas lidas:', fats.length, fats);
 
   // 2. Agrupar por sigla — melhor registo por campo
   const mapa = {};
@@ -1433,7 +1434,8 @@ async function importarDeFaturas(){
     if(!m.localidade && f.localidade_cliente) m.localidade = f.localidade_cliente;
   });
 
-  toast(`${Object.keys(mapa).length} obra(s) com dados nas faturas. A importar...`);
+  console.log('mapa:', mapa);
+  toast(`${Object.keys(mapa).length} obra(s) encontradas no mapa. A importar...`);
 
   let atualizados = 0, ignorados = 0, erros = 0;
 
