@@ -1419,6 +1419,8 @@ async function importarDeFaturas(){
     .not('sigla_obra','is',null);
 
   if(error){ toast('Erro ao ler faturas: '+error.message); return; }
+  toast(`Faturas encontradas: ${(fats||[]).length} · com sigla: ${(fats||[]).filter(f=>f.sigla_obra).length}`);
+  console.log('faturas:', fats);
 
   // 2. Agrupar por sigla — pegar o primeiro cliente não vazio
   const mapaClientes = {};
