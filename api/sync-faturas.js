@@ -94,7 +94,7 @@ module.exports = async function handler(req, res) {
           headers: { 'Content-Type': 'application/json', 'x-api-key': AI_KEY, 'anthropic-version': '2023-06-01' },
           body: JSON.stringify({
             model: 'claude-sonnet-4-20250514',
-            max_tokens: 1000,
+            max_tokens: 2048,
             messages: [{
               role: 'user',
               content: [
@@ -116,35 +116,42 @@ O valor deve ser o TOTAL LÍQUIDO (sem IVA). Se não encontrares algum campo, co
         });
         const ai = await aiR.json();
         const aiText = ai.content?.[0]?.text || '';
-        const cleaned = aiText.replace(/```json|```/g,'').trim();
-        const dados = JSON.parse(cleaned);
+        if(!aiText) throw new Error('Resposta vazia do Claude');
+        // Extrair JSON mesmo que haja texto extra
+        const jsonMatch = aiText.match(/\{[\s\S]*\}/);
+        if(!jsonMatch) throw new Error('JSON não encontrado na resposta: ' + aiText.substring(0,100));
+        const dados = JSON.parse(jsonMatch[0]);
 
         // Determinar sigla e grupo pelo nome do ficheiro
-        const nome = fich.name.replace('.pdf','');
+        // Formato: "AAAA MM SIGLA.pdf", "P AAAA MM SIGLA.pdf", "AI AAAA MM SIGLA.pdf"
+        // Sufixo " 2" → Extras
+        const nome = fich.name.replace('.pdf','').trim();
+        const partes = nome.split(' ');
         let sigla_obra = null, grupo = 'Obras';
-        const partes = nome.split('_');
+
         if (partes[0] === 'AI') {
-          // AI_YYYY_MM_SIGLA → AInspec
+          // AI AAAA MM SIGLA
           grupo = 'AInspec';
-          sigla_obra = partes.slice(3).join('_').replace('_2','') || null;
+          sigla_obra = partes.slice(3).join(' ').replace(/ 2$/, '') || null;
         } else if (partes[0] === 'P') {
-          // P_YYYY_MM_SIGLA → Projeto
+          // P AAAA MM SIGLA
           grupo = 'Projetos';
-          sigla_obra = partes.slice(3).join('_').replace('_2','') || null;
+          sigla_obra = partes.slice(3).join(' ').replace(/ 2$/, '') || null;
         } else if (partes[0] === 'C') {
-          // C_YYYY_MM_SIGLA → Concurso
+          // C AAAA MM SIGLA
           grupo = 'Concursos';
-          sigla_obra = partes.slice(3).join('_').replace('_2','') || null;
+          sigla_obra = partes.slice(3).join(' ').replace(/ 2$/, '') || null;
         } else if (partes[0] === 'NC') {
+          // NC AAAA MM SIGLA
           grupo = 'Extras';
-          sigla_obra = partes.slice(3).join('_') || null;
+          sigla_obra = partes.slice(3).join(' ') || null;
           dados.valor = dados.valor ? -Math.abs(dados.valor) : null;
         } else {
-          // YYYY_MM_SIGLA ou YYYY_MM_SIGLA_2
-          const siglaRaw = partes.slice(2).join('_');
-          if (siglaRaw.endsWith('_2')) {
+          // AAAA MM SIGLA ou AAAA MM SIGLA 2
+          const siglaRaw = partes.slice(2).join(' ');
+          if (siglaRaw.endsWith(' 2')) {
             grupo = 'Extras';
-            sigla_obra = siglaRaw.replace('_2','');
+            sigla_obra = siglaRaw.replace(/ 2$/, '');
           } else {
             sigla_obra = siglaRaw || null;
           }
