@@ -1,7 +1,7 @@
 // api/sync-faturas.js — CRONOS · Aceitar
 // Sincroniza faturas da NAS Synology para o Supabase
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -18,7 +18,7 @@ export default async function handler(req, res) {
   const SB_URL    = process.env.SUPABASE_URL;
   const SB_KEY    = process.env.SUPABASE_SERVICE_KEY; // service_role key para bypass RLS
   const AI_KEY    = process.env.ANTHROPIC_API_KEY;
-  const PASTA_BASE = '/volume1/100 Departamentos/200 FIN/900 FTs';
+  const PASTA_BASE = '/100 Departamentos/200 FIN/900 FTs';
   const PASTA_MES  = `${PASTA_BASE}/${mes}`;
 
   // ── helpers ──────────────────────────────────────────────────────────────
