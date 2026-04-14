@@ -366,10 +366,10 @@
   <div class="topbar-div"></div>
   <div class="tabs">
     <button class="tab tab-gestao active" onclick="setTab('obras')" id="tab-obras">Obras</button>
+    <button class="tab tab-gestao" onclick="setTab('previsoes')" id="tab-previsoes">Previstas</button>
     <button class="tab tab-gestao" onclick="setTab('concursos')" id="tab-concursos">Concursos</button>
     <button class="tab tab-gestao" onclick="setTab('ainspec')" id="tab-ainspec">AInspec</button>
     <button class="tab tab-gestao" onclick="setTab('projetos')" id="tab-projetos">Projetos</button>
-    <button class="tab tab-gestao" onclick="setTab('previsoes')" id="tab-previsoes">Previstos</button>
     <div class="tab-sep"></div>
     <button class="tab tab-analise" onclick="setTab('dashboard')" id="tab-dashboard">Dashboard</button>
     <button class="tab tab-faturas" onclick="setTab('faturas')" id="tab-faturas">Faturas</button>
@@ -422,6 +422,7 @@
     <div class="sec-header" style="margin-bottom:10px">
       <div class="sec-title" id="obras-count-label">Obras</div>
       <button class="btn btn-sm" onclick="clearFilterFromTab('obras')" id="btn-clear-obras" style="display:none;color:var(--amber);border-color:var(--amber)">Limpar filtros</button>
+      <button class="btn btn-sm" onclick="syncSID()" id="btn-sync-sid" style="color:var(--blue);border:1px solid var(--blue)">⟳ Sync SID</button>
     </div>
     <div id="filter-bar-obras" style="display:none">
       <div class="fg-checks" id="obras-chips-estados"></div>
@@ -623,7 +624,7 @@
   <!-- PREVISTOS -->
   <div id="tab-content-previsoes" class="hidden">
     <div class="sec-header" style="margin-bottom:10px">
-      <div class="sec-title" id="previsoes-count-label">Previstos</div>
+      <div class="sec-title" id="previsoes-count-label">Previstas</div>
       <button class="btn btn-sm" onclick="clearFilterFromTab('previsoes')" id="btn-clear-previsoes" style="display:none;color:var(--amber);border-color:var(--amber)">Limpar filtros</button>
     </div>
     <div id="filter-bar-previsoes" style="display:none">
@@ -896,7 +897,7 @@ function getTabMeta(tab){
     obras:     {list:obras,     setList:v=>{obras=v;},     table:'obras',     eqTable:'equipa_obras',    fk:'obra_id',     estados:ESTADOS_OBRAS,     tipos:TIPOS_OBRAS,     label:'Obra',     labelPlural:'Obras'},
     projetos:  {list:projetos,  setList:v=>{projetos=v;},  table:'projetos',  eqTable:'equipa_projetos', fk:'projeto_id',  estados:ESTADOS_PROJ,      tipos:TIPOS_PROJ,      label:'Projeto',  labelPlural:'Projetos'},
     concursos: {list:concursos, setList:v=>{concursos=v;}, table:'concursos', eqTable:'equipa_concursos',fk:'concurso_id', estados:ESTADOS_CONCURSOS, tipos:TIPOS_CONCURSOS, label:'Concurso', labelPlural:'Concursos'},
-    previsoes: {list:previsoes, setList:v=>{previsoes=v;}, table:'previsoes', eqTable:'equipa_previsoes',fk:'previsao_id', estados:ESTADOS_PREVISOES, tipos:TIPOS_PREVISOES, label:'Previsto', labelPlural:'Previstos'},
+    previsoes: {list:previsoes, setList:v=>{previsoes=v;}, table:'previsoes', eqTable:'equipa_previsoes',fk:'previsao_id', estados:ESTADOS_PREVISOES, tipos:TIPOS_PREVISOES, label:'Previsto', labelPlural:'Previstas'},
     ainspec:   {list:ainspec,   setList:v=>{ainspec=v;},   table:'ainspec',   eqTable:'equipa_ainspec',  fk:'ainspec_id',  estados:ESTADOS_AINSPEC,   tipos:TIPOS_AINSPEC,   label:'AInspec',  labelPlural:'AInspec'},
   }[tab];
 }
@@ -1233,10 +1234,86 @@ async function loadFaturas(){
   }));
 }
 
+
+  // ── SID CONFIG (obras lidas do SID Supabase) ──────────────────────────
+  const SID_URL = 'https://tqizqusplpkajzdphqje.supabase.co';
+  const SID_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxaXpxdXNwbHBrYWp6ZHBocWplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4MzkzNjIsImV4cCI6MjA4OTQxNTM2Mn0.CJj2aIkeQt321cvxxnH2zr-k2r_bsInkxCVLAkuUi7I';
+
+  async function syncSID(){
+    if(!SID_KEY){ toast('Falta configurar a chave do SID'); return; }
+    const btn = document.getElementById('btn-sync-sid');
+    btn.textContent = '⟳ A sincronizar...'; btn.disabled = true;
+
+    try {
+      // 1. Ler obras do SID
+      const r = await fetch(
+        `${SID_URL}/rest/v1/obras?select=id,codigo,sigla,nome,estado,inicio_real,fim_previsto,prorrogacoes&order=sigla`,
+        { headers: { 'apikey': SID_KEY, 'Authorization': `Bearer ${SID_KEY}` } }
+      );
+      const sidObras = await r.json();
+      if (!Array.isArray(sidObras)) throw new Error('Resposta inesperada do SID');
+
+      // 2. Ler obras existentes no CRONOS para preservar valor e afetação
+      const { data: cronosObras } = await supa.from('obras').select('sigla,valor,afet_prev');
+      const cronosMap = {};
+      (cronosObras||[]).forEach(o => { cronosMap[o.sigla] = o; });
+
+      // 3. Sincronizar: upsert por sigla
+      let novos = 0, atualizados = 0;
+      for (const o of sidObras) {
+        const existente = cronosMap[o.sigla];
+        // Determinar o último fim previsto (prorrogação mais recente ou fim_previsto original)
+        const prorrs = Array.isArray(o.prorrogacoes) ? o.prorrogacoes : [];
+        const ultimoFim = prorrs.length > 0
+          ? (prorrs[prorrs.length - 1].fim_previsto || o.fim_previsto)
+          : o.fim_previsto;
+
+        const dbData = {
+          codigo:    o.codigo  || '',
+          sigla:     o.sigla,
+          nome:      o.nome,
+          estado:    mapEstadoSID(o.estado),
+          inicio:    o.inicio_real   || null,   // data de início real
+          prazo:     ultimoFim       || null,   // último fim previsto (c/ prorrogações)
+          valor:     existente?.valor    ?? null,
+          afet_prev: existente?.afet_prev ?? null,
+          tipos:     [],
+          notas:     '',
+        };
+        if (existente) {
+          await supa.from('obras').update(dbData).eq('sigla', o.sigla);
+          atualizados++;
+        } else {
+          await supa.from('obras').insert(dbData);
+          novos++;
+        }
+      }
+
+      await loadAllData();
+      render();
+      toast(`Sync SID: ${novos} nova(s), ${atualizados} atualizada(s)`);
+    } catch(e) {
+      toast('Erro sync SID: ' + e.message);
+    }
+    btn.textContent = '⟳ Sync SID'; btn.disabled = false;
+  }
+
+  function mapEstadoSID(estado){
+    // Mapear estados do SID para estados do CRONOS
+    const m = {
+      'Em Preparação': 'Em Curso',
+      'Em Curso':      'Em Curso',
+      'Suspenso':      'Suspenso',
+      'Concluído':     'Concluído',
+      'Concluída':     'Concluído',
+    };
+    return m[estado] || 'Em Curso';
+  }
+
 // ── TABS ──────────────────────────────────────────────────────────────────────
 function setTab(tab){
   activeTab=tab;
-  ['obras','concursos','ainspec','projetos','previsoes','cashflow','faturas','dashboard'].forEach(t=>{
+  ['obras','previsoes','concursos','ainspec','projetos','cashflow','faturas','dashboard'].forEach(t=>{
     const btn=document.getElementById(`tab-${t}`);
     const cnt=document.getElementById(`tab-content-${t}`);
     if(btn) btn.classList.toggle('active',t===tab);
@@ -1893,7 +1970,7 @@ const CF_SECOES = [
   {tab:'concursos', label:'Concursos', estados:['Em Curso','Pendente','Concluído'], badge:'badge-gray'},
   {tab:'ainspec',   label:'AInspec',   estados:['Em Curso','Concluído'], badge:'badge-blue'},
   {tab:'projetos',  label:'Projetos',  estados:['Em Curso','Pendente','Concluído'], badge:'badge-purple'},
-  {tab:'previsoes', label:'Previstos', estados:['Pendente'],             badge:'badge-amber'},
+  {tab:'previsoes', label:'Previstas', estados:['Pendente'],             badge:'badge-amber'},
 ];
 
 function cfMesesAtivos(item){
