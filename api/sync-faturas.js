@@ -54,7 +54,7 @@ export default async function handler(req, res) {
     const list = await listR.json();
     if (!list.success) {
       await fetch(`${NAS_URL}/webapi/auth.cgi?api=SYNO.API.Auth&version=3&method=logout&session=filestation&_sid=${sid}`);
-      return res.status(404).json({ error: `Pasta não encontrada: ${PASTA_MES}`, detalhe: list.error });
+      return res.status(404).json({ error: `Pasta não encontrada: ${PASTA_MES}`, detalhe: JSON.stringify(list), raw: JSON.stringify(list.error) });
     }
 
     const ficheiros = (list.data?.files || [])
