@@ -391,7 +391,7 @@
     <button class="tab tab-gestao" onclick="setTab('ainspec')" id="tab-ainspec">AInspec</button>
     <button class="tab tab-analise" onclick="setTab('dashboard')" id="tab-dashboard">Dashboard</button>
     <div class="tab-sep"></div>
-    <button class="tab tab-gestao" onclick="setTab('financeiro')" id="tab-financeiro">Financeiro</button>
+    <button onclick="setTab('financeiro')" id="tab-financeiro" class="tab tab-faturas">Financeiro</button>
     <button class="tab tab-faturas" onclick="setTab('faturas')" id="tab-faturas">Faturas</button>
     <button class="tab tab-analise" onclick="setTab('cashflow')" id="tab-cashflow">Cashflow</button>
   </div>
@@ -1188,11 +1188,30 @@ function renderFaturas(){
 function openFatPdf(idx){
   const f = FATURAS_DATA[idx];
   document.getElementById('fat-pdf-title').textContent = f.num + ' · ' + f.cliente;
-  const src = 'data:application/pdf;base64,' + f.b64;
-  document.getElementById('fat-pdf-iframe').src = src;
-  const dl = document.getElementById('fat-pdf-download');
-  dl.href = src;
-  dl.download = f.ficheiro;
+
+  const iframe = document.getElementById('fat-pdf-iframe');
+  const dl     = document.getElementById('fat-pdf-download');
+
+  // Usar /api/serve-fatura se tiver caminho NAS, senão b64
+  if(f.ficheiro_nas){
+    const url = `/api/serve-fatura?path=${encodeURIComponent(f.ficheiro_nas)}`;
+    iframe.style.display = '';
+    iframe.src = url;
+    dl.href    = url;
+    dl.download = f.ficheiro || f.ficheiro_nas.split('/').pop();
+  } else if(f.b64){
+    const src = 'data:application/pdf;base64,' + f.b64;
+    iframe.style.display = '';
+    iframe.src = src;
+    dl.href    = src;
+    dl.download = f.ficheiro;
+  } else {
+    iframe.style.display = 'none';
+    iframe.insertAdjacentHTML('afterend',
+      `<div id="fat-pdf-nopath" style="padding:48px;text-align:center;color:var(--text3)">
+        PDF não disponível.<br><code style="font-size:11px">${f.ficheiro||'—'}</code>
+      </div>`);
+  }
   document.getElementById('fat-pdf-overlay').classList.add('open');
 }
 
@@ -1200,6 +1219,8 @@ function closeFatPdf(e){
   if(e.target === document.getElementById('fat-pdf-overlay')){
     document.getElementById('fat-pdf-overlay').classList.remove('open');
     document.getElementById('fat-pdf-iframe').src='';
+    document.getElementById('fat-pdf-iframe').style.display='';
+    const np=document.getElementById('fat-pdf-nopath'); if(np) np.remove();
   }
 }
 
