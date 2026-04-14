@@ -40,9 +40,16 @@ export default async function handler(req, res) {
     const sid = auth.data.sid;
 
     // ── 2. Listar ficheiros na pasta do mês ──────────────────────────────
+    const listParams = new URLSearchParams({
+      api: 'SYNO.FileStation.List',
+      version: '2',
+      method: 'list',
+      folder_path: PASTA_MES,
+      _sid: sid
+    });
     const listR = await fetch(
-      `${NAS_URL}/webapi/entry.cgi?api=SYNO.FileStation.List&version=2&method=list` +
-      `&folder_path=${encodeURIComponent(PASTA_MES)}&_sid=${sid}`
+      `${NAS_URL}/webapi/entry.cgi`,
+      { method: 'POST', body: listParams }
     );
     const list = await listR.json();
     if (!list.success) {
