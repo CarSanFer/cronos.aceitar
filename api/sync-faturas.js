@@ -18,7 +18,7 @@ export default async function handler(req, res) {
   const SB_URL    = process.env.SUPABASE_URL;
   const SB_KEY    = process.env.SUPABASE_SERVICE_KEY; // service_role key para bypass RLS
   const AI_KEY    = process.env.ANTHROPIC_API_KEY;
-  const PASTA_BASE = '100 DEPS/200 FIN/900 FTs';
+  const PASTA_BASE = '/volume1/100 Departamentos/200 FIN/900 FTs';
   const PASTA_MES  = `${PASTA_BASE}/${mes}`;
 
   // ── helpers ──────────────────────────────────────────────────────────────
@@ -42,7 +42,7 @@ export default async function handler(req, res) {
     // ── 2. Listar ficheiros na pasta do mês ──────────────────────────────
     const listR = await fetch(
       `${NAS_URL}/webapi/entry.cgi?api=SYNO.FileStation.List&version=2&method=list` +
-      `&folder_path=${encodeURIComponent('/' + PASTA_MES)}&_sid=${sid}`
+      `&folder_path=${encodeURIComponent(PASTA_MES)}&_sid=${sid}`
     );
     const list = await listR.json();
     if (!list.success) {
@@ -74,7 +74,7 @@ export default async function handler(req, res) {
         // Download do PDF
         const dlR = await fetch(
           `${NAS_URL}/webapi/entry.cgi?api=SYNO.FileStation.Download&version=2&method=download` +
-          `&path=${encodeURIComponent('/' + PASTA_MES + '/' + fich.name)}&mode=download&_sid=${sid}`
+          `&path=${encodeURIComponent(PASTA_MES + '/' + fich.name)}&mode=download&_sid=${sid}`
         );
         if (!dlR.ok) throw new Error(`Download falhou: ${dlR.status}`);
         const pdfBuf = await dlR.arrayBuffer();
@@ -151,7 +151,7 @@ O valor deve ser o TOTAL LÍQUIDO (sem IVA). Se não encontrares algum campo, co
             nif_cliente: dados.nif_cliente, valor: dados.valor,
             descricao: dados.descricao, sigla_obra, grupo,
             ficheiro_nome: fich.name,
-            ficheiro_nas: `/${PASTA_MES}/${fich.name}`
+            ficheiro_nas: `${PASTA_MES}/${fich.name}`
           })
         });
 
