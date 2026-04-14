@@ -156,8 +156,9 @@ O valor deve ser o TOTAL LÍQUIDO (sem IVA). Se não encontrares algum campo, co
           body: JSON.stringify({
             numero: dados.numero, data_fatura: dados.data_fatura,
             vencimento: dados.vencimento, cliente: dados.cliente,
-            nif_cliente: dados.nif_cliente, valor: dados.valor,
-            descricao: dados.descricao, sigla_obra, grupo,
+            nif_cliente: dados.nif_cliente, morada_cliente: dados.morada_cliente||null,
+            cp_cliente: dados.cp_cliente||null, localidade_cliente: dados.localidade_cliente||null,
+            valor: dados.valor, descricao: dados.descricao, sigla_obra, grupo,
             ficheiro_nome: fich.name,
             ficheiro_nas: `${PASTA_MES}/${fich.name}`
           })
