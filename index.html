@@ -30,7 +30,7 @@
   .logo span{color:var(--text3);}
   .topbar-div{width:1px;height:20px;background:var(--border-strong);flex-shrink:0;}
   .tabs{display:flex;gap:2px;}
-  .tab{font-size:13px;font-weight:400;padding:6px 14px;border-radius:6px;cursor:pointer;border:none;background:none;color:var(--text2);font-family:var(--sans);transition:all .15s;}
+  .tab{font-size:13px;font-weight:700;padding:6px 14px;border-radius:6px;cursor:pointer;border:none;background:none;color:var(--text2);font-family:var(--sans);transition:all .15s;}
   /* Grupo gestão (Obras/Concursos/AInspec/Projetos/Previstos) */
   .tab.tab-gestao{color:#185FA5;}
   .tab.tab-gestao:hover{background:#E6F1FB;color:#0C447C;}
@@ -396,15 +396,14 @@
     <button class="tab tab-analise" onclick="setTab('cashflow')" id="tab-cashflow">Cashflow</button>
   </div>
   <div class="topbar-right">
+    <button class="btn btn-sm" onclick="syncSID()" id="btn-sync-sid" style="color:var(--blue);border:1px solid var(--blue)">⟳ Sync SID</button>
     <button class="btn btn-sm btn-green" onclick="exportXlsx()">↓ Exportar</button>
     <button class="btn btn-sm" onclick="document.getElementById('import-input').click()">↑ Importar</button>
     <input type="file" id="import-input" accept=".xlsx" onchange="importXlsx(event)">
     <div class="topbar-div"></div>
     <div class="user-pill"><div class="user-dot"></div><span id="user-email-label"></span></div>
     <div class="topbar-div"></div>
-    <button class="btn btn-sm" onclick="document.getElementById('sync-overlay').classList.add('open');resetSyncLog()" style="color:var(--blue);border:1px solid var(--blue)">🔄 Sincronizar</button>
-
-    <button class="btn btn-sm" onclick="doLogout()" style="color:var(--text3)">Sair</button>
+    <button class="btn btn-sm" id="btn-sync-fts" onclick="document.getElementById('sync-overlay').classList.add('open');resetSyncLog()" style="display:none;color:var(--amber);border:1px solid var(--amber)">⟳ Sync Fts</button>
   </div>
 </div>
 
@@ -440,9 +439,8 @@
   <!-- OBRAS -->
   <div id="tab-content-obras">
     <div class="sec-header" style="margin-bottom:10px">
-      <div class="sec-title" id="obras-count-label">Obras</div>
+      <div></div>
       <button class="btn btn-sm" onclick="clearFilterFromTab('obras')" id="btn-clear-obras" style="display:none;color:var(--amber);border-color:var(--amber)">Limpar filtros</button>
-      <button class="btn btn-sm" onclick="syncSID()" id="btn-sync-sid" style="color:var(--blue);border:1px solid var(--blue)">⟳ Sync SID</button>
     </div>
     <div id="filter-bar-obras" style="display:none">
       <div class="fg-checks" id="obras-chips-estados"></div>
@@ -451,9 +449,9 @@
     </div>
     <div class="table-wrap"><table style="table-layout:fixed">
       <colgroup>
-        <col style="width:6%"><col style="width:5%"><col style="width:14%"><col style="width:5%"><col style="width:8%">
-        <col style="width:7%"><col style="width:8%"><col style="width:8%">
-        <col style="width:11%"><col style="width:4%"><col style="width:11%"><col style="width:4%">
+        <col style="width:7%"><col style="width:7%"><col style="width:22%"><col style="width:7%"><col style="width:7%">
+        <col style="width:7%"><col style="width:7%"><col style="width:7%">
+        <col style="width:10%"><col style="width:5%"><col style="width:10%"><col style="width:4%">
       </colgroup>
       <thead>
         <tr>
@@ -470,7 +468,7 @@
         <tr>
           <th class="sortable" onclick="sortTable('obras-tbody','codigo')">Código</th>
           <th class="sortable" onclick="sortTable('obras-tbody','sigla')">Sigla</th>
-          <th class="sortable" onclick="sortTable('obras-tbody','nome')">Designação</th>
+          <th class="sortable" onclick="sortTable('obras-tbody','nome')">Obra</th>
           <th class="sortable" onclick="sortTable('obras-tbody','afetPrev')">Afet.</th>
           <th class="sortable" onclick="sortTable('obras-tbody','valor')">Valor</th>
           <th class="sortable" onclick="sortTable('obras-tbody','estado')">Estado</th>
@@ -489,7 +487,7 @@
   <!-- PROJETOS -->
   <div id="tab-content-projetos" class="hidden">
     <div class="sec-header" style="margin-bottom:10px">
-      <div class="sec-title" id="projetos-count-label">Projetos</div>
+      <div></div>
       <button class="btn btn-sm" onclick="clearFilterFromTab('projetos')" id="btn-clear-projetos" style="display:none;color:var(--amber);border-color:var(--amber)">Limpar filtros</button>
     </div>
     <div id="filter-bar-projetos" style="display:none">
@@ -501,14 +499,14 @@
     </div>
     <div class="table-wrap"><table style="table-layout:fixed">
       <colgroup>
-        <col style="width:8%"><col style="width:7%"><col style="width:12%"><col style="width:8%"><col style="width:8%">
-        <col style="width:9%"><col style="width:8%"><col style="width:8%">
-        <col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:8%">
+        <col style="width:7%"><col style="width:7%"><col style="width:22%"><col style="width:7%"><col style="width:7%">
+        <col style="width:7%"><col style="width:7%"><col style="width:7%">
+        <col style="width:10%"><col style="width:5%"><col style="width:10%"><col style="width:4%">
       </colgroup>
       <thead><tr>
           <th class="sortable" onclick="sortTable('projetos-tbody','codigo')">Código</th>
           <th class="sortable" onclick="sortTable('projetos-tbody','sigla')">Sigla</th>
-          <th class="sortable" onclick="sortTable('projetos-tbody','nome')">Designação</th>
+          <th class="sortable" style="text-align:left" onclick="sortTable('projetos-tbody','nome')">Designação</th>
           <th class="sortable" onclick="sortTable('projetos-tbody','afetPrev')">Afet.</th>
           <th class="sortable" onclick="sortTable('projetos-tbody','valor')">Valor</th>
           <th class="sortable" onclick="sortTable('projetos-tbody','estado')">Estado</th>
@@ -528,7 +526,7 @@
   <!-- AINSPEC -->
   <div id="tab-content-ainspec" class="hidden">
     <div class="sec-header" style="margin-bottom:10px">
-      <div class="sec-title" id="ainspec-count-label">AInspec</div>
+      <div></div>
       <button class="btn btn-sm" onclick="clearFilterFromTab('ainspec')" id="btn-clear-ainspec" style="display:none;color:var(--amber);border-color:var(--amber)">Limpar filtros</button>
     </div>
     <div id="filter-bar-ainspec" style="display:none">
@@ -540,14 +538,14 @@
     </div>
     <div class="table-wrap"><table style="table-layout:fixed">
       <colgroup>
-        <col style="width:8%"><col style="width:7%"><col style="width:18%"><col style="width:9%">
-        <col style="width:9%"><col style="width:8%"><col style="width:8%">
-        <col style="width:8%"><col style="width:8%"><col style="width:9%"><col style="width:8%">
+        <col style="width:7%"><col style="width:7%"><col style="width:20%"><col style="width:8%">
+        <col style="width:8%"><col style="width:8%"><col style="width:8%">
+        <col style="width:7%"><col style="width:9%"><col style="width:7%"><col style="width:9%">
       </colgroup>
       <thead><tr>
         <th class="sortable" onclick="sortTable('ainspec-tbody','codigo')">Código</th>
         <th class="sortable" onclick="sortTable('ainspec-tbody','sigla')">Sigla</th>
-        <th class="sortable" onclick="sortTable('ainspec-tbody','nome')">Designação</th>
+        <th class="sortable" style="text-align:left" onclick="sortTable('ainspec-tbody','nome')">Designação</th>
         <th class="sortable" onclick="sortTable('ainspec-tbody','valor')">Valor</th>
         <th class="sortable" onclick="sortTable('ainspec-tbody','estado')">Estado</th>
         <th class="sortable" onclick="sortTable('ainspec-tbody','inicio')">Início</th>
@@ -632,7 +630,7 @@
   <!-- CONCURSOS -->
   <div id="tab-content-concursos" class="hidden">
     <div class="sec-header" style="margin-bottom:10px">
-      <div class="sec-title" id="concursos-count-label">Concursos</div>
+      <div></div>
       <button class="btn btn-sm" onclick="clearFilterFromTab('concursos')" id="btn-clear-concursos" style="display:none;color:var(--amber);border-color:var(--amber)">Limpar filtros</button>
     </div>
     <div id="filter-bar-concursos" style="display:none">
@@ -644,14 +642,14 @@
     </div>
     <div class="table-wrap"><table style="table-layout:fixed">
       <colgroup>
-        <col style="width:8%"><col style="width:7%"><col style="width:18%"><col style="width:9%">
-        <col style="width:9%"><col style="width:8%"><col style="width:8%">
-        <col style="width:8%"><col style="width:8%"><col style="width:9%"><col style="width:8%">
+        <col style="width:7%"><col style="width:7%"><col style="width:20%"><col style="width:8%">
+        <col style="width:8%"><col style="width:8%"><col style="width:8%">
+        <col style="width:7%"><col style="width:9%"><col style="width:7%"><col style="width:9%">
       </colgroup>
       <thead><tr>
         <th class="sortable" onclick="sortTable('concursos-tbody','codigo')">Código</th>
         <th class="sortable" onclick="sortTable('concursos-tbody','sigla')">Sigla</th>
-        <th class="sortable" onclick="sortTable('concursos-tbody','nome')">Designação</th>
+        <th class="sortable" style="text-align:left" onclick="sortTable('concursos-tbody','nome')">Designação</th>
         <th class="sortable" onclick="sortTable('concursos-tbody','valor')">Valor</th>
         <th class="sortable" onclick="sortTable('concursos-tbody','estado')">Estado</th>
         <th class="sortable" onclick="sortTable('concursos-tbody','inicio')">Início</th>
@@ -667,7 +665,7 @@
   <!-- PREVISTOS -->
   <div id="tab-content-previsoes" class="hidden">
     <div class="sec-header" style="margin-bottom:10px">
-      <div class="sec-title" id="previsoes-count-label">Previstas</div>
+      <div></div>
       <button class="btn btn-sm" onclick="clearFilterFromTab('previsoes')" id="btn-clear-previsoes" style="display:none;color:var(--amber);border-color:var(--amber)">Limpar filtros</button>
     </div>
     <div id="filter-bar-previsoes" style="display:none">
@@ -679,19 +677,19 @@
     </div>
     <div class="table-wrap"><table style="table-layout:fixed">
       <colgroup>
-        <col style="width:10%"><col style="width:8%"><col style="width:24%"><col style="width:12%">
-        <col style="width:12%"><col style="width:12%"><col style="width:12%">
-        <col style="width:10%">
+        <col style="width:9%"><col style="width:8%"><col style="width:24%"><col style="width:9%">
+        <col style="width:9%"><col style="width:9%"><col style="width:9%">
+        <col style="width:23%">
       </colgroup>
       <thead><tr>
         <th class="sortable" onclick="sortTable('previsoes-tbody','codigo')">Código</th>
         <th class="sortable" onclick="sortTable('previsoes-tbody','sigla')">Sigla</th>
-        <th class="sortable" onclick="sortTable('previsoes-tbody','nome')">Designação</th>
+        <th class="sortable" style="text-align:left" onclick="sortTable('previsoes-tbody','nome')">Designação</th>
         <th class="sortable" onclick="sortTable('previsoes-tbody','valor')">Valor</th>
         <th class="sortable" onclick="sortTable('previsoes-tbody','estado')">Estado</th>
         <th class="sortable" onclick="sortTable('previsoes-tbody','inicio')">Início</th>
         <th class="sortable" onclick="sortTable('previsoes-tbody','prazo')">Fim</th>
-        <th class="sortable" onclick="sortTable('previsoes-tbody','notas')">Notas</th>
+        <th class="sortable" style="text-align:left" onclick="sortTable('previsoes-tbody','notas')">Notas</th>
       </tr></thead>
       <tbody id="previsoes-tbody"></tbody>
     </table></div>
@@ -820,90 +818,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger btn-sm" onclick="deleteItem()">Eliminar</button>
-      <button class="btn btn-sm" onclick="openEditModal()">Editar</button>
       <button class="btn btn-sm btn-primary" onclick="closeDetail()">Fechar</button>
-    </div>
-  </div>
-</div>
-
-<!-- FORM MODAL -->
-<div class="overlay" id="form-overlay" onclick="closeFormIfBg(event)">
-  <div class="modal">
-    <div class="modal-header">
-      <div>
-        <div class="modal-sigla" id="form-subtitle"></div>
-        <div class="modal-title" id="form-title-text">Nova Obra</div>
-      </div>
-      <button class="modal-close" onclick="closeFormModal()">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label">Código</label>
-        <input class="form-input" id="f-codigo" placeholder="Ex: 25_001" maxlength="20">
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Sigla *</label>
-          <input class="form-input" id="f-sigla" placeholder="Ex: OB-001" maxlength="12">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Estado *</label>
-          <select class="form-select" id="f-estado"></select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Designação *</label>
-        <input class="form-input" id="f-nome" placeholder="Nome completo da obra ou projeto">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Valor (€)</label>
-        <input class="form-input" id="f-valor" type="number" min="0" step="0.01" placeholder="0,00">
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Início Previsto</label>
-          <input class="form-input" id="f-inicio" type="date">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Fim Previsto</label>
-          <input class="form-input" id="f-prazo" type="date">
-        </div>
-      </div>
-      <!-- Afetação — só para Obras/Projetos/Previstos -->
-      <div class="form-row" id="f-row-afet">
-        <div class="form-group">
-          <label class="form-label">Afetação Prevista (%)</label>
-          <input class="form-input" id="f-afet" type="number" min="0" max="100" placeholder="Ex: 50">
-        </div>
-        <div></div>
-      </div>
-      <!-- Adjudicação/Entrega — só para Concursos/AInspec -->
-      <div id="f-row-adj" style="display:none">
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Adjudicação (%)</label>
-            <input class="form-input" id="f-adj-pct" type="number" min="0" max="100" placeholder="Ex: 30">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Data Adjudicação</label>
-            <input class="form-input" id="f-adj-data" type="date">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Entrega (%)</label>
-            <input class="form-input" id="f-ent-pct" type="number" min="0" max="100" placeholder="Ex: 70">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Data Entrega</label>
-            <input class="form-input" id="f-ent-data" type="date">
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-sm" onclick="closeFormModal()">Cancelar</button>
-      <button class="btn btn-sm btn-primary" onclick="saveForm()">Guardar</button>
     </div>
   </div>
 </div>
@@ -1258,13 +1173,16 @@ function ieEdit(id, field, type, cell){
     const opts = meta.estados.map(e=>`<option value="${e}"${e===item.estado?' selected':''}>${e}</option>`).join('');
     input = `<select class="ie-select" onchange="ieSave('${id}','${field}',this.value,'${type}')" onblur="ieCancel()" onkeydown="ieKey(event,'${id}','${field}',this.value,'${type}')">${opts}</select>`;
   } else if(type==='date'){
-    const cur = field==='inicio'?item.inicio:item.prazo;
+    const dateMap={inicio:item.inicio,prazo:item.prazo,adjData:item.adjData,entData:item.entData};
+    const cur=dateMap[field]??'';
     input = `<input class="ie-input" type="date" value="${cur||''}" onblur="ieSave('${id}','${field}',this.value,'${type}')" onkeydown="ieKey(event,'${id}','${field}',this.value,'${type}')">`;
   } else if(type==='number'){
-    const cur = field==='valor'?item.valor:(item.afetPrev??'');
+    const numMap={valor:item.valor,afetPrev:item.afetPrev,adjPct:item.adjPct,entPct:item.entPct};
+    const cur=numMap[field]??'';
     input = `<input class="ie-input" type="number" value="${cur!=null?cur:''}" min="0" onblur="ieSave('${id}','${field}',this.value,'${type}')" onkeydown="ieKey(event,'${id}','${field}',this.value,'${type}')">`;
   } else {
-    const cur = field==='codigo'?item.codigo:field==='sigla'?item.sigla:item.nome;
+    const textMap={codigo:item.codigo,sigla:item.sigla,nome:item.nome,notas:item.notas};
+    const cur=textMap[field]??'';
     input = `<input class="ie-input" type="text" value="${(cur||'').replace(/"/g,'&quot;')}" onblur="ieSave('${id}','${field}',this.value,'${type}')" onkeydown="ieKey(event,'${id}','${field}',this.value,'${type}')">`;
   }
   cell.innerHTML = input;
@@ -1298,11 +1216,16 @@ async function ieSave(id, field, val, type){
     case 'codigo':   dbField='codigo';    dbVal=val||null; break;
     case 'sigla':    dbField='sigla';     dbVal=val; break;
     case 'nome':     dbField='nome';      dbVal=val; break;
+    case 'notas':    dbField='notas';     dbVal=val||null; break;
     case 'valor':    dbField='valor';     dbVal=val!==''?parseFloat(val):null; break;
     case 'afetPrev': dbField='afet_prev'; dbVal=val!==''?parseInt(val):null; break;
+    case 'adjPct':   dbField='adj_pct';   dbVal=val!==''?parseInt(val):null; break;
+    case 'entPct':   dbField='ent_pct';   dbVal=val!==''?parseInt(val):null; break;
     case 'estado':   dbField='estado';    dbVal=val; break;
     case 'inicio':   dbField='inicio';    dbVal=val||null; break;
     case 'prazo':    dbField='prazo';     dbVal=val||null; break;
+    case 'adjData':  dbField='adj_data';  dbVal=val||null; break;
+    case 'entData':  dbField='ent_data';  dbVal=val||null; break;
     default: ieCancel(); return;
   }
 
@@ -1310,17 +1233,7 @@ async function ieSave(id, field, val, type){
 
   const {error} = await supa.from(meta.table).update({[dbField]:dbVal}).eq('id',id);
   if(error){ toast('Erro: '+error.message); }
-  else {
-    // Actualizar em memória
-    if(field==='valor')    item.valor   = dbVal;
-    if(field==='afetPrev') item.afetPrev= dbVal;
-    if(field==='estado')   item.estado  = dbVal;
-    if(field==='inicio')   item.inicio  = dbVal;
-    if(field==='prazo')    item.prazo   = dbVal;
-    if(field==='codigo')   item.codigo  = dbVal;
-    if(field==='sigla')    item.sigla   = dbVal;
-    if(field==='nome')     item.nome    = dbVal;
-  }
+  else { item[field] = dbVal; }
   renderFiltered(activeTab);
   if(activeTab==='cashflow') renderCashflow();
 }
@@ -1625,6 +1538,12 @@ function setTab(tab){
     if(btn) btn.classList.toggle('active',t===tab);
     if(cnt) cnt.classList.toggle('hidden',t!==tab);
   });
+  // Sync Fts só visível no tab Faturas
+  const btnSyncFts = document.getElementById('btn-sync-fts');
+  if(btnSyncFts) btnSyncFts.style.display = tab==='faturas' ? '' : 'none';
+  // Sync SID só visível nos tabs de gestão (não em Faturas, Financeiro, Dashboard, Cashflow)
+  const btnSyncSid = document.getElementById('btn-sync-sid');
+  if(btnSyncSid) btnSyncSid.style.display = tab==='obras' ? '' : 'none';
   if(tab==='cashflow') renderCashflow();
   else if(tab==='dashboard') renderDashboard();
   else if(tab==='faturas') renderFaturas();
@@ -1798,34 +1717,56 @@ function renderFiltered(tab){
       const venc=isVencido(item.prazo,item.estado);
       const isPrevView = tab==='previsoes';
       const isAdjView  = tab==='concursos'||tab==='ainspec';
+      const isProjView = tab==='projetos';
+
       if(isPrevView){
-        return`<tr onclick="openDetail('${item.id}')">
-          <td class="col-codigo">${item.codigo||'—'}</td>
-          <td class="col-sigla">${item.sigla}</td>
-          <td class="col-nome" style="text-align:left">${item.nome}</td>
-          <td class="col-valor">${fmtValor(item.valor)}</td>
-          <td>${badgeEstado(item.estado)}</td>
-          <td class="col-prazo">${fmtDate(item.inicio)}</td>
-          <td class="col-prazo${venc?' vencido':''}">${fmtDate(item.prazo)}${venc?' ⚠':''}</td>
-          <td style="font-size:11px;color:var(--text2);text-align:left;overflow:hidden;text-overflow:ellipsis">${item.notas||'—'}</td>
+        return`<tr id="ie-row-${item.id}" data-id="${item.id}">
+          <td class="col-codigo ie-cell" onclick="ieEdit('${item.id}','codigo','text',this)">${item.codigo||'—'}</td>
+          <td class="col-sigla ie-cell" onclick="ieEdit('${item.id}','sigla','text',this)">${item.sigla}</td>
+          <td class="col-nome ie-cell" style="text-align:left" onclick="ieEdit('${item.id}','nome','text',this)">${item.nome}</td>
+          <td class="col-valor ie-cell" onclick="ieEdit('${item.id}','valor','number',this)">${fmtValor(item.valor)}</td>
+          <td class="ie-cell" onclick="ieEdit('${item.id}','estado','select',this)">${badgeEstado(item.estado)}</td>
+          <td class="col-prazo ie-cell" onclick="ieEdit('${item.id}','inicio','date',this)">${fmtDate(item.inicio)}</td>
+          <td class="col-prazo${venc?' vencido':''} ie-cell" onclick="ieEdit('${item.id}','prazo','date',this)">${fmtDate(item.prazo)}${venc?' ⚠':''}</td>
+          <td class="ie-cell" style="text-align:left;font-size:11px;color:var(--text2)" onclick="ieEdit('${item.id}','notas','text',this)">${item.notas||'—'}</td>
         </tr>`;
       }
       if(isAdjView){
-        return`<tr onclick="openDetail('${item.id}')">
-          <td class="col-codigo">${item.codigo||'—'}</td>
-          <td class="col-sigla">${item.sigla}</td>
-          <td class="col-nome" style="text-align:left">${item.nome}</td>
-          <td class="col-valor">${fmtValor(item.valor)}</td>
-          <td>${badgeEstado(item.estado)}</td>
-          <td class="col-prazo">${fmtDate(item.inicio)}</td>
-          <td class="col-prazo${venc?' vencido':''}">${fmtDate(item.prazo)}${venc?' ⚠':''}</td>
-          <td class="col-afet">${item.adjPct!=null?item.adjPct+'%':'—'}</td>
-          <td class="col-prazo">${fmtDate(item.adjData)}</td>
-          <td class="col-afet">${item.entPct!=null?item.entPct+'%':'—'}</td>
-          <td class="col-prazo">${fmtDate(item.entData)}</td>
+        return`<tr id="ie-row-${item.id}" data-id="${item.id}">
+          <td class="col-codigo ie-cell" onclick="ieEdit('${item.id}','codigo','text',this)">${item.codigo||'—'}</td>
+          <td class="col-sigla ie-cell" onclick="ieEdit('${item.id}','sigla','text',this)">${item.sigla}</td>
+          <td class="col-nome ie-cell" style="text-align:left" onclick="ieEdit('${item.id}','nome','text',this)">${item.nome}</td>
+          <td class="col-valor ie-cell" onclick="ieEdit('${item.id}','valor','number',this)">${fmtValor(item.valor)}</td>
+          <td class="ie-cell" onclick="ieEdit('${item.id}','estado','select',this)">${badgeEstado(item.estado)}</td>
+          <td class="col-prazo ie-cell" onclick="ieEdit('${item.id}','inicio','date',this)">${fmtDate(item.inicio)}</td>
+          <td class="col-prazo${venc?' vencido':''} ie-cell" onclick="ieEdit('${item.id}','prazo','date',this)">${fmtDate(item.prazo)}${venc?' ⚠':''}</td>
+          <td class="col-afet ie-cell" onclick="ieEdit('${item.id}','adjPct','number',this)">${item.adjPct!=null?item.adjPct+'%':'—'}</td>
+          <td class="col-prazo ie-cell" onclick="ieEdit('${item.id}','adjData','date',this)">${fmtDate(item.adjData)}</td>
+          <td class="col-afet ie-cell" onclick="ieEdit('${item.id}','entPct','number',this)">${item.entPct!=null?item.entPct+'%':'—'}</td>
+          <td class="col-prazo ie-cell" onclick="ieEdit('${item.id}','entData','date',this)">${fmtDate(item.entData)}</td>
         </tr>`;
       }
-      // Campos do SID são só leitura; só Valor e Afet são editáveis
+      if(isProjView){
+        const fiscal   = equipaByRole(item.equipa,'Fiscal');
+        const fiscalPct= equipaByRolePct(item.equipa,'Fiscal');
+        const cso      = equipaByRole(item.equipa,'CSO');
+        const csoPct   = equipaByRolePct(item.equipa,'CSO');
+        return`<tr id="ie-row-${item.id}" data-id="${item.id}">
+          <td class="col-codigo ie-cell" onclick="ieEdit('${item.id}','codigo','text',this)">${item.codigo||'—'}</td>
+          <td class="col-sigla ie-cell" onclick="ieEdit('${item.id}','sigla','text',this)">${item.sigla}</td>
+          <td class="col-nome ie-cell" style="text-align:left" onclick="ieEdit('${item.id}','nome','text',this)">${item.nome}</td>
+          <td class="col-afet ie-cell" onclick="ieEdit('${item.id}','afetPrev','number',this)">${fmtAfet(item.afetPrev)}</td>
+          <td class="col-valor ie-cell" onclick="ieEdit('${item.id}','valor','number',this)">${fmtValor(item.valor)}</td>
+          <td class="ie-cell" onclick="ieEdit('${item.id}','estado','select',this)">${badgeEstado(item.estado)}</td>
+          <td class="col-prazo ie-cell" onclick="ieEdit('${item.id}','inicio','date',this)">${fmtDate(item.inicio)}</td>
+          <td class="col-prazo${venc?' vencido':''} ie-cell" onclick="ieEdit('${item.id}','prazo','date',this)">${fmtDate(item.prazo)}${venc?' ⚠':''}</td>
+          <td class="fin-readonly">${fiscal}</td>
+          <td class="col-afet fin-readonly">${fiscalPct}</td>
+          <td class="fin-readonly">${cso}</td>
+          <td class="col-afet fin-readonly">${csoPct}</td>
+        </tr>`;
+      }
+      // Obras — campos SID só leitura; Valor e Afet editáveis
       const fiscal   = equipaByRole(item.equipa,'Fiscal');
       const fiscalPct= equipaByRolePct(item.equipa,'Fiscal');
       const cso      = equipaByRole(item.equipa,'CSO');
@@ -1851,7 +1792,8 @@ function renderFiltered(tab){
                   : `${tab==='obras'?'Obras':'Projetos'} · ${list.length}`;
   const pluralLabel = getTabMeta(tab)?.labelPlural || tab;
   const displayLabel = n ? `${pluralLabel} · ${filtered.length} / ${list.length}` : `${pluralLabel} · ${list.length}`;
-  document.getElementById(`${tab}-count-label`).textContent = displayLabel;
+  const countEl = document.getElementById(`${tab}-count-label`);
+  if(countEl) countEl.textContent = displayLabel;
 
   const clearBtn = document.getElementById(`btn-clear-${tab}`);
   clearBtn.style.display = n ? '' : 'none';
@@ -2665,81 +2607,6 @@ async function deleteItem(){
 // ── FORM ──────────────────────────────────────────────────────────────────────
 let editingId=null;
 
-function openFormModal(){
-  editingId=null;
-  const meta=getTabMeta(activeTab);
-  document.getElementById('form-title-text').textContent='Novo '+meta.label;
-  document.getElementById('form-subtitle').textContent=meta.labelPlural;
-  document.getElementById('f-estado').innerHTML=meta.estados.map(e=>`<option>${e}</option>`).join('');
-  ['f-codigo','f-sigla','f-nome','f-valor','f-afet','f-inicio','f-prazo','f-adj-pct','f-adj-data','f-ent-pct','f-ent-data'].forEach(id=>document.getElementById(id).value='');
-  const isAdjTab = activeTab==='concursos'||activeTab==='ainspec'||activeTab==='previsoes';
-  document.getElementById('f-row-afet').style.display = isAdjTab?'none':'';
-  document.getElementById('f-row-adj').style.display  = (activeTab==='concursos'||activeTab==='ainspec')?'':'none';
-  document.getElementById('form-overlay').classList.add('open');
-  setTimeout(()=>document.getElementById('f-sigla').focus(),120);
-}
-
-function openEditModal(){
-  const item=getActiveItem();if(!item)return;
-  editingId=activeId;closeDetail();
-  const meta=getTabMeta(activeTab);
-  document.getElementById('form-title-text').textContent='Editar '+meta.label;
-  document.getElementById('form-subtitle').textContent=item.sigla;
-  document.getElementById('f-estado').innerHTML=meta.estados.map(e=>`<option ${e===item.estado?'selected':''}>${e}</option>`).join('');
-  document.getElementById('f-codigo').value = item.codigo||'';
-  document.getElementById('f-sigla').value  = item.sigla||'';
-  document.getElementById('f-nome').value   = item.nome||'';
-  document.getElementById('f-valor').value  = item.valor!=null?item.valor:'';
-  document.getElementById('f-afet').value   = item.afetPrev??'';
-  document.getElementById('f-inicio').value    = item.inicio||'';
-  document.getElementById('f-prazo').value      = item.prazo||'';
-  const isAdjTab2 = activeTab==='concursos'||activeTab==='ainspec'||activeTab==='previsoes';
-  document.getElementById('f-row-afet').style.display = isAdjTab2?'none':'';
-  document.getElementById('f-row-adj').style.display  = (activeTab==='concursos'||activeTab==='ainspec')?'':'none';
-  document.getElementById('f-adj-pct').value  = item.adjPct!=null?item.adjPct:'';
-  document.getElementById('f-adj-data').value = item.adjData||'';
-  document.getElementById('f-ent-pct').value  = item.entPct!=null?item.entPct:'';
-  document.getElementById('f-ent-data').value = item.entData||'';
-  document.getElementById('form-overlay').classList.add('open');
-}
-
-async function saveForm(){
-  const sigla=document.getElementById('f-sigla').value.trim();
-  const nome=document.getElementById('f-nome').value.trim();
-  if(!sigla||!nome){toast('Sigla e Designação são obrigatórios');return;}
-  const valorRaw = document.getElementById('f-valor').value;
-  const codigo=document.getElementById('f-codigo').value.trim();
-  const dbData={
-    codigo:codigo||null, sigla, nome,
-    estado:    document.getElementById('f-estado').value,
-    valor:     valorRaw!==''?parseFloat(valorRaw):null,
-    afet_prev: document.getElementById('f-afet').value!==''?parseInt(document.getElementById('f-afet').value):null,
-    inicio:    document.getElementById('f-inicio').value||null,
-    prazo:     document.getElementById('f-prazo').value||null,
-    adj_pct:   (activeTab==='concursos'||activeTab==='ainspec')&&document.getElementById('f-adj-pct').value!==''?parseInt(document.getElementById('f-adj-pct').value):null,
-    adj_data:  (activeTab==='concursos'||activeTab==='ainspec')?document.getElementById('f-adj-data').value||null:null,
-    ent_pct:   (activeTab==='concursos'||activeTab==='ainspec')&&document.getElementById('f-ent-pct').value!==''?parseInt(document.getElementById('f-ent-pct').value):null,
-    ent_data:  (activeTab==='concursos'||activeTab==='ainspec')?document.getElementById('f-ent-data').value||null:null,
-  };
-  const meta = getTabMeta(activeTab);
-  if(editingId){
-    const {error} = await supa.from(meta.table).update(dbData).eq('id', editingId);
-    if(error){toast('Erro ao atualizar: '+error.message);return;}
-    toast('Atualizado com sucesso');
-  } else {
-    const {error} = await supa.from(meta.table).insert(dbData);
-    if(error){toast('Erro ao criar: '+error.message);return;}
-    toast('Criado com sucesso');
-  }
-  closeFormModal();
-  await loadAllData();
-  render();
-  editingId=null;
-}
-
-function closeFormModal(){document.getElementById('form-overlay').classList.remove('open');}
-function closeFormIfBg(e){if(e.target===document.getElementById('form-overlay'))closeFormModal();}
-
 // ── XLSX EXPORT ───────────────────────────────────────────────────────────────
 function flattenList(list){
   const rows=[];
@@ -2944,8 +2811,7 @@ function toast(msg){
 
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
-    if(document.getElementById('form-overlay').classList.contains('open'))closeFormModal();
-    else if(document.getElementById('detail-overlay').classList.contains('open'))closeDetail();
+    if(document.getElementById('detail-overlay').classList.contains('open'))closeDetail();
   }
 });
 
