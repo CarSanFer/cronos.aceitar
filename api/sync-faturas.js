@@ -174,6 +174,7 @@ O valor deve ser o TOTAL LÍQUIDO (sem IVA). Se não encontrares algum campo, co
         if(!sbR.ok) throw new Error(`Supabase insert falhou: ${JSON.stringify(sbJson)}`);
 
         resultados.push({ ficheiro: fich.name, numero: dados.numero, valor: dados.valor, grupo, sigla_obra });
+        console.log('DEBUG sigla:', fich.name, '→', sigla_obra, '| grupo:', grupo);
       } catch(e) {
         erros.push({ ficheiro: fich.name, erro: e.message });
       }
