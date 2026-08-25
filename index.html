@@ -105,12 +105,12 @@
   tr:last-child td{border-bottom:none;}
   tbody tr{cursor:pointer;transition:background .12s;}
   tbody tr:hover td{background:#F6F8FA;}
-  .col-codigo{font-size:12px;color:var(--text);white-space:nowrap;overflow:visible!important;}
+  .col-codigo{font-size:12px;color:var(--text);white-space:nowrap;overflow:visible!important;text-align:center!important;}
+  .col-prazo{font-size:12px;color:var(--text);white-space:nowrap;font-family:var(--sans);text-align:center!important;}
+  .col-prazo.vencido{color:var(--red);font-family:var(--sans);text-align:center!important;}
   .col-sigla{font-size:12px;color:var(--text);white-space:nowrap;text-align:center!important;}
   .col-nome{font-size:12px;color:var(--text);text-align:left!important;}
   .col-valor{font-size:12px;color:var(--text);white-space:nowrap;text-align:center!important;overflow:visible!important;}
-  .col-prazo{font-size:12px;color:var(--text);white-space:nowrap;font-family:var(--sans);}
-  .col-prazo.vencido{color:var(--red);font-family:var(--sans);}
   .col-afet{font-size:12px;color:var(--text);text-align:center!important;}
   .col-pessoa{font-size:12px;color:var(--text);}
   .col-pessoa .p-nome{color:var(--text);}
@@ -437,10 +437,10 @@
   <div class="topbar-div"></div>
   <div class="tabs">
     <button class="tab tab-gestao active" onclick="setTab('obras')" id="tab-obras">Obras</button>
-    <button class="tab tab-gestao" onclick="setTab('previsoes')" id="tab-previsoes">Previstas</button>
-    <button class="tab tab-gestao" onclick="setTab('concursos')" id="tab-concursos">Concursos</button>
+    <button class="tab tab-gestao" onclick="setTab('previsoes')" id="tab-previsoes">Pendentes</button>
+    <button class="tab tab-gestao" onclick="setTab('concursos')" id="tab-concursos" style="display:none">Concursos</button>
     <button class="tab tab-gestao" onclick="setTab('projetos')" id="tab-projetos">Projetos</button>
-    <button class="tab tab-gestao" onclick="setTab('ainspec')" id="tab-ainspec">AInspec</button>
+    <button class="tab tab-gestao" onclick="setTab('ainspec')" id="tab-ainspec" style="display:none">AInspec</button>
     <button class="tab tab-analise" onclick="setTab('dashboard')" id="tab-dashboard">Dashboard</button>
     <div class="tab-sep"></div>
     <button onclick="setTab('financeiro')" id="tab-financeiro" class="tab tab-faturas">Financeiro</button>
@@ -716,9 +716,43 @@
     </table></div>
   </div>
   <!-- PREVISTOS -->
+  <!-- MODAL NOVA PENDENTE -->
+  <div class="overlay" id="nova-prev-overlay" onclick="if(event.target===this)closeNovaPrevisao()">
+    <div class="modal" style="max-width:480px">
+      <div class="modal-header">
+        <div><div class="modal-sigla">PENDENTES</div><div class="modal-title">Nova Pendente</div></div>
+        <button class="modal-close" onclick="closeNovaPrevisao()">×</button>
+      </div>
+      <div class="modal-body" style="display:flex;flex-direction:column;gap:14px;padding:20px 24px">
+        <div style="display:flex;gap:12px">
+          <div style="flex:1"><label class="form-label">Código</label><input class="form-input" id="np-codigo" placeholder="Ex: 25_P01"></div>
+          <div style="flex:1"><label class="form-label">Sigla *</label><input class="form-input" id="np-sigla" placeholder="Ex: OBP-01"></div>
+        </div>
+        <div><label class="form-label">Designação *</label><input class="form-input" id="np-nome" placeholder="Nome da obra prevista"></div>
+        <div style="display:flex;gap:12px">
+          <div style="flex:1"><label class="form-label">Valor (€)</label><input class="form-input" id="np-valor" type="number" min="0" placeholder="0"></div>
+          <div style="flex:1"><label class="form-label">Estado</label>
+            <select class="form-select" id="np-estado">
+              <option>Pendente</option><option>Em Curso</option><option>Concluído</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px">
+          <div style="flex:1"><label class="form-label">Início</label><input class="form-input" id="np-inicio" type="date"></div>
+          <div style="flex:1"><label class="form-label">Fim</label><input class="form-input" id="np-prazo" type="date"></div>
+        </div>
+        <div><label class="form-label">Notas</label><input class="form-input" id="np-notas" placeholder="Observações..."></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-sm" onclick="closeNovaPrevisao()">Cancelar</button>
+        <button class="btn btn-sm btn-primary" onclick="saveNovaPrevisao()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
   <div id="tab-content-previsoes" class="hidden">
     <div class="sec-header" style="margin-bottom:10px">
-      <div></div>
+      <button class="btn btn-sm btn-primary" onclick="document.getElementById('nova-prev-overlay').classList.add('open');setTimeout(()=>document.getElementById('np-sigla').focus(),120)">+ Nova Pendente</button>
       <button class="btn btn-sm" onclick="clearFilterFromTab('previsoes')" id="btn-clear-previsoes" style="display:none;color:var(--amber);border-color:var(--amber)">Limpar filtros</button>
     </div>
     <div id="filter-bar-previsoes" style="display:none">
@@ -2677,6 +2711,41 @@ async function deleteItem(){
 // ── FORM ──────────────────────────────────────────────────────────────────────
 let editingId=null;
 
+// ── NOVA PENDENTE ─────────────────────────────────────────────────────────────
+function closeNovaPrevisao(){
+  document.getElementById('nova-prev-overlay').classList.remove('open');
+  ['np-codigo','np-sigla','np-nome','np-valor','np-inicio','np-prazo','np-notas'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('np-estado').value='Pendente';
+}
+
+async function saveNovaPrevisao(){
+  const sigla = document.getElementById('np-sigla').value.trim();
+  const nome  = document.getElementById('np-nome').value.trim();
+  if(!sigla||!nome){toast('Sigla e Designação são obrigatórios');return;}
+  const valorRaw = document.getElementById('np-valor').value;
+  const dbData={
+    codigo: document.getElementById('np-codigo').value.trim()||null,
+    sigla, nome,
+    estado: document.getElementById('np-estado').value,
+    valor:  valorRaw!==''?parseFloat(valorRaw):null,
+    inicio: document.getElementById('np-inicio').value||null,
+    prazo:  document.getElementById('np-prazo').value||null,
+    notas:  document.getElementById('np-notas').value.trim()||null,
+  };
+  const {error} = await supa.from('previsoes').insert(dbData);
+  if(error){toast('Erro: '+error.message);return;}
+  toast('Pendente criada com sucesso');
+  closeNovaPrevisao();
+  const {data} = await supa.from('previsoes').select('*, equipa_previsoes(*)').order('sigla');
+  previsoes = (data||[]).map(p=>({
+    id:p.id, codigo:p.codigo||'', sigla:p.sigla, nome:p.nome,
+    tipos:p.tipos||[], estado:p.estado, inicio:p.inicio||'', prazo:p.prazo||'',
+    afetPrev:p.afet_prev!=null?p.afet_prev:null, valor:p.valor!=null?p.valor:null,
+    notas:p.notas||'', equipa:(p.equipa_previsoes||[]).map(e=>({id:e.id,nome:e.nome,funcao:e.funcao,afet:e.afet})),
+  }));
+  renderFiltered('previsoes');
+}
+
 // ── XLSX EXPORT ───────────────────────────────────────────────────────────────
 function flattenList(list){
   const rows=[];
@@ -2881,7 +2950,8 @@ function toast(msg){
 
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
-    if(document.getElementById('detail-overlay').classList.contains('open'))closeDetail();
+    if(document.getElementById('nova-prev-overlay').classList.contains('open'))closeNovaPrevisao();
+    else if(document.getElementById('detail-overlay').classList.contains('open'))closeDetail();
   }
 });
 
