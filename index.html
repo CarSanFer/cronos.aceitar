@@ -5,21 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CRONOS · Aceitar</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#F7F6F2;--surface:#FFF;--surface2:#F0EFE9;
-    --border:rgba(0,0,0,.09);--border-strong:rgba(0,0,0,.18);
-    --text:#1A1A18;--text2:#6B6A64;--text3:#A8A79F;
-    --blue:#185FA5;--blue-bg:#E6F1FB;--blue-text:#0C447C;
-    --green:#1D9E75;--green-bg:#EAF3DE;--green-text:#3B6D11;
-    --amber:#BA7517;--amber-bg:#FAEEDA;--amber-text:#854F0B;
+    --bg:#F4F6F8;--surface:#FFF;--surface2:#EDF1F4;
+    --border:rgba(16,42,64,.10);--border-strong:rgba(16,42,64,.22);
+    --text:#17293A;--text2:#51687C;--text3:#8CA0B0;
+    --blue:#2F6F9F;--blue-bg:#E4EFF7;--blue-text:#1D4E75;
+    --green:#1D9E75;--green-bg:#E4F4EC;--green-text:#166A50;
+    --amber:#C0722A;--amber-bg:#F8ECDD;--amber-text:#8A4E13;
     --red:#A32D2D;--red-bg:#FCEBEB;--red-text:#791F1F;
-    --gray-bg:#F1EFE8;--gray-text:#5F5E5A;
+    --gray-bg:#EDF0F2;--gray-text:#5C6B77;
     --teal-bg:#E1F5EE;--teal-text:#0F6E56;
-    --purple-bg:#EEEDFE;--purple-text:#534AB7;
+    --purple-bg:#E7EDF2;--purple-text:#33506B;
     --radius:8px;--radius-lg:12px;
-    --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;
+    --mono:Calibri,'Segoe UI',Carlito,sans-serif;--sans:Calibri,'Segoe UI',Carlito,sans-serif;
     --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
   }
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -29,20 +28,20 @@
   .logo{font-family:var(--mono);font-size:15px;font-weight:500;letter-spacing:.08em;color:var(--text);}
   .logo span{color:var(--text3);}
   .topbar-div{width:1px;height:20px;background:var(--border-strong);flex-shrink:0;}
-  .tabs{display:flex;gap:2px;}
+  .tabs{display:flex;gap:2px;flex-wrap:nowrap;overflow-x:auto;min-width:0;scrollbar-width:none;}
   .tab{font-size:13px;font-weight:700;padding:6px 14px;border-radius:6px;cursor:pointer;border:none;background:none;color:var(--text2);font-family:var(--sans);transition:all .15s;}
   /* Grupo gestão (Obras/Concursos/AInspec/Projetos/Previstos) */
-  .tab.tab-gestao{color:#185FA5;}
-  .tab.tab-gestao:hover{background:#E6F1FB;color:#0C447C;}
-  .tab.tab-gestao.active{background:#185FA5;color:#fff;}
+  .tab.tab-gestao{color:#2F6F9F;}
+  .tab.tab-gestao:hover{background:#E4EFF7;color:#1D4E75;}
+  .tab.tab-gestao.active{background:#2F6F9F;color:#fff;}
   /* Grupo análise (Dashboard/Cashflow) */
-  .tab.tab-analise{color:#534AB7;}
-  .tab.tab-analise:hover{background:#EEEDFE;color:#3D35A0;}
-  .tab.tab-analise.active{background:#534AB7;color:#fff;}
+  .tab.tab-analise{color:#33506B;}
+  .tab.tab-analise:hover{background:#E7EDF2;color:#24405A;}
+  .tab.tab-analise.active{background:#33506B;color:#fff;}
   /* Grupo faturas */
-  .tab.tab-faturas{color:#BA7517;}
-  .tab.tab-faturas:hover{background:#FAEEDA;color:#854F0B;}
-  .tab.tab-faturas.active{background:#BA7517;color:#fff;}
+  .tab.tab-faturas{color:#C0722A;}
+  .tab.tab-faturas:hover{background:#F8ECDD;color:#8A4E13;}
+  .tab.tab-faturas.active{background:#C0722A;color:#fff;}
   /* separador visual entre grupos */
   .tab-sep{width:1px;height:20px;background:var(--border-strong);flex-shrink:0;align-self:center;}
   .tab:hover{background:var(--surface2);color:var(--text);}
@@ -105,7 +104,7 @@
 
   tr:last-child td{border-bottom:none;}
   tbody tr{cursor:pointer;transition:background .12s;}
-  tbody tr:hover td{background:#FAFAF7;}
+  tbody tr:hover td{background:#F6F8FA;}
   .col-codigo{font-size:12px;color:var(--text);white-space:nowrap;overflow:visible!important;}
   .col-sigla{font-size:12px;color:var(--text);white-space:nowrap;text-align:center!important;}
   .col-nome{font-size:12px;color:var(--text);text-align:left!important;}
@@ -119,19 +118,19 @@
 
   /* ── DARK THEME ─────────────────────────────────────────────────────────── */
   body.dark{
-    --bg:#243f58;--surface:#243f58;--surface2:#1a3349;
+    --bg:#132735;--surface:#1A3245;--surface2:#152B3C;
     --border:rgba(255,255,255,.08);--border-strong:rgba(255,255,255,.2);
     --text:#fff;--text2:rgba(255,255,255,.7);--text3:rgba(255,255,255,.45);
-    --blue:#7aaedb;--blue-bg:rgba(122,174,219,.18);--blue-text:#c5def3;
+    --blue:#6FB0DD;--blue-bg:rgba(111,176,221,.16);--blue-text:#BCDCF2;
     --green:#4fd4a8;--green-bg:rgba(29,158,117,.25);--green-text:#4fd4a8;
-    --amber:#f0b84a;--amber-bg:rgba(186,117,23,.3);--amber-text:#f0b84a;
+    --amber:#E39A55;--amber-bg:rgba(227,154,85,.16);--amber-text:#F0C596;
     --red:#f87171;--red-bg:rgba(248,113,113,.2);--red-text:#f87171;
     --gray-bg:rgba(255,255,255,.1);--gray-text:rgba(255,255,255,.7);
     --teal-bg:rgba(29,158,117,.25);--teal-text:#4fd4a8;
-    --purple-bg:rgba(83,74,183,.3);--purple-text:#b0a8f0;
+    --purple-bg:rgba(111,176,221,.12);--purple-text:#BCDCF2;
     --shadow:none;
   }
-  body.dark .topbar{background:#1e3f5c;}
+  body.dark .topbar{background:#1A3245;}
   body.dark tbody tr:hover td{background:rgba(255,255,255,.05);}
   /* Tabs — todos brancos no tema escuro */
   body.dark .tab.tab-gestao,
@@ -152,15 +151,15 @@
   body.dark .fg-chip{border-color:rgba(255,255,255,.25);color:rgba(255,255,255,.75);}
   body.dark .fg-chip:hover{border-color:#fff;color:#fff;}
   body.dark .fg-chip.on{background:rgba(255,255,255,.2);border-color:transparent;color:#fff;}
-  body.dark .login-box{background:#1a3349;border-color:rgba(255,255,255,.1);}
+  body.dark .login-box{background:#152B3C;border-color:rgba(255,255,255,.1);}
   body.dark .fat-card:hover{box-shadow:0 4px 14px rgba(0,0,0,.3);}
-  body.dark .dash-card{background:#1e3f5c;border-color:rgba(255,255,255,.08);}
-  body.dark .obra-card{background:#1e3f5c;border-color:rgba(255,255,255,.08);}
-  body.dark .modal{background:#1a3349;}
-  body.dark .sync-box{background:#1a3349;}
-  body.dark .fat-pdf-box{background:#1a3349;}
-  body.dark .colab-item{background:#243f58;}
-  body.dark #add-colab-form{background:#1e3f5c;}
+  body.dark .dash-card{background:#1E3A52;border-color:rgba(255,255,255,.08);}
+  body.dark .obra-card{background:#1E3A52;border-color:rgba(255,255,255,.08);}
+  body.dark .modal{background:#152B3C;}
+  body.dark .sync-box{background:#152B3C;}
+  body.dark .fat-pdf-box{background:#152B3C;}
+  body.dark .colab-item{background:#1A3245;}
+  body.dark #add-colab-form{background:#1E3A52;}
 
   .badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:99px;font-size:11px;font-weight:500;white-space:nowrap;}
   .badge-green{background:var(--green-bg);color:var(--green-text);}
@@ -326,8 +325,8 @@
   #cf-table th:first-child{text-align:center!important;}
   .cf-foot td{padding:9px 8px;font-size:11px;font-weight:700;color:var(--text);text-align:right;background:var(--surface2);border-top:2px solid var(--border-strong);}
   .cf-foot td:first-child{text-align:left;position:sticky;left:0;background:var(--surface2);}
-  tr.cf-row:hover td{background:#FAFAF7;}
-  tr.cf-row:hover td.cf-nome{background:#FAFAF7;}
+  tr.cf-row:hover td{background:#F6F8FA;}
+  tr.cf-row:hover td.cf-nome{background:#F6F8FA;}
   .hidden{display:none!important;}
   hr.divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
 
@@ -393,6 +392,14 @@
   .obra-card-afet-bar{flex:1;height:5px;background:var(--surface2);border-radius:99px;overflow:hidden;}
   .obra-card-afet-fill{height:100%;border-radius:99px;}
   .obra-card-afet-pct{font-family:var(--mono);font-size:11px;font-weight:600;}
+
+  /* ── Norma tipográfica Aceitar: Calibri 10pt, 1,5 linhas ── */
+  body{font-size:10pt;line-height:1.5;}
+  *{font-family:var(--sans)!important;}
+  th,td,button,input,select,textarea,.btn,.tab,.fg-chip,.fg-input,.fg-date,.badge,.form-label,.form-input,.form-select,.form-textarea,.sec-title,.detail-label,.detail-val,.kpi-label,.kpi-sub,.login-sub,.user-pill,.fat-num,.fat-cliente,.fat-desc,.fat-data,.fat-datas,.fat-obra,.fat-grupo-header,.cf-val,.cf-nome,.cf-tipo,.cf-total-val,.dash-card-title,.dash-legend-item,.colab-nome,.colab-funcao,.colab-pct,.afet-box-label,.afet-box-sub,.section-block-title,.sync-sub,.sync-log,.toast,.empty,.obra-card-nome,.obra-card-sigla,.afet-tag,.stat-pill-label,.dp-label{font-size:10pt!important;line-height:1.5!important;}
+  .kpi-value,.afet-box-val,.dp-count,.donut-center-n,.stat-pill-val,.fat-kpi-val,.fat-valor,.dash-total,.modal-title,.sync-title,.fat-pdf-title,.login-logo,.logo{font-size:10pt!important;font-weight:700;line-height:1.5!important;}
+  th{text-align:center!important;}
+  td{text-align:center;}
 </style>
 </head>
 <body>
