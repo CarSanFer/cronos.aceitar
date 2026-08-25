@@ -107,15 +107,60 @@
   tbody tr{cursor:pointer;transition:background .12s;}
   tbody tr:hover td{background:#FAFAF7;}
   .col-codigo{font-size:12px;color:var(--text);white-space:nowrap;overflow:visible!important;}
-  .col-sigla{font-size:12px;color:var(--text);white-space:nowrap;text-align:left!important;}
+  .col-sigla{font-size:12px;color:var(--text);white-space:nowrap;text-align:center!important;}
   .col-nome{font-size:12px;color:var(--text);text-align:left!important;}
   .col-valor{font-size:12px;color:var(--text);white-space:nowrap;text-align:center!important;overflow:visible!important;}
-  .col-prazo{font-size:12px;color:var(--text);white-space:nowrap;font-variant-numeric:tabular-nums;font-family:var(--mono);}
-  .col-prazo.vencido{color:var(--red);font-variant-numeric:tabular-nums;font-family:var(--mono);}
+  .col-prazo{font-size:12px;color:var(--text);white-space:nowrap;font-family:var(--sans);}
+  .col-prazo.vencido{color:var(--red);font-family:var(--sans);}
   .col-afet{font-size:12px;color:var(--text);text-align:center!important;}
   .col-pessoa{font-size:12px;color:var(--text);}
   .col-pessoa .p-nome{color:var(--text);}
   .col-pessoa .p-pct{font-size:12px;color:var(--text);}
+
+  /* ── DARK THEME ─────────────────────────────────────────────────────────── */
+  body.dark{
+    --bg:#243f58;--surface:#243f58;--surface2:#1a3349;
+    --border:rgba(255,255,255,.08);--border-strong:rgba(255,255,255,.2);
+    --text:#fff;--text2:rgba(255,255,255,.7);--text3:rgba(255,255,255,.45);
+    --blue:#7aaedb;--blue-bg:rgba(122,174,219,.18);--blue-text:#c5def3;
+    --green:#4fd4a8;--green-bg:rgba(29,158,117,.25);--green-text:#4fd4a8;
+    --amber:#f0b84a;--amber-bg:rgba(186,117,23,.3);--amber-text:#f0b84a;
+    --red:#f87171;--red-bg:rgba(248,113,113,.2);--red-text:#f87171;
+    --gray-bg:rgba(255,255,255,.1);--gray-text:rgba(255,255,255,.7);
+    --teal-bg:rgba(29,158,117,.25);--teal-text:#4fd4a8;
+    --purple-bg:rgba(83,74,183,.3);--purple-text:#b0a8f0;
+    --shadow:none;
+  }
+  body.dark .topbar{background:#1e3f5c;}
+  body.dark tbody tr:hover td{background:rgba(255,255,255,.05);}
+  /* Tabs — todos brancos no tema escuro */
+  body.dark .tab.tab-gestao,
+  body.dark .tab.tab-analise,
+  body.dark .tab.tab-faturas{color:rgba(255,255,255,.75);}
+  body.dark .tab.tab-gestao:hover,
+  body.dark .tab.tab-analise:hover,
+  body.dark .tab.tab-faturas:hover{background:rgba(255,255,255,.1);color:#fff;}
+  body.dark .tab.tab-gestao.active,
+  body.dark .tab.tab-analise.active,
+  body.dark .tab.tab-faturas.active{background:rgba(255,255,255,.18);color:#fff;}
+  body.dark .tab:hover{background:rgba(255,255,255,.1);color:#fff;}
+  body.dark .tab.active{background:rgba(255,255,255,.18);color:#fff;}
+  /* Inputs */
+  body.dark .fg-input,body.dark .fg-date,
+  body.dark .form-input,body.dark .form-select,body.dark .form-textarea{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);color:#fff;}
+  body.dark .ie-input,body.dark .ie-select{color:#fff;}
+  body.dark .fg-chip{border-color:rgba(255,255,255,.25);color:rgba(255,255,255,.75);}
+  body.dark .fg-chip:hover{border-color:#fff;color:#fff;}
+  body.dark .fg-chip.on{background:rgba(255,255,255,.2);border-color:transparent;color:#fff;}
+  body.dark .login-box{background:#1a3349;border-color:rgba(255,255,255,.1);}
+  body.dark .fat-card:hover{box-shadow:0 4px 14px rgba(0,0,0,.3);}
+  body.dark .dash-card{background:#1e3f5c;border-color:rgba(255,255,255,.08);}
+  body.dark .obra-card{background:#1e3f5c;border-color:rgba(255,255,255,.08);}
+  body.dark .modal{background:#1a3349;}
+  body.dark .sync-box{background:#1a3349;}
+  body.dark .fat-pdf-box{background:#1a3349;}
+  body.dark .colab-item{background:#243f58;}
+  body.dark #add-colab-form{background:#1e3f5c;}
 
   .badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:99px;font-size:11px;font-weight:500;white-space:nowrap;}
   .badge-green{background:var(--green-bg);color:var(--green-text);}
@@ -213,7 +258,7 @@
   #fin-table th{text-align:center!important;font-weight:700!important;}
   #fin-table td{padding:8px 8px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:12px;font-family:var(--sans);}
   .fin-readonly{color:var(--text2);text-align:left;}
-  td.col-prazo{font-variant-numeric:tabular-nums!important;font-family:var(--mono)!important;}
+  td.col-prazo{font-family:var(--sans)!important;}
 
   /* INLINE EDIT */
   .ie-cell{position:relative;cursor:pointer;}
@@ -403,6 +448,7 @@
     <div class="topbar-div"></div>
     <div class="user-pill"><div class="user-dot"></div><span id="user-email-label"></span></div>
     <div class="topbar-div"></div>
+    <button class="btn btn-sm" id="btn-theme" onclick="toggleTheme()" style="font-size:12px;">☀ Claro</button>
     <button class="btn btn-sm" id="btn-sync-fts" onclick="document.getElementById('sync-overlay').classList.add('open');resetSyncLog()" style="display:none;color:var(--amber);border:1px solid var(--amber)">⟳ Sync Fts</button>
   </div>
 </div>
@@ -827,6 +873,23 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
+// ── TEMA ──────────────────────────────────────────────────────────────────────
+(function(){
+  const saved = localStorage.getItem('cronos-theme');
+  const isDark = saved !== 'light'; // default escuro
+  if(isDark) document.body.classList.add('dark');
+})();
+
+function toggleTheme(){
+  const isDark = document.body.classList.toggle('dark');
+  document.getElementById('btn-theme').textContent = isDark ? '☀ Claro' : '🌙 Escuro';
+  localStorage.setItem('cronos-theme', isDark ? 'dark' : 'light');
+}
+
+function initThemeBtn(){
+  const btn = document.getElementById('btn-theme');
+  if(btn) btn.textContent = document.body.classList.contains('dark') ? '☀ Claro' : '🌙 Escuro';
+}
 const TIPOS_OBRAS      = ['FISC','CSO'];
 const TIPOS_CONCURSOS  = ['FISC','CSO'];
 const TIPOS_PREVISOES  = ['FISC','CSO'];
@@ -2822,6 +2885,7 @@ supa.auth.onAuthStateChange((event, session) => {
     appLoaded = true;
     document.getElementById('login-screen').style.display='none';
     document.getElementById('user-email-label').textContent = session.user.email;
+    initThemeBtn();
     document.getElementById('app-loading').classList.remove('hidden');
     Promise.all([loadAllData(), loadFaturas(), loadFinanceiro()]).then(()=>{
       document.getElementById('app-loading').classList.add('hidden');
