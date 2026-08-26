@@ -152,6 +152,12 @@
   body.dark .fg-chip:hover{border-color:#fff;color:#fff;}
   body.dark .fg-chip.on{background:rgba(255,255,255,.2);border-color:transparent;color:#fff;}
   body.dark .login-box{background:#152B3C;border-color:rgba(255,255,255,.1);}
+  body.dark .btn{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);color:#fff;}
+  body.dark .btn:hover{background:rgba(255,255,255,.14);}
+  body.dark .btn-primary{background:var(--blue);color:#fff;border-color:transparent;}
+  body.dark .btn-primary:hover{opacity:.88;}
+  body.dark .btn-green{background:var(--green);color:#fff;border-color:transparent;}
+  body.dark .btn-danger{background:var(--red);color:#fff;border-color:transparent;}
   body.dark .fat-card:hover{box-shadow:0 4px 14px rgba(0,0,0,.3);}
   body.dark .dash-card{background:#1E3A52;border-color:rgba(255,255,255,.08);}
   body.dark .obra-card{background:#1E3A52;border-color:rgba(255,255,255,.08);}
@@ -443,17 +449,21 @@
     <button class="tab tab-gestao" onclick="setTab('ainspec')" id="tab-ainspec" style="display:none">AInspec</button>
     <button class="tab tab-analise" onclick="setTab('dashboard')" id="tab-dashboard">Dashboard</button>
     <div class="tab-sep"></div>
-    <button onclick="setTab('financeiro')" id="tab-financeiro" class="tab tab-faturas">Financeiro</button>
+    <button onclick="setTab('financeiro')" id="tab-financeiro" class="tab tab-faturas" style="display:none">Financeiro</button>
     <button class="tab tab-faturas" onclick="setTab('faturas')" id="tab-faturas">Faturas</button>
     <button class="tab tab-analise" onclick="setTab('cashflow')" id="tab-cashflow">Cashflow</button>
   </div>
   <div class="topbar-right">
+    <div style="position:relative;display:flex;align-items:center;">
+      <span style="position:absolute;left:8px;color:var(--text3);font-size:13px;pointer-events:none;">⌕</span>
+      <input type="text" id="global-search" placeholder="Pesquisar..." oninput="globalSearch(this.value)"
+        style="font-family:var(--sans);font-size:12px;padding:4px 8px 4px 24px;border-radius:var(--radius);border:1px solid var(--border-strong);background:var(--surface);color:var(--text);width:160px;outline:none;">
+    </div>
+    <div class="topbar-div"></div>
     <button class="btn btn-sm" onclick="syncSID()" id="btn-sync-sid" style="color:var(--blue);border:1px solid var(--blue)">⟳ Sync SID</button>
     <button class="btn btn-sm btn-green" onclick="exportXlsx()">↓ Exportar</button>
     <button class="btn btn-sm" onclick="document.getElementById('import-input').click()">↑ Importar</button>
     <input type="file" id="import-input" accept=".xlsx" onchange="importXlsx(event)">
-    <div class="topbar-div"></div>
-    <div class="user-pill"><div class="user-dot"></div><span id="user-email-label"></span></div>
     <div class="topbar-div"></div>
     <button class="btn btn-sm" id="btn-theme" onclick="toggleTheme()" style="font-size:12px;">☀ Claro</button>
     <button class="btn btn-sm" id="btn-sync-fts" onclick="document.getElementById('sync-overlay').classList.add('open');resetSyncLog()" style="display:none;color:var(--amber);border:1px solid var(--amber)">⟳ Sync Fts</button>
@@ -502,9 +512,9 @@
     </div>
     <div class="table-wrap"><table style="table-layout:fixed">
       <colgroup>
-        <col style="width:7%"><col style="width:7%"><col style="width:22%"><col style="width:7%"><col style="width:7%">
-        <col style="width:7%"><col style="width:7%"><col style="width:7%">
-        <col style="width:10%"><col style="width:5%"><col style="width:10%"><col style="width:4%">
+        <col style="width:8%"><col style="width:6%"><col style="width:20%"><col style="width:6%"><col style="width:9%">
+        <col style="width:8%"><col style="width:8%"><col style="width:8%">
+        <col style="width:12%"><col style="width:5%"><col style="width:12%"><col style="width:5%">
       </colgroup>
       <thead>
         <tr>
@@ -521,16 +531,16 @@
         <tr>
           <th class="sortable" onclick="sortTable('obras-tbody','codigo')">Código</th>
           <th class="sortable" onclick="sortTable('obras-tbody','sigla')">Sigla</th>
-          <th class="sortable" onclick="sortTable('obras-tbody','nome')">Obra</th>
+          <th class="sortable" style="text-align:left" onclick="sortTable('obras-tbody','nome')">Obra</th>
           <th class="sortable" onclick="sortTable('obras-tbody','afetPrev')">Afet.</th>
           <th class="sortable" onclick="sortTable('obras-tbody','valor')">Valor</th>
           <th class="sortable" onclick="sortTable('obras-tbody','estado')">Estado</th>
           <th class="sortable" onclick="sortTable('obras-tbody','inicio')">Início</th>
           <th class="sortable" onclick="sortTable('obras-tbody','prazo')">Fim</th>
-          <th class="sortable" onclick="sortTable('obras-tbody','_fiscal')">Fiscal</th>
-          <th>%</th>
-          <th class="sortable" onclick="sortTable('obras-tbody','_cso')">CSO</th>
-          <th>%</th>
+          <th class="sortable" style="text-align:center" onclick="sortTable('obras-tbody','_fiscal')">Fiscal</th>
+          <th style="text-align:center">%</th>
+          <th class="sortable" style="text-align:center" onclick="sortTable('obras-tbody','_cso')">CSO</th>
+          <th style="text-align:center">%</th>
         </tr>
       </thead>
       <tbody id="obras-tbody"></tbody>
@@ -1648,12 +1658,32 @@ function setTab(tab){
   // Sync SID só visível nos tabs de gestão (não em Faturas, Financeiro, Dashboard, Cashflow)
   const btnSyncSid = document.getElementById('btn-sync-sid');
   if(btnSyncSid) btnSyncSid.style.display = tab==='obras' ? '' : 'none';
+  // Limpar pesquisa global ao mudar de tab
+  const gs = document.getElementById('global-search');
+  if(gs){ gs.value=''; globalSearch(''); }
   if(tab==='cashflow') renderCashflow();
   else if(tab==='dashboard') renderDashboard();
   else if(tab==='faturas') renderFaturas();
   else if(tab==='ainspec') renderAinspec();
   else if(tab==='financeiro') renderFinanceiro();
   else render();
+}
+
+function globalSearch(q){
+  const val = q.trim().toLowerCase();
+  // Pesquisa nas tabelas visíveis — filtra rows por textContent
+  const tabs = ['obras','previsoes','concursos','ainspec','projetos'];
+  tabs.forEach(t=>{
+    const tbody = document.getElementById(`${t}-tbody`);
+    if(!tbody) return;
+    Array.from(tbody.rows).forEach(row=>{
+      row.style.display = (!val || row.textContent.toLowerCase().includes(val)) ? '' : 'none';
+    });
+  });
+  // Faturas
+  document.querySelectorAll('.fat-card').forEach(card=>{
+    card.style.display = (!val || card.textContent.toLowerCase().includes(val)) ? '' : 'none';
+  });
 }
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
@@ -1833,6 +1863,12 @@ function renderFiltered(tab){
           <td class="col-prazo ie-cell" onclick="ieEdit('${item.id}','inicio','date',this)">${fmtDate(item.inicio)}</td>
           <td class="col-prazo${venc?' vencido':''} ie-cell" onclick="ieEdit('${item.id}','prazo','date',this)">${fmtDate(item.prazo)}${venc?' ⚠':''}</td>
           <td class="ie-cell" style="text-align:left;font-size:11px;color:var(--text2)" onclick="ieEdit('${item.id}','notas','text',this)">${item.notas||'—'}</td>
+          <td style="text-align:center;width:36px;padding:4px">
+            <button onclick="deleteRow('${item.id}','previsoes',event)" title="Eliminar"
+              style="background:none;border:none;cursor:pointer;color:var(--red);font-size:14px;padding:2px 6px;border-radius:4px;opacity:.6;"
+              onmouseover="this.style.opacity='1';this.style.background='var(--red-bg)'"
+              onmouseout="this.style.opacity='.6';this.style.background='none'">🗑</button>
+          </td>
         </tr>`;
       }
       if(isAdjView){
@@ -1868,6 +1904,12 @@ function renderFiltered(tab){
           <td class="col-afet fin-readonly">${fiscalPct}</td>
           <td class="fin-readonly">${cso}</td>
           <td class="col-afet fin-readonly">${csoPct}</td>
+          <td style="text-align:center;width:36px;padding:4px">
+            <button onclick="deleteRow('${item.id}','projetos',event)" title="Eliminar"
+              style="background:none;border:none;cursor:pointer;color:var(--red);font-size:14px;padding:2px 6px;border-radius:4px;opacity:.6;"
+              onmouseover="this.style.opacity='1';this.style.background='var(--red-bg)'"
+              onmouseout="this.style.opacity='.6';this.style.background='none'">🗑</button>
+          </td>
         </tr>`;
       }
       // Obras — campos SID só leitura; Valor e Afet editáveis
@@ -2710,6 +2752,17 @@ async function deleteItem(){
 
 // ── FORM ──────────────────────────────────────────────────────────────────────
 let editingId=null;
+
+async function deleteRow(id, table, e){
+  e.stopPropagation();
+  if(!confirm('Confirmas a eliminação? Esta ação é irreversível.'))return;
+  const {error} = await supa.from(table).delete().eq('id', id);
+  if(error){toast('Erro: '+error.message);return;}
+  document.getElementById(`ie-row-${id}`)?.remove();
+  if(table==='previsoes') previsoes = previsoes.filter(p=>p.id!==id);
+  if(table==='projetos')  projetos  = projetos.filter(p=>p.id!==id);
+  toast('Eliminado com sucesso');
+}
 
 // ── NOVA PENDENTE ─────────────────────────────────────────────────────────────
 function closeNovaPrevisao(){
