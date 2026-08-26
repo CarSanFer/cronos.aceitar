@@ -3014,7 +3014,8 @@ supa.auth.onAuthStateChange((event, session) => {
   if(event === 'SIGNED_IN' && session && !appLoaded){
     appLoaded = true;
     document.getElementById('login-screen').style.display='none';
-    document.getElementById('user-email-label').textContent = session.user.email;
+    const emailEl = document.getElementById('user-email-label');
+    if(emailEl) emailEl.textContent = session.user.email;
     initThemeBtn();
     document.getElementById('app-loading').classList.remove('hidden');
     Promise.all([loadAllData(), loadFaturas(), loadFinanceiro()]).then(()=>{
